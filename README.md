@@ -9,13 +9,17 @@ Some of these RE's have been used as the basis for a transcode to another CPU in
 
 Currently, the repository comprises:
 
-## Arcade:
+## Arcade
 
 - Asteroids
 - Space Invaders (aka. invaders)
 - Xevious
 
-## Computer:
+## Console
+
+  (TBD)
+  
+## Computer
 
 ### TRS-80 (Model 1/3/4)
 - Invasion Force (w/enhanced ASM)
