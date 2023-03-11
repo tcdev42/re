@@ -3,15 +3,16 @@ This is a repository of reverse-engineered games, from retro arcade, console and
 
 In each case the binaries were disassembled, analysed and annotated - in most cases - down to the instruction level (either self-documenting via labels, or commented). Subroutines and data elements are given meaningful labels and principal data structures are documented.
 
-It should be possible to reassemble the code and recreate the original binary, or completely relocate the program (asm files available on request).
+It should be possible to reassemble the code and recreate the original binary, or completely relocate the program. Some games include asm listings with enhancements and/or options to build for other targets. (If not included, asm files generally available on request).
 
-Some of these have been used as the basis for a transcode to another CPU in ASM, or C code (or in some cases, both).
+Some of these RE's have been used as the basis for a transcode to another CPU in ASM, or C code (or in some cases, both).
 
 Currently, the repository comprises:
 
 ## Arcade:
 
 - Asteroids
+- Space Invaders (invaders)
 - Xevious
 
 ## Computer:
