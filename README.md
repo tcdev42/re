@@ -33,5 +33,6 @@ Currently, the repository comprises:
 - Tandy Invaders (w/enhanced ASM)
 
 ### ZXSpectrum
+- Alien 8 (WIP)
 - Knight Lore
-
+- Pentagram (WIP)
