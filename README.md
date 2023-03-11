@@ -21,6 +21,9 @@ Currently, the repository comprises:
   
 ## Computer
 
+### Apple II
+- Lode Runner
+
 ### TRS-80 (Model 1/3/4)
 - Invasion Force (w/enhanced ASM)
 - Tandy Invaders (w/enhanced ASM)
