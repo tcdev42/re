@@ -5,13 +5,15 @@ In each case the binaries were disassembled, analysed and annotated - in most ca
 
 It should be possible to reassemble the code and recreate the original binary, or completely relocate the program (asm files available on request).
 
+Some of these have been used as the basis for a transcode to another CPU in ASM, or C code (or in some cases, both).
+
 Currently, the repository comprises:
 
-##Arcade:
+## Arcade:
 
 - Xevious
 
-##Computer:
+## Computer:
 
 ### ZXSpectrum
 
