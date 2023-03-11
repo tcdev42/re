@@ -12,12 +12,14 @@ Currently, the repository comprises:
 ## Arcade:
 
 - Asteroids
-- Space Invaders (invaders)
+- Space Invaders (aka. invaders)
 - Xevious
 
 ## Computer:
 
-### ZXSpectrum
+### TRS-80 (Model 1/3/4)
+- Invasion Force (w/enhanced ASM)
 
-* Knight Lore
+### ZXSpectrum
+- Knight Lore
 
