@@ -12,6 +12,7 @@ Currently, the repository comprises:
 ## Arcade
 
 - Asteroids
+- Donkey Kong (WIP)
 - Space Invaders (aka. invaders)
 - Tutankham (WIP)
 - Xevious
