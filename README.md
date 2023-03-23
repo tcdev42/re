@@ -15,7 +15,7 @@ Currently, the repository comprises:
 - Donkey Kong (WIP)
 - Space Invaders (aka. invaders)
 - Tutankham (WIP)
-- Xevious (w/maps)
+- Xevious & Super Xevious (w/maps)
 
 ## Console
 
