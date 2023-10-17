@@ -1299,18 +1299,18 @@ ROM:0949 C3 0B				     .dw vbl_0_1_fn_6__end_attract_hiscores
 ROM:094B 1B 0C				     .dw vbl_0_1_fn_7__scroll_playfield
 ROM:094D 2A 0C				     .dw vbl_0_1_fn_8__init_objs_for_pow_instruction
 ROM:094F 79 0C				     .dw vbl_0_1_fn_9__pow_instruction
-ROM:0951 D3 0C				     .dw vbl_0_1_fn_10__
+ROM:0951 D3 0C				     .dw vbl_0_1_fn_10__bomb_instruct_init
 ROM:0953 E0 0C				     .dw vbl_0_1_fn_11__
 ROM:0955 14 0D				     .dw vbl_0_1_fn_12__show_combo_bonus
 ROM:0957 38 0D				     .dw vbl_0_1_fn_13__init_big_aliens
-ROM:0959 89 0D				     .dw vbl_0_1_fn_14__
-ROM:095B D7 0D				     .dw vbl_0_1_fn_15__
-ROM:095D 24 0E				     .dw vbl_0_1_fn_16__
-ROM:095F 50 0E				     .dw vbl_0_1_fn_17__
-ROM:0961 7A 0E				     .dw vbl_0_1_fn_18__
-ROM:0963 CA 0E				     .dw vbl_0_1_fn_19__
-ROM:0965 F0 0E				     .dw vbl_0_1_fn_20__
-ROM:0967 24 0F				     .dw vbl_0_1_fn_21__
+ROM:0959 89 0D				     .dw vbl_0_1_fn_14__big_alien_instruct_collect_pow
+ROM:095B D7 0D				     .dw vbl_0_1_fn_15__big_alien_instruct_fire_bomb
+ROM:095D 24 0E				     .dw vbl_0_1_fn_16__big_alien_instruct_explode_fly
+ROM:095F 50 0E				     .dw vbl_0_1_fn_17__big_alien_instruct_move_left
+ROM:0961 7A 0E				     .dw vbl_0_1_fn_18__big_alien_instruct_shoot_viking
+ROM:0963 CA 0E				     .dw vbl_0_1_fn_19__big_alien_instruct_explode_viking
+ROM:0965 F0 0E				     .dw vbl_0_1_fn_20__big_alien_instruct_move_to_bat
+ROM:0967 24 0F				     .dw vbl_0_1_fn_21__big_alien_instruct_explode_bat
 ROM:0969 64 0F				     .dw vbl_0_1_fn_22__end_instructions
 ROM:096B 73 09				     .dw vbl_0_1_fn_23to26__check_freeplay_wait_credits
 ROM:096D 73 09				     .dw vbl_0_1_fn_23to26__check_freeplay_wait_credits
@@ -1660,7 +1660,7 @@ ROM:0B52 32 03 E5			     ld	     (map_area), a
 ROM:0B55 CD 46 2B			     call    lookup_a_whole_bunch_of_data
 ROM:0B58 CD DC 47			     call    init_curr_player_map_data
 ROM:0B5B AF				     xor     a
-ROM:0B5C 32 C8 E0			     ld	     (byte_E0C8), a
+ROM:0B5C 32 C8 E0			     ld	     (formations_destroyed_cnt), a
 ROM:0B5F 11 00 0A			     ld	     de, #0xA00			     ; scroll left 18 rows
 ROM:0B62 FF				     rst     add_fn_to_q
 ROM:0B63 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
@@ -1792,7 +1792,7 @@ ROM:0C42 3E 02				     ld	     a,	#2
 ROM:0C44 32 00 EF			     ld	     (spriteram_shadow), a	     ; s0.code (player ship)
 ROM:0C47 AF				     xor     a
 ROM:0C48 32 01 EF			     ld	     (spriteram_shadow+1), a	     ; s0.colour
-ROM:0C4B 32 9C E0			     ld	     (byte_E09C), a
+ROM:0C4B 32 9C E0			     ld	     (pow_instruct_aliens_destroyed), a
 ROM:0C4E 32 A4 E0			     ld	     (max_alien_bullets), a	     ; init
 ROM:0C51 3D				     dec     a
 ROM:0C52 32 00 E1			     ld	     (ship_obj), a		     ; flag active
@@ -1803,7 +1803,7 @@ ROM:0C5E DD 21 90 E1			     ld	     ix, #pickup_obj
 ROM:0C62 FD 36 02 78			     ld	     2(iy), #120		     ; s23.y
 ROM:0C66 FD 36 03 50			     ld	     3(iy), #80			     ; s23.x
 ROM:0C6A FD 36 00 2D			     ld	     0(iy), #0x2D ; '-'              ; s23.code (POW)
-ROM:0C6E DD 36 05 00			     ld	     5(ix), #0
+ROM:0C6E DD 36 05 00			     ld	     5(ix), #0			     ; obj type=POW
 ROM:0C72 DD 36 00 FF			     ld	     0(ix), #0xFF		     ; obj state (active)
 ROM:0C76 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0C79	     ; ---------------------------------------------------------------------------
@@ -1825,10 +1825,11 @@ ROM:0C90 7E				     ld	     a,	(hl)			     ; s0.x
 ROM:0C91 FE 11				     cp	     #17
 ROM:0C93 38 01				     jr	     C,	loc_C96			     ; no, go
 ROM:0C95 35				     dec     (hl)			     ; move ship down
+ROM:0C96	     ; just a flag to avoid calling unneccessary code?
 ROM:0C96
 ROM:0C96	     loc_C96:							     ; CODE XREF: ROM:0C8Ej
 ROM:0C96									     ; ROM:0C93j
-ROM:0C96 3A 9C E0			     ld	     a,	(byte_E09C)
+ROM:0C96 3A 9C E0			     ld	     a,	(pow_instruct_aliens_destroyed)
 ROM:0C99 A7				     and     a
 ROM:0C9A 20 09				     jr	     NZ, loc_CA5
 ROM:0C9C CD BE 20			     call    update_e200_objects
@@ -1842,35 +1843,36 @@ ROM:0CAA C0				     ret     NZ
 ROM:0CAB 21 25 E0			     ld	     hl, #timer
 ROM:0CAE 7E				     ld	     a,	(hl)
 ROM:0CAF FE CD				     cp	     #205			     ; time to fire bomb?
-ROM:0CB1 CA CF 0C			     jp	     Z,	loc_CCF			     ; yes, go
-ROM:0CB4 FE A5				     cp	     #165
-ROM:0CB6 CA C3 0C			     jp	     Z,	loc_CC3
+ROM:0CB1 CA CF 0C			     jp	     Z,	pow_instruct_fire_bomb	     ; yes, go
+ROM:0CB4 FE A5				     cp	     #165			     ; aliens destroyed?
+ROM:0CB6 CA C3 0C			     jp	     Z,	loc_CC3			     ; yes, go
 ROM:0CB9 FE 75				     cp	     #117			     ; done?
 ROM:0CBB CA D6 0F			     jp	     Z,	next_vbl_lvl_1_fn	     ; yes, go
-ROM:0CBE 35				     dec     (hl)
-ROM:0CBF C0				     ret     NZ
+ROM:0CBE 35				     dec     (hl)			     ; timer tick
+ROM:0CBF C0				     ret     NZ				     ; not done, exit
 ROM:0CC0 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0CC3	     ; ---------------------------------------------------------------------------
 ROM:0CC3
 ROM:0CC3	     loc_CC3:							     ; CODE XREF: ROM:0CB6j
-ROM:0CC3 35				     dec     (hl)
-ROM:0CC4 21 9C E0			     ld	     hl, #byte_E09C
+ROM:0CC3 35				     dec     (hl)			     ; timer tick
+ROM:0CC4 21 9C E0			     ld	     hl, #pow_instruct_aliens_destroyed
 ROM:0CC7 34				     inc     (hl)
 ROM:0CC8 C9				     ret
 ROM:0CC9	     ; ---------------------------------------------------------------------------
-ROM:0CC9 35				     dec     (hl)
-ROM:0CCA 21 9C E0			     ld	     hl, #byte_E09C
+ROM:0CC9	     ; *** UNUSED code?
+ROM:0CC9 35				     dec     (hl)			     ; timer tick
+ROM:0CCA 21 9C E0			     ld	     hl, #pow_instruct_aliens_destroyed
 ROM:0CCD 35				     dec     (hl)
 ROM:0CCE C9				     ret
 ROM:0CCF	     ; ---------------------------------------------------------------------------
 ROM:0CCF
-ROM:0CCF	     loc_CCF:							     ; CODE XREF: ROM:0CB1j
-ROM:0CCF 35				     dec     (hl)
+ROM:0CCF	     pow_instruct_fire_bomb:					     ; CODE XREF: ROM:0CB1j
+ROM:0CCF 35				     dec     (hl)			     ; timer tick
 ROM:0CD0 C3 0B 1E			     jp	     start_bomb
 ROM:0CD3	     ; ---------------------------------------------------------------------------
 ROM:0CD3
-ROM:0CD3	     vbl_0_1_fn_10__:						     ; DATA XREF: ROM:0951o
-ROM:0CD3 21 E9 2F			     ld	     hl, #unk_2FE9
+ROM:0CD3	     vbl_0_1_fn_10__bomb_instruct_init:				     ; DATA XREF: ROM:0951o
+ROM:0CD3 21 E9 2F			     ld	     hl, #bomb_instruct_formation_tbl
 ROM:0CD6 CD DB 0F			     call    init_objs_at_e200_from_tbl
 ROM:0CD9 AF				     xor     a
 ROM:0CDA 32 25 E0			     ld	     (timer), a
@@ -1897,10 +1899,10 @@ ROM:0CFA C8				     ret     Z
 ROM:0CFB 21 25 E0			     ld	     hl, #timer
 ROM:0CFE 35				     dec     (hl)
 ROM:0CFF 7E				     ld	     a,	(hl)
-ROM:0D00 FE AD				     cp	     #173
-ROM:0D02 C0				     ret     NZ
+ROM:0D00 FE AD				     cp	     #173			     ; time to ???
+ROM:0D02 C0				     ret     NZ				     ; no, exit
 ROM:0D03 21 25 E0			     ld	     hl, #timer
-ROM:0D06 36 00				     ld	     (hl), #0
+ROM:0D06 36 00				     ld	     (hl), #0			     ; reset timer
 ROM:0D08 3E 35				     ld	     a,	#0x35 ;	'5'                  ; code='500'
 ROM:0D0A 32 20 EF			     ld	     (spriteram_shadow+0x20), a	     ; s8.code
 ROM:0D0D AF				     xor     a
@@ -1959,11 +1961,11 @@ ROM:0D75 FD 36 02 78			     ld	     2(iy), #120		     ; 23.y
 ROM:0D79 FD 36 03 40			     ld	     3(iy), #64			     ; s23.x
 ROM:0D7D FD 36 00 2D			     ld	     0(iy), #0x2D ; '-'              ; s23.code='POW'
 ROM:0D81 21 25 E0			     ld	     hl, #timer
-ROM:0D84 36 78				     ld	     (hl), #120
+ROM:0D84 36 78				     ld	     (hl), #120			     ; init timer
 ROM:0D86 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0D89	     ; ---------------------------------------------------------------------------
 ROM:0D89
-ROM:0D89	     vbl_0_1_fn_14__:						     ; DATA XREF: ROM:0959o
+ROM:0D89	     vbl_0_1_fn_14__big_alien_instruct_collect_pow:		     ; DATA XREF: ROM:0959o
 ROM:0D89 21 03 EF			     ld	     hl, # spriteram_shadow+3	     ; s0.x
 ROM:0D8C 3A 90 E1			     ld	     a,	(pickup_obj)
 ROM:0D8F A7				     and     a				     ; inactive?
@@ -1993,141 +1995,141 @@ ROM:0DBC DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0DC0 FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12.code
 ROM:0DC4 CD EE 39			     call    animate_big_alien
 ROM:0DC7 21 25 E0			     ld	     hl, #timer
-ROM:0DCA 35				     dec     (hl)
-ROM:0DCB C0				     ret     NZ
+ROM:0DCA 35				     dec     (hl)			     ; expired?
+ROM:0DCB C0				     ret     NZ				     ; no, exit
 ROM:0DCC 3E 18				     ld	     a,	#24
-ROM:0DCE 32 25 E0			     ld	     (timer), a
+ROM:0DCE 32 25 E0			     ld	     (timer), a			     ; re-init timer
 ROM:0DD1 CD 0B 1E			     call    start_bomb
 ROM:0DD4 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0DD7	     ; ---------------------------------------------------------------------------
 ROM:0DD7
-ROM:0DD7	     vbl_0_1_fn_15__:						     ; DATA XREF: ROM:095Bo
+ROM:0DD7	     vbl_0_1_fn_15__big_alien_instruct_fire_bomb:		     ; DATA XREF: ROM:095Bo
 ROM:0DD7 CD 4B 1E			     call    update_bomb
-ROM:0DDA DD 21 00 E2			     ld	     ix, #e200_obj_tbl
+ROM:0DDA DD 21 00 E2			     ld	     ix, #e200_obj_tbl		     ; 'viking'
 ROM:0DDE FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; s8.code
 ROM:0DE2 CD EE 39			     call    animate_big_alien
-ROM:0DE5 DD 21 20 E2			     ld	     ix, # e200_obj_tbl+0x20
+ROM:0DE5 DD 21 20 E2			     ld	     ix, # e200_obj_tbl+0x20	     ; 'fly'
 ROM:0DE9 FD 21 28 EF			     ld	     iy, # spriteram_shadow+0x28     ; s10.code
 ROM:0DED CD EE 39			     call    animate_big_alien
-ROM:0DF0 DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0DF0 DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0DF4 FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12.code
 ROM:0DF8 CD EE 39			     call    animate_big_alien
 ROM:0DFB 21 25 E0			     ld	     hl, #timer
-ROM:0DFE 35				     dec     (hl)
-ROM:0DFF C0				     ret     NZ
+ROM:0DFE 35				     dec     (hl)			     ; expired?
+ROM:0DFF C0				     ret     NZ				     ; no, exit
 ROM:0E00 AF				     xor     a
-ROM:0E01 32 06 EF			     ld	     (spriteram_shadow+6), a	     ; s1.y
+ROM:0E01 32 06 EF			     ld	     (spriteram_shadow+6), a	     ; s1.y (hide bomb)
 ROM:0E04 CD 58 47			     call    stop_bomb_snd
-ROM:0E07 DD 21 20 E2			     ld	     ix, # e200_obj_tbl+0x20
+ROM:0E07 DD 21 20 E2			     ld	     ix, # e200_obj_tbl+0x20	     ; 'fly'
 ROM:0E0B FD 21 28 EF			     ld	     iy, # spriteram_shadow+0x28     ; s10.code
-ROM:0E0F DD 36 00 01			     ld	     0(ix), #1
-ROM:0E13 DD 36 01 00			     ld	     1(ix), #0
-ROM:0E17 DD 36 02 00			     ld	     2(ix), #0
+ROM:0E0F DD 36 00 01			     ld	     0(ix), #1			     ; obj state=1 (about to explode?)
+ROM:0E13 DD 36 01 00			     ld	     1(ix), #0			     ; obj counter
+ROM:0E17 DD 36 02 00			     ld	     2(ix), #0			     ; obj hit count
 ROM:0E1B CD 8D 47			     call    snd_cmd_02
 ROM:0E1E CD EE 39			     call    animate_big_alien
 ROM:0E21 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0E24	     ; ---------------------------------------------------------------------------
 ROM:0E24
-ROM:0E24	     vbl_0_1_fn_16__:						     ; DATA XREF: ROM:095Do
-ROM:0E24 DD 21 00 E2			     ld	     ix, #e200_obj_tbl
+ROM:0E24	     vbl_0_1_fn_16__big_alien_instruct_explode_fly:		     ; DATA XREF: ROM:095Do
+ROM:0E24 DD 21 00 E2			     ld	     ix, #e200_obj_tbl		     ; 'viking'
 ROM:0E28 FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; s8
 ROM:0E2C CD EE 39			     call    animate_big_alien
-ROM:0E2F DD 21 20 E2			     ld	     ix, # e200_obj_tbl+0x20
+ROM:0E2F DD 21 20 E2			     ld	     ix, # e200_obj_tbl+0x20	     ; 'fly'
 ROM:0E33 FD 21 28 EF			     ld	     iy, # spriteram_shadow+0x28     ; s10
-ROM:0E37 DD 7E 00			     ld	     a,	0(ix)
+ROM:0E37 DD 7E 00			     ld	     a,	0(ix)			     ; obj state
 ROM:0E3A CD B9 3A			     call    check_large_alien_hit
-ROM:0E3D DD 7E 00			     ld	     a,	0(ix)
-ROM:0E40 A7				     and     a
-ROM:0E41 CA D6 0F			     jp	     Z,	next_vbl_lvl_1_fn
-ROM:0E44 DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0E3D DD 7E 00			     ld	     a,	0(ix)			     ; obj state
+ROM:0E40 A7				     and     a				     ; done exploding?
+ROM:0E41 CA D6 0F			     jp	     Z,	next_vbl_lvl_1_fn	     ; yes, go
+ROM:0E44 DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0E48 FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12
 ROM:0E4C CD EE 39			     call    animate_big_alien
 ROM:0E4F C9				     ret
 ROM:0E50	     ; ---------------------------------------------------------------------------
 ROM:0E50
-ROM:0E50	     vbl_0_1_fn_17__:						     ; DATA XREF: ROM:095Fo
-ROM:0E50 DD 21 00 E2			     ld	     ix, #e200_obj_tbl
-ROM:0E54 DD 36 02 00			     ld	     2(ix), #0
+ROM:0E50	     vbl_0_1_fn_17__big_alien_instruct_move_left:		     ; DATA XREF: ROM:095Fo
+ROM:0E50 DD 21 00 E2			     ld	     ix, #e200_obj_tbl		     ; 'viking'
+ROM:0E54 DD 36 02 00			     ld	     2(ix), #0			     ; obj hit count
 ROM:0E58 FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; s8
 ROM:0E5C CD EE 39			     call    animate_big_alien
-ROM:0E5F DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0E5F DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0E63 FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12
 ROM:0E67 CD EE 39			     call    animate_big_alien
-ROM:0E6A 21 02 EF			     ld	     hl, # spriteram_shadow+2
-ROM:0E6D 35				     dec     (hl)			     ; s0.y--
-ROM:0E6E 7E				     ld	     a,	(hl)
-ROM:0E6F FE 49				     cp	     #73
-ROM:0E71 D0				     ret     NC
-ROM:0E72 3E FF				     ld	     a,	#0xFF			     ; activate	object
-ROM:0E74 32 00 E2			     ld	     (e200_obj_tbl), a
+ROM:0E6A 21 02 EF			     ld	     hl, # spriteram_shadow+2	     ; s0.y
+ROM:0E6D 35				     dec     (hl)			     ; move left
+ROM:0E6E 7E				     ld	     a,	(hl)			     ; get y
+ROM:0E6F FE 49				     cp	     #73			     ; done?
+ROM:0E71 D0				     ret     NC				     ; no, exit
+ROM:0E72 3E FF				     ld	     a,	#0xFF
+ROM:0E74 32 00 E2			     ld	     (e200_obj_tbl), a		     ; obj state=active	(viking)
 ROM:0E77 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0E7A	     ; ---------------------------------------------------------------------------
 ROM:0E7A
-ROM:0E7A	     vbl_0_1_fn_18__:						     ; DATA XREF: ROM:0961o
+ROM:0E7A	     vbl_0_1_fn_18__big_alien_instruct_shoot_viking:		     ; DATA XREF: ROM:0961o
 ROM:0E7A 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:0E7D E6 0F				     and     #0xF			     ; time to fire?
 ROM:0E7F CC 5F 1D			     call    Z,	handle_firing		     ; yes, go
 ROM:0E82 CD D6 43			     call    check_objs_hit
 ROM:0E85 CD A5 1C			     call    update_sprite_bullets
-ROM:0E88 DD 21 00 E2			     ld	     ix, #e200_obj_tbl
+ROM:0E88 DD 21 00 E2			     ld	     ix, #e200_obj_tbl		     ; 'viking'
 ROM:0E8C FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; s8
-ROM:0E90 DD 7E 00			     ld	     a,	0(ix)
-ROM:0E93 3C				     inc     a
-ROM:0E94 28 12				     jr	     Z,	loc_EA8
-ROM:0E96 DD 34 02			     inc     2(ix)
+ROM:0E90 DD 7E 00			     ld	     a,	0(ix)			     ; obj state
+ROM:0E93 3C				     inc     a				     ; active?
+ROM:0E94 28 12				     jr	     Z,	loc_EA8			     ; yes, go
+ROM:0E96 DD 34 02			     inc     2(ix)			     ; hit count
 ROM:0E99 DD 7E 02			     ld	     a,	2(ix)
-ROM:0E9C FE 06				     cp	     #6
-ROM:0E9E D2 B7 0E			     jp	     NC, loc_EB7
+ROM:0E9C FE 06				     cp	     #6				     ; hit 6 times?
+ROM:0E9E D2 B7 0E			     jp	     NC, big_alien_instruct_viking_destroyed ; yes, go
 ROM:0EA1 CD 7D 47			     call    snd_cmd_03
 ROM:0EA4 DD 36 00 FF			     ld	     0(ix), #0xFF		     ; activate	object
 ROM:0EA8
 ROM:0EA8	     loc_EA8:							     ; CODE XREF: init_combo_bonus_sequence+19Fj
 ROM:0EA8 CD EE 39			     call    animate_big_alien
-ROM:0EAB DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0EAB DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0EAF FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12.code
 ROM:0EB3 CD EE 39			     call    animate_big_alien
 ROM:0EB6 C9				     ret
 ROM:0EB7	     ; ---------------------------------------------------------------------------
 ROM:0EB7
-ROM:0EB7	     loc_EB7:							     ; CODE XREF: init_combo_bonus_sequence+1A9j
+ROM:0EB7	     big_alien_instruct_viking_destroyed:			     ; CODE XREF: init_combo_bonus_sequence+1A9j
 ROM:0EB7 CD 8D 47			     call    snd_cmd_02
-ROM:0EBA DD 36 00 01			     ld	     0(ix), #1
+ROM:0EBA DD 36 00 01			     ld	     0(ix), #1			     ; obj state
 ROM:0EBE DD 36 01 00			     ld	     1(ix), #0
-ROM:0EC2 DD 36 02 00			     ld	     2(ix), #0
+ROM:0EC2 DD 36 02 00			     ld	     2(ix), #0			     ; obj hit cont
 ROM:0EC6 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0EC9	     ; ---------------------------------------------------------------------------
 ROM:0EC9 C9				     ret
 ROM:0ECA	     ; ---------------------------------------------------------------------------
 ROM:0ECA
-ROM:0ECA	     vbl_0_1_fn_19__:						     ; DATA XREF: ROM:0963o
+ROM:0ECA	     vbl_0_1_fn_19__big_alien_instruct_explode_viking:		     ; DATA XREF: ROM:0963o
 ROM:0ECA CD A5 1C			     call    update_sprite_bullets
-ROM:0ECD DD 21 00 E2			     ld	     ix, #e200_obj_tbl
+ROM:0ECD DD 21 00 E2			     ld	     ix, #e200_obj_tbl		     ; 'viking'
 ROM:0ED1 FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; s8.code
 ROM:0ED5 CD B9 3A			     call    check_large_alien_hit
-ROM:0ED8 DD 7E 00			     ld	     a,	0(ix)
-ROM:0EDB A7				     and     a				     ; object inactive?
+ROM:0ED8 DD 7E 00			     ld	     a,	0(ix)			     ; obj state
+ROM:0EDB A7				     and     a				     ; inactive?
 ROM:0EDC CA D6 0F			     jp	     Z,	next_vbl_lvl_1_fn	     ; yes, go
-ROM:0EDF DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0EDF DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0EE3 FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12.code
 ROM:0EE7 CD EE 39			     call    animate_big_alien
 ROM:0EEA 21 25 E0			     ld	     hl, #timer
-ROM:0EED 36 60				     ld	     (hl), #0x60 ; '`'
+ROM:0EED 36 60				     ld	     (hl), #0x60 ; '`'               ; init timer
 ROM:0EEF C9				     ret
 ROM:0EF0	     ; ---------------------------------------------------------------------------
 ROM:0EF0
-ROM:0EF0	     vbl_0_1_fn_20__:						     ; DATA XREF: ROM:0965o
-ROM:0EF0 FD 21 00 EF			     ld	     iy, #spriteram_shadow
-ROM:0EF4 FD 34 02			     inc     2(iy)			     ; s0.y++
-ROM:0EF7 FD 34 03			     inc     3(iy)			     ; s0.x++
-ROM:0EFA DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0EF0	     vbl_0_1_fn_20__big_alien_instruct_move_to_bat:		     ; DATA XREF: ROM:0965o
+ROM:0EF0 FD 21 00 EF			     ld	     iy, #spriteram_shadow	     ; s0
+ROM:0EF4 FD 34 02			     inc     2(iy)			     ; move right
+ROM:0EF7 FD 34 03			     inc     3(iy)			     ; move up
+ROM:0EFA DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0EFE FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12.code
 ROM:0F02 CD EE 39			     call    animate_big_alien
 ROM:0F05 21 25 E0			     ld	     hl, #timer
-ROM:0F08 35				     dec     (hl)
-ROM:0F09 C0				     ret     NZ
-ROM:0F0A DD 36 00 01			     ld	     0(ix), #1
+ROM:0F08 35				     dec     (hl)			     ; expired?
+ROM:0F09 C0				     ret     NZ				     ; no, exit
+ROM:0F0A DD 36 00 01			     ld	     0(ix), #1			     ; obj state
 ROM:0F0E DD 36 01 00			     ld	     1(ix), #0
-ROM:0F12 DD 36 02 00			     ld	     2(ix), #0
+ROM:0F12 DD 36 02 00			     ld	     2(ix), #0			     ; obj hit count
 ROM:0F16 3E 3F				     ld	     a,	#0x3F ;	'?'
 ROM:0F18 32 00 E1			     ld	     (ship_obj), a		     ; flag ship explode
 ROM:0F1B 21 25 E0			     ld	     hl, #timer
@@ -2137,15 +2139,15 @@ ROM:0F23	     ; ----------------------------------------------------------------
 ROM:0F23 C9				     ret
 ROM:0F24	     ; ---------------------------------------------------------------------------
 ROM:0F24
-ROM:0F24	     vbl_0_1_fn_21__:						     ; DATA XREF: ROM:0967o
+ROM:0F24	     vbl_0_1_fn_21__big_alien_instruct_explode_bat:		     ; DATA XREF: ROM:0967o
 ROM:0F24 21 25 E0			     ld	     hl, #timer
 ROM:0F27 35				     dec     (hl)			     ; expired?
 ROM:0F28 CA 5C 0F			     jp	     Z,	loc_F5C			     ; yes, go
-ROM:0F2B DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40
+ROM:0F2B DD 21 40 E2			     ld	     ix, # e200_obj_tbl+0x40	     ; 'bat'
 ROM:0F2F FD 21 30 EF			     ld	     iy, # spriteram_shadow+0x30     ; s12.code
-ROM:0F33 DD 7E 00			     ld	     a,	0(ix)
-ROM:0F36 A7				     and     a
-ROM:0F37 C4 B9 3A			     call    NZ, check_large_alien_hit
+ROM:0F33 DD 7E 00			     ld	     a,	0(ix)			     ; obj state
+ROM:0F36 A7				     and     a				     ; inactive?
+ROM:0F37 C4 B9 3A			     call    NZ, check_large_alien_hit	     ; no, go
 ROM:0F3A 3A 00 E1			     ld	     a,	(ship_obj)
 ROM:0F3D A7				     and     a				     ; active?
 ROM:0F3E C8				     ret     Z				     ; no, return
@@ -2156,8 +2158,8 @@ ROM:0F46 C0				     ret     NZ				     ; yes, return
 ROM:0F47 32 00 E1			     ld	     (ship_obj), a
 ROM:0F4A 32 02 EF			     ld	     (spriteram_shadow+2), a	     ; s0.y
 ROM:0F4D 32 06 EF			     ld	     (spriteram_shadow+6), a	     ; s1.y
-ROM:0F50 32 01 EF			     ld	     (spriteram_shadow+1), a	     ; s0.yh
-ROM:0F53 32 05 EF			     ld	     (spriteram_shadow+5), a	     ; s1.yh
+ROM:0F50 32 01 EF			     ld	     (spriteram_shadow+1), a	     ; s0.colour
+ROM:0F53 32 05 EF			     ld	     (spriteram_shadow+5), a	     ; s1.colour
 ROM:0F56 3E 1E				     ld	     a,	#30			     ; init
 ROM:0F58 32 25 E0			     ld	     (timer), a
 ROM:0F5B C9				     ret
@@ -2268,7 +2270,7 @@ ROM:0FDB									     ; ROM:0CD6p
 ROM:0FDB D9				     exx
 ROM:0FDC DD 21 00 E2			     ld	     ix, #e200_obj_tbl		     ; live object data
 ROM:0FE0 FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; s4.code
-ROM:0FE4 11 10 00			     ld	     de, #0x10			     ; data bytes per object
+ROM:0FE4 11 10 00			     ld	     de, #16			     ; data bytes per object
 ROM:0FE7 01 04 00			     ld	     bc, #4			     ; bytes per sprite
 ROM:0FEA D9				     exx
 ROM:0FEB 7E				     ld	     a,	(hl)			     ; 1st entry in table
@@ -2283,7 +2285,7 @@ ROM:0FF3 DD 77 0B			     ld	     0xB(ix), a
 ROM:0FF6 3E 05				     ld	     a,	#5
 ROM:0FF8 86				     add     a,	(hl)			     ; 2nd byte	for object
 ROM:0FF9 23				     inc     hl
-ROM:0FFA DD 77 05			     ld	     5(ix), a
+ROM:0FFA DD 77 05			     ld	     5(ix), a			     ; obj type=5+(byte)
 ROM:0FFD 7E				     ld	     a,	(hl)			     ; 3rd byte	for object
 ROM:0FFE 23				     inc     hl
 ROM:0FFF DD 77 0D			     ld	     0xD(ix), a
@@ -2295,19 +2297,19 @@ ROM:1008 23				     inc     hl
 ROM:1009 FD 77 03			     ld	     3(iy), a			     ; sprite x
 ROM:100C FD 36 00 FF			     ld	     0(iy), #0xFF		     ; sprite code (blank)
 ROM:1010 FD 36 01 00			     ld	     1(iy), #0			     ; sprite colour
-ROM:1014 DD 36 00 FE			     ld	     0(ix), #0xFE ; 'þ'
+ROM:1014 DD 36 00 FE			     ld	     0(ix), #0xFE ; 'þ'              ; obj state=spawning?
 ROM:1018 AF				     xor     a
 ROM:1019 DD 77 0C			     ld	     0xC(ix), a
-ROM:101C DD 77 02			     ld	     2(ix), a
-ROM:101F DD 77 03			     ld	     3(ix), a
-ROM:1022 DD 77 04			     ld	     4(ix), a
+ROM:101C DD 77 02			     ld	     2(ix), a			     ; obj timer
+ROM:101F DD 77 03			     ld	     3(ix), a			     ; obj y lsb
+ROM:1022 DD 77 04			     ld	     4(ix), a			     ; obj x lsb
 ROM:1025 DD 36 0F 08			     ld	     0xF(ix), #8
-ROM:1029 DD 36 0A 05			     ld	     0xA(ix), #5
+ROM:1029 DD 36 0A 05			     ld	     0xA(ix), #5		     ; dy_dx lookup tbl	index
 ROM:102D D9				     exx
 ROM:102E DD 19				     add     ix, de			     ; next object data
 ROM:1030 FD 09				     add     iy, bc			     ; next sprite
 ROM:1032 D9				     exx
-ROM:1033 79				     ld	     a,	c
+ROM:1033 79				     ld	     a,	c			     ; WTF???
 ROM:1034 C6 10				     add     a,	#0x10
 ROM:1036 4F				     ld	     c,	a
 ROM:1037 10 B8				     djnz    loc_FF1
@@ -2535,7 +2537,7 @@ ROM:11B6 FF				     rst     add_fn_to_q
 ROM:11B7 CD 71 10			     call    clear_all_player_bullets
 ROM:11BA CD 2C 2B			     call    init_some_stuff
 ROM:11BD AF				     xor     a
-ROM:11BE 32 C8 E0			     ld	     (byte_E0C8), a
+ROM:11BE 32 C8 E0			     ld	     (formations_destroyed_cnt), a
 ROM:11C1 32 1F E0			     ld	     (byte_E01F), a
 ROM:11C4 32 9D E0			     ld	     (spawn_jap_symb_flag), a	     ; init japanese symbol flag
 ROM:11C7 3A 06 E5			     ld	     a,	(curr_num_bombs)
@@ -4195,7 +4197,7 @@ ROM:1E0B									     ; init_combo_bonus_sequence+DCp ...
 ROM:1E0B 3A 06 E5			     ld	     a,	(curr_num_bombs)
 ROM:1E0E 3D				     dec     a
 ROM:1E0F 32 06 E5			     ld	     (curr_num_bombs), a	     ; update
-ROM:1E12 21 08 E5			     ld	     hl, #byte_E508
+ROM:1E12 21 08 E5			     ld	     hl, #bomb_fired__maybe
 ROM:1E15 34				     inc     (hl)
 ROM:1E16 11 00 0D			     ld	     de, #0xD00			     ; show bombs
 ROM:1E19 FF				     rst     add_fn_to_q
@@ -4225,7 +4227,7 @@ ROM:1E49 3C				     inc     a				     ; active?
 ROM:1E4A C0				     ret     NZ				     ; no, exit
 ROM:1E4B
 ROM:1E4B	     update_bomb:						     ; CODE XREF: ROM:0CA2p
-ROM:1E4B									     ; init_combo_bonus_sequence:vbl_0_1_fn_15__p
+ROM:1E4B									     ; init_combo_bonus_sequence:vbl_0_1_fn_15__big_alien_instruct_fire_bombp
 ROM:1E4B DD 21 50 E1			     ld	     ix, #bomb_obj
 ROM:1E4F FD 21 04 EF			     ld	     iy, # spriteram_shadow+4	     ; s1.code
 ROM:1E53 DD 7E 00			     ld	     a,	0(ix)
@@ -4801,9 +4803,9 @@ ROM:2305 28 DB				     jr	     Z,	loc_22E2
 ROM:2307 FE 0A				     cp	     #0xA
 ROM:2309 D2 C1 23			     jp	     NC, loc_23C1
 ROM:230C 3E 24				     ld	     a,	#0x24 ;	'$'
-ROM:230E DD 77 00			     ld	     0(ix), a
-ROM:2311 FD 36 00 20			     ld	     0(iy), #0x20 ; ' '
-ROM:2315 FD 36 01 00			     ld	     1(iy), #0
+ROM:230E DD 77 00			     ld	     0(ix), a			     ; obj state=
+ROM:2311 FD 36 00 20			     ld	     0(iy), #0x20 ; ' '              ; sprite code=explosion
+ROM:2315 FD 36 01 00			     ld	     1(iy), #0			     ; sprite colour
 ROM:2319 CD 38 47			     call    snd_cmd_04
 ROM:231C DD 7E 0A			     ld	     a,	0xA(ix)
 ROM:231F 3C				     inc     a
@@ -4814,7 +4816,7 @@ ROM:2327 FE 05				     cp	     #5
 ROM:2329 30 06				     jr	     NC, loc_2331
 ROM:232B
 ROM:232B	     loc_232B:							     ; CODE XREF: ROM:233Cj
-ROM:232B 11 00 08			     ld	     de, #0x800			     ; add to score, update hi
+ROM:232B 11 00 08			     ld	     de, #0x800			     ; add (50 pts) to score, update hi
 ROM:232E C3 38 00			     jp	     add_fn_to_q
 ROM:2331	     ; ---------------------------------------------------------------------------
 ROM:2331
@@ -4830,22 +4832,22 @@ ROM:2343 FE 09				     cp	     #9
 ROM:2345 28 6A				     jr	     Z,	loc_23B1
 ROM:2347 DD 36 02 3C			     ld	     2(ix), #0x3C ; '<'
 ROM:234B DD 36 0A FF			     ld	     0xA(ix), #0xFF
-ROM:234F 21 C8 E0			     ld	     hl, #byte_E0C8
-ROM:2352 7E				     ld	     a,	(hl)
-ROM:2353 34				     inc     (hl)
-ROM:2354 FE 0A				     cp	     #0xA
-ROM:2356 38 02				     jr	     C,	loc_235A
-ROM:2358 3E 09				     ld	     a,	#9
+ROM:234F 21 C8 E0			     ld	     hl, #formations_destroyed_cnt
+ROM:2352 7E				     ld	     a,	(hl)			     ; get count
+ROM:2353 34				     inc     (hl)			     ; ++
+ROM:2354 FE 0A				     cp	     #10			     ; exceeded	max?
+ROM:2356 38 02				     jr	     C,	loc_235A		     ; no, skip
+ROM:2358 3E 09				     ld	     a,	#9			     ; use max
 ROM:235A
 ROM:235A	     loc_235A:							     ; CODE XREF: ROM:2356j
-ROM:235A 21 01 24			     ld	     hl, #unk_2401
-ROM:235D 87				     add     a,	a
+ROM:235A 21 01 24			     ld	     hl, #formation_pts_tbl
+ROM:235D 87				     add     a,	a			     ; calc entry offset
 ROM:235E E7				     rst     content_hl_plus_a
-ROM:235F 5F				     ld	     e,	a
+ROM:235F 5F				     ld	     e,	a			     ; points entry
 ROM:2360 16 08				     ld	     d,	#8
-ROM:2362 23				     inc     hl
-ROM:2363 7E				     ld	     a,	(hl)
-ROM:2364 DD 77 01			     ld	     1(ix), a			     ; obj counter ???
+ROM:2362 23				     inc     hl				     ; next byte in table
+ROM:2363 7E				     ld	     a,	(hl)			     ; get byte
+ROM:2364 DD 77 01			     ld	     1(ix), a			     ; update obj counter
 ROM:2367 C3 38 00			     jp	     add_fn_to_q
 ROM:236A	     ; ---------------------------------------------------------------------------
 ROM:236A
@@ -4876,24 +4878,27 @@ ROM:238E FD 36 01 05			     ld	     1(iy), #5			     ; sprite colour
 ROM:2392 C0				     ret     NZ
 ROM:2393 DD 7E 05			     ld	     a,	5(ix)			     ; obj type
 ROM:2396 E6 0F				     and     #0xF
-ROM:2398 FE 09				     cp	     #9
-ROM:239A 28 15				     jr	     Z,	loc_23B1
-ROM:239C 21 C8 E0			     ld	     hl, #byte_E0C8
-ROM:239F 7E				     ld	     a,	(hl)
-ROM:23A0 34				     inc     (hl)
-ROM:23A1 FE 0A				     cp	     #0xA
-ROM:23A3 38 02				     jr	     C,	loc_23A7
-ROM:23A5 3E 09				     ld	     a,	#9
+ROM:2398 FE 09				     cp	     #9				     ; spinning_disc?
+ROM:239A 28 15				     jr	     Z,	loc_23B1		     ; yes, go
+ROM:239C 21 C8 E0			     ld	     hl, #formations_destroyed_cnt
+ROM:239F 7E				     ld	     a,	(hl)			     ; formation count
+ROM:23A0	     ; technically, this could wrap, but would require you
+ROM:23A0	     ; to destroy 256 formations without dying..
+ROM:23A0 34				     inc     (hl)			     ; ++
+ROM:23A1 FE 0A				     cp	     #10			     ; max exceeded?
+ROM:23A3 38 02				     jr	     C,	loc_23A7		     ; yes, skip
+ROM:23A5 3E 09				     ld	     a,	#9			     ; use max
 ROM:23A7
 ROM:23A7	     loc_23A7:							     ; CODE XREF: sub_2387+1Cj
-ROM:23A7 21 01 24			     ld	     hl, #unk_2401
-ROM:23AA 87				     add     a,	a
+ROM:23A7 21 01 24			     ld	     hl, #formation_pts_tbl
+ROM:23AA 87				     add     a,	a			     ; calc entry offset
 ROM:23AB E7				     rst     content_hl_plus_a
-ROM:23AC 5F				     ld	     e,	a
+ROM:23AC 5F				     ld	     e,	a			     ; points_tbl entry
 ROM:23AD 16 08				     ld	     d,	#8			     ; add to score, update hi
 ROM:23AF FF				     rst     add_fn_to_q
 ROM:23B0 C9				     ret
 ROM:23B1	     ; ---------------------------------------------------------------------------
+ROM:23B1	     ; spinning	disc here???
 ROM:23B1
 ROM:23B1	     loc_23B1:							     ; CODE XREF: ROM:2345j
 ROM:23B1									     ; sub_2387+13j
@@ -4944,27 +4949,21 @@ ROM:23FD 1E 00				     ld	     e,	#0			     ; add to score update hi
 ROM:23FF FF				     rst     add_fn_to_q
 ROM:2400 C9				     ret
 ROM:2400	     ; ---------------------------------------------------------------------------
-ROM:2401 05	     unk_2401:		     .db    5				     ; DATA XREF: ROM:loc_235Ao
-ROM:2401									     ; sub_2387:loc_23A7o
-ROM:2402 03				     .db    3
-ROM:2403 08				     .db    8
-ROM:2404 06				     .db    6
-ROM:2405 09				     .db    9
-ROM:2406 07				     .db    7
-ROM:2407 0A				     .db  0xA
-ROM:2408 08				     .db    8
-ROM:2409 0B				     .db  0xB
-ROM:240A 09				     .db    9
-ROM:240B 0C				     .db  0xC
-ROM:240C 0A				     .db  0xA
-ROM:240D 0D				     .db  0xD
-ROM:240E 0B				     .db  0xB
-ROM:240F 0E				     .db  0xE
-ROM:2410 0C				     .db  0xC
-ROM:2411 0F				     .db  0xF
-ROM:2412 0D				     .db  0xD
-ROM:2413 10				     .db 0x10
-ROM:2414 0E				     .db  0xE
+ROM:2401	     ; table of	points each time you destroy a formation
+ROM:2401	     ; - starts	at 500,	incrases by 500	up to 5,000 pts
+ROM:2401	     ; - 1st byte is points_tbl	entry
+ROM:2401	     ; - 2nd byte written to obj counter...?
+ROM:2401 05 03 08 06+formation_pts_tbl:	     .db 5, 3				     ; DATA XREF: ROM:loc_235Ao
+ROM:2401 09 07 0A 08+								     ; sub_2387:loc_23A7o
+ROM:2401 0B 09 0C 0A+			     .db 8, 6
+ROM:2401 0D 0B 0E 0C+			     .db 9, 7
+ROM:2401 0F 0D 10 0E			     .db 0xA, 8
+ROM:2401				     .db 0xB, 9
+ROM:2401				     .db 0xC, 0xA
+ROM:2401				     .db 0xD, 0xB
+ROM:2401				     .db 0xE, 0xC
+ROM:2401				     .db 0xF, 0xD
+ROM:2401				     .db 0x10, 0xE
 ROM:2415	     ; table of	points,	obj counter??
 ROM:2415 01 00 02 01+byte_2415:		     .db 1, 0				     ; DATA XREF: ROM:2377o
 ROM:2415 04 02 06 04+			     .db 2, 1
@@ -6724,7 +6723,7 @@ ROM:2F30 6D 2F				     .dw unk_2F6D
 ROM:2F32 8C 2F				     .dw pow_instruct_formation_1_tbl
 ROM:2F34 AB 2F				     .dw unk_2FAB
 ROM:2F36 CA 2F				     .dw unk_2FCA
-ROM:2F38 E9 2F				     .dw unk_2FE9
+ROM:2F38 E9 2F				     .dw bomb_instruct_formation_tbl
 ROM:2F3A 08 30				     .dw unk_3008
 ROM:2F3C 27 30				     .dw unk_3027
 ROM:2F3E 65 30				     .dw unk_3065
@@ -6782,7 +6781,7 @@ ROM:2FD5 07 A0 01 08+			     .db 7, 0xA0, 1, 8,	0x90
 ROM:2FDA 08 90 01 E8+			     .db 8, 0x90, 1, 0xE8, 0x80
 ROM:2FDF 08 90 01 E8+			     .db 8, 0x90, 1, 0xE8, 0x70
 ROM:2FE4 08 A0 01 E8+			     .db 8, 0xA0, 1, 0xE8, 0x60
-ROM:2FE9 06	     unk_2FE9:		     .db    6				     ; DATA XREF: ROM:vbl_0_1_fn_10__o
+ROM:2FE9 06	     bomb_instruct_formation_tbl:.db	6			     ; DATA XREF: ROM:vbl_0_1_fn_10__bomb_instruct_inito
 ROM:2FE9									     ; ROM:2F38o
 ROM:2FEA 09 80 01 08+			     .db 9, 0x80, 1, 8,	0xC0
 ROM:2FEF 0A 90 01 08+			     .db 0xA, 0x90, 1, 8, 0xA0
@@ -7275,11 +7274,11 @@ ROM:3670 3A 03 EF			     ld	     a,	(spriteram_shadow+3)	     ; s0.x
 ROM:3673 FD 96 03			     sub     3(iy)			     ; compare obj x
 ROM:3676 C6 08				     add     a,	#8
 ROM:3678 FE 11				     cp	     #17			     ; match?
-ROM:367A D0				     ret     NC
+ROM:367A D0				     ret     NC				     ; no, exit
 ROM:367B 1E 01				     ld	     e,	#1			     ; 10 pts
 ROM:367D 16 08				     ld	     d,	#8			     ; add to score, update hi
 ROM:367F FF				     rst     add_fn_to_q
-ROM:3680 DD 36 00 00			     ld	     0(ix), #0			     ; deactivate object
+ROM:3680 DD 36 00 00			     ld	     0(ix), #0			     ; obj state=inactive
 ROM:3684 DD 34 09			     inc     9(ix)			     ; ???
 ROM:3687 DD 7E 05			     ld	     a,	5(ix)			     ; type
 ROM:368A F7				     rst     jp_tbl_vector
@@ -7515,7 +7514,7 @@ ROM:37EE FD 77 06			     ld	     6(iy), a			     ; copy to s(n+1).y
 ROM:37F1 C6 08				     add     a,	#8
 ROM:37F3 32 CD E0			     ld	     (byte_E0CD), a
 ROM:37F6 FD 7E 03			     ld	     a,	3(iy)			     ; sn.x
-ROM:37F9 C6 F8				     add     a,	#0xF8 ;	'ø'                  ; -8
+ROM:37F9 C6 F8				     add     a,	#-8
 ROM:37FB 32 CE E0			     ld	     (byte_E0CE), a
 ROM:37FE C6 18				     add     a,	#24			     ; +24(=sn.x+16)
 ROM:3800 FD 77 07			     ld	     7(iy), a			     ; s(n+1).x
@@ -8099,7 +8098,7 @@ ROM:3B0E FD 36 04 2E			     ld	     4(iy), #0x2E ; '.'              ; s(n+1).cod
 ROM:3B12 FD 36 05 40			     ld	     5(iy), #0x40 ; '@'              ; s(n+1).colour
 ROM:3B16 21 1F E0			     ld	     hl, #byte_E01F
 ROM:3B19 34				     inc     (hl)
-ROM:3B1A 3A 08 E5			     ld	     a,	(byte_E508)
+ROM:3B1A 3A 08 E5			     ld	     a,	(bomb_fired__maybe)
 ROM:3B1D A7				     and     a
 ROM:3B1E C0				     ret     NZ
 ROM:3B1F FD 36 04 C6			     ld	     4(iy), #0xC6 ; 'Æ'              ; s(n+1).code="50,000"
@@ -8138,7 +8137,7 @@ ROM:3B62
 ROM:3B62	     score_10_or_50_000_pts:					     ; CODE XREF: check_large_alien_hit+9Ej
 ROM:3B62 16 08				     ld	     d,	#8
 ROM:3B64 1E 12				     ld	     e,	#18			     ; 10,000 pts
-ROM:3B66 3A 08 E5			     ld	     a,	(byte_E508)
+ROM:3B66 3A 08 E5			     ld	     a,	(bomb_fired__maybe)
 ROM:3B69 A7				     and     a
 ROM:3B6A 20 01				     jr	     NZ, loc_3B6D
 ROM:3B6C 1C				     inc     e				     ; 50,000 pts
@@ -10294,7 +10293,7 @@ ROM:478D	     ; =============== S U B R O U T I N E ============================
 ROM:478D
 ROM:478D
 ROM:478D	     snd_cmd_02:						     ; CODE XREF: init_combo_bonus_sequence+126p
-ROM:478D									     ; init_combo_bonus_sequence:loc_EB7p ...
+ROM:478D									     ; init_combo_bonus_sequence:big_alien_instruct_viking_destroyedp ...
 ROM:478D 3A 05 E0			     ld	     a,	(vbl_lvl_0_fn)
 ROM:4790 3D				     dec     a				     ; attract mode?
 ROM:4791 20 05				     jr	     NZ, loc_4798		     ; no, skip
@@ -11761,7 +11760,7 @@ ROM:6B0F 90				     sub     b
 ROM:6B10 C9				     ret
 ROM:6B10	     ; ---------------------------------------------------------------------------
 ROM:6B11	     ; 1st 8 bytes: 0=add, 1=sub
-ROM:6B11	     ; 2ns 8 bytes: value to add/sub
+ROM:6B11	     ; 2nd 8 bytes: value to add/sub
 ROM:6B11 01 00 00 01+byte_6B11:		     .db 1, 0, 0, 1, 0,	1, 1, 0		     ; DATA XREF: sub_6A95+6Co
 ROM:6B19 40 40 C0 C0+			     .db 0x40, 0x40, 0xC0, 0xC0, 0, 0x80, 0, 0x80
 ROM:6B21	     ; ---------------------------------------------------------------------------
@@ -13337,7 +13336,7 @@ RAM:E098 ??				     .ds 1
 RAM:E099 ??	     byte_E099:		     .ds 1				     ; DATA XREF: init_player_sprite+21w
 RAM:E09A ??	     byte_E09A:		     .ds 1				     ; DATA XREF: init_player_sprite+1Ew
 RAM:E09B ??				     .ds 1
-RAM:E09C ??	     byte_E09C:		     .ds 1				     ; DATA XREF: ROM:0C4Bw
+RAM:E09C ??	     pow_instruct_aliens_destroyed:.ds 1			     ; DATA XREF: ROM:0C4Bw
 RAM:E09C									     ; ROM:loc_C96r ...
 RAM:E09D ??	     spawn_jap_symb_flag:    .ds 1				     ; DATA XREF: sub_720+2Fw
 RAM:E09D									     ; ROM:11C4w ...
@@ -13411,7 +13410,7 @@ RAM:E0C5									     ; sub_2BEB:loc_2C2Fo
 RAM:E0C6 ??	     byte_E0C6:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+77w
 RAM:E0C7 ??	     byte_E0C7:		     .ds 1				     ; DATA XREF: init_objs_at_e200_from_tbl+12w
 RAM:E0C7									     ; ROM:loc_2331r ...
-RAM:E0C8 ??	     byte_E0C8:		     .ds 1				     ; DATA XREF: ROM:0B5Cw
+RAM:E0C8 ??	     formations_destroyed_cnt:.ds 1				     ; DATA XREF: ROM:0B5Cw
 RAM:E0C8									     ; ROM:11BEw ...
 RAM:E0C9 ??	     byte_E0C9:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+80w
 RAM:E0C9									     ; spawn_e300_objectr
@@ -13529,7 +13528,7 @@ RAM:E160 ?? ?? ?? ??+large_alien_obj_tbl:    .ds 0x30				     ; DATA XREF: zero_
 RAM:E160 ?? ?? ?? ??+								     ; ROM:update_e200_type_1012_rockr	...
 RAM:E190	     ; IX:
 RAM:E190	     ; $01 - ???
-RAM:E190	     ; $05 -
+RAM:E190	     ; $05 - type (0=pow, 1='E', 2='S', 3='D', 4=star)
 RAM:E190	     ; $08 -
 RAM:E190	     ; $09 - ???
 RAM:E190 ?? ?? ?? ??+pickup_obj:	     .ds 0x10				     ; DATA XREF: ROM:0C5Eo
@@ -13950,7 +13949,7 @@ RAM:E506 ??	     curr_num_bombs:	     .ds 1				     ; DATA XREF: ROM:0900r
 RAM:E506									     ; ROM:0B78w ...
 RAM:E507 ??	     byte_E507:		     .ds 1				     ; DATA XREF: sub_720+1Fr
 RAM:E507									     ; sub_720+2Cw
-RAM:E508 ??	     byte_E508:		     .ds 1				     ; DATA XREF: start_bomb+7o
+RAM:E508 ??	     bomb_fired__maybe:	     .ds 1				     ; DATA XREF: start_bomb+7o
 RAM:E508									     ; check_large_alien_hit+61r ...
 RAM:E509 ??				     .ds 1
 RAM:E50A ??				     .ds 1
