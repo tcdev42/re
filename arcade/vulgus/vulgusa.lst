@@ -1297,8 +1297,8 @@ ROM:0945 72 0B				     .dw vbl_0_1_fn_4__init_attract_mode_ship
 ROM:0947 8E 0B				     .dw vbl_0_1_fn_5__attract_mode_gameplay
 ROM:0949 C3 0B				     .dw vbl_0_1_fn_6__end_attract_hiscores
 ROM:094B 1B 0C				     .dw vbl_0_1_fn_7__scroll_playfield
-ROM:094D 2A 0C				     .dw vbl_0_1_fn_8__init_objs_for_pow_instruction
-ROM:094F 79 0C				     .dw vbl_0_1_fn_9__pow_instruction
+ROM:094D 2A 0C				     .dw vbl_0_1_fn_8__init_objs_for_pow_instruct
+ROM:094F 79 0C				     .dw vbl_0_1_fn_9__pow_instruct
 ROM:0951 D3 0C				     .dw vbl_0_1_fn_10__bomb_instruct_init
 ROM:0953 E0 0C				     .dw vbl_0_1_fn_11__
 ROM:0955 14 0D				     .dw vbl_0_1_fn_12__show_combo_bonus
@@ -1657,7 +1657,7 @@ ROM:0B4D 32 02 E5			     ld	     (map_planet), a
 ROM:0B50 23				     inc     hl
 ROM:0B51 7E				     ld	     a,	(hl)
 ROM:0B52 32 03 E5			     ld	     (map_area), a
-ROM:0B55 CD 46 2B			     call    lookup_a_whole_bunch_of_data
+ROM:0B55 CD 46 2B			     call    init_planet_area_data
 ROM:0B58 CD DC 47			     call    init_curr_player_map_data
 ROM:0B5B AF				     xor     a
 ROM:0B5C 32 C8 E0			     ld	     (formations_destroyed_cnt), a
@@ -1777,7 +1777,7 @@ ROM:0C26 C0				     ret     NZ
 ROM:0C27 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0C2A	     ; ---------------------------------------------------------------------------
 ROM:0C2A
-ROM:0C2A	     vbl_0_1_fn_8__init_objs_for_pow_instruction:		     ; DATA XREF: ROM:094Do
+ROM:0C2A	     vbl_0_1_fn_8__init_objs_for_pow_instruct:			     ; DATA XREF: ROM:094Do
 ROM:0C2A AF				     xor     a				     ; bombs
 ROM:0C2B 32 06 E5			     ld	     (curr_num_bombs), a
 ROM:0C2E 11 00 0D			     ld	     de, #0xD00
@@ -1808,7 +1808,7 @@ ROM:0C72 DD 36 00 FF			     ld	     0(ix), #0xFF		     ; obj state (active)
 ROM:0C76 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0C79	     ; ---------------------------------------------------------------------------
 ROM:0C79
-ROM:0C79	     vbl_0_1_fn_9__pow_instruction:				     ; DATA XREF: ROM:094Fo
+ROM:0C79	     vbl_0_1_fn_9__pow_instruct:				     ; DATA XREF: ROM:094Fo
 ROM:0C79 21 03 EF			     ld	     hl, # spriteram_shadow+3	     ; s0.x
 ROM:0C7C 3A 90 E1			     ld	     a,	(pickup_obj)
 ROM:0C7F A7				     and     a				     ; inactive?
@@ -2206,7 +2206,7 @@ ROM:0F92 11 00 0F			     ld	     de, #0xF00			     ; show attract mode title
 ROM:0F95 FF				     rst     add_fn_to_q
 ROM:0F96 3A 22 E0			     ld	     a,	(credits)
 ROM:0F99 FE 02				     cp	     #2
-ROM:0F9B D2 AD 0F			     jp	     NC, goto_fn_3_tbn
+ROM:0F9B D2 AD 0F			     jp	     NC, goto_fn_3_tbl
 ROM:0F9E 11 08 00			     ld	     de, #8			     ; print ONE PLAYER	ONLY
 ROM:0FA1 FF				     rst     add_fn_to_q
 ROM:0FA2 11 00 0E			     ld	     de, #0xE00			     ; print bonus life	scores
@@ -2216,7 +2216,7 @@ ROM:0FA9 FF				     rst     add_fn_to_q
 ROM:0FAA C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0FAD	     ; ---------------------------------------------------------------------------
 ROM:0FAD
-ROM:0FAD	     goto_fn_3_tbn:						     ; CODE XREF: init_combo_bonus_sequence+2A6j
+ROM:0FAD	     goto_fn_3_tbl:						     ; CODE XREF: init_combo_bonus_sequence+2A6j
 ROM:0FAD 3E 03				     ld	     a,	#3
 ROM:0FAF 32 06 E0			     ld	     (vbl_lvl_1_fn), a
 ROM:0FB2 C9				     ret
@@ -2309,7 +2309,7 @@ ROM:102D D9				     exx
 ROM:102E DD 19				     add     ix, de			     ; next object data
 ROM:1030 FD 09				     add     iy, bc			     ; next sprite
 ROM:1032 D9				     exx
-ROM:1033 79				     ld	     a,	c			     ; WTF???
+ROM:1033 79				     ld	     a,	c			     ; *** UNUSED???
 ROM:1034 C6 10				     add     a,	#0x10
 ROM:1036 4F				     ld	     c,	a
 ROM:1037 10 B8				     djnz    loc_FF1
@@ -2354,7 +2354,7 @@ ROM:1071
 ROM:1071	     ; =============== S U B R O U T I N E =======================================
 ROM:1071
 ROM:1071
-ROM:1071	     clear_all_player_bullets:					     ; CODE XREF: ROM:11B7p
+ROM:1071	     clear_all_player_sprite_bullets:				     ; CODE XREF: ROM:11B7p
 ROM:1071 FD 21 12 EF			     ld	     iy, # spriteram_shadow+0x12     ; set s4.y	as base
 ROM:1075 FD 36 00 00			     ld	     0(iy), #0			     ; s4.y
 ROM:1079 FD 36 04 00			     ld	     4(iy), #0			     ; s5.y
@@ -2366,7 +2366,7 @@ ROM:108D DD 36 10 00			     ld	     0x10(ix), #0		     ; obj1 state=inactive
 ROM:1091 DD 36 20 00			     ld	     0x20(ix), #0		     ; obj2 state=inactive
 ROM:1095 DD 36 30 00			     ld	     0x30(ix), #0		     ; obj3 state=inactive
 ROM:1099 C9				     ret
-ROM:1099	     ; End of function clear_all_player_bullets
+ROM:1099	     ; End of function clear_all_player_sprite_bullets
 ROM:1099
 ROM:109A
 ROM:109A	     ; =============== S U B R O U T I N E =======================================
@@ -2377,28 +2377,28 @@ ROM:109A AF				     xor     a
 ROM:109B 32 01 EC			     ld	     (curr_player), a
 ROM:109E 32 07 E0			     ld	     (curr_controls), a
 ROM:10A1 21 5E D0			     ld	     hl, # fgvideoram_code+0x5E
-ROM:10A4 06 08				     ld	     b,	#8
-ROM:10A6 11 20 00			     ld	     de, #0x20 ; ' '
+ROM:10A4 06 08				     ld	     b,	#8			     ; 8 chars to clear
+ROM:10A6 11 20 00			     ld	     de, #0x20 ; ' '                 ; column offset
 ROM:10A9
 ROM:10A9	     loc_10A9:							     ; CODE XREF: init_p1_p2_data+12j
 ROM:10A9 36 20				     ld	     (hl), #0x20 ; ' '
-ROM:10AB 19				     add     hl, de
+ROM:10AB 19				     add     hl, de			     ; next column
 ROM:10AC 10 FB				     djnz    loc_10A9
 ROM:10AE 21 DE D2			     ld	     hl, # fgvideoram_code+0x2DE
-ROM:10B1 06 08				     ld	     b,	#8
+ROM:10B1 06 08				     ld	     b,	#8			     ; 8 chars to clear
 ROM:10B3
 ROM:10B3	     loc_10B3:							     ; CODE XREF: init_p1_p2_data+1Cj
-ROM:10B3 36 20				     ld	     (hl), #0x20 ; ' '
-ROM:10B5 19				     add     hl, de
+ROM:10B3 36 20				     ld	     (hl), #0x20 ; ' '               ; column offset
+ROM:10B5 19				     add     hl, de			     ; next column
 ROM:10B6 10 FB				     djnz    loc_10B3
 ROM:10B8 21 20 E5			     ld	     hl, #p1_lives_left
 ROM:10BB 3A 1C E0			     ld	     a,	(start_lives)
 ROM:10BE 77				     ld	     (hl), a			     ; init current lives
-ROM:10BF 2C				     inc     l
+ROM:10BF 2C				     inc     l				     ; e521
 ROM:10C0 36 00				     ld	     (hl), #0
-ROM:10C2 2C				     inc     l
+ROM:10C2 2C				     inc     l				     ; e522
 ROM:10C3 36 00				     ld	     (hl), #0
-ROM:10C5 2C				     inc     l
+ROM:10C5 2C				     inc     l				     ; e523
 ROM:10C6 36 04				     ld	     (hl), #4
 ROM:10C8 2C				     inc     l
 ROM:10C9 3A 1A E0			     ld	     a,	(bonus_life_1st)
@@ -2419,8 +2419,8 @@ ROM:10E1 36 00				     ld	     (hl), #0
 ROM:10E3 2C				     inc     l
 ROM:10E4 36 00				     ld	     (hl), #0			     ; init P1 score
 ROM:10E6 3A 00 EC			     ld	     a,	(two_P_game)
-ROM:10E9 A7				     and     a
-ROM:10EA C8				     ret     Z
+ROM:10E9 A7				     and     a				     ; 2P?
+ROM:10EA C8				     ret     Z				     ; no, exit
 ROM:10EB 11 40 E5			     ld	     de, #p2_lives_left
 ROM:10EE 21 20 E5			     ld	     hl, #p1_lives_left
 ROM:10F1 01 10 00			     ld	     bc, #0x10
@@ -2519,7 +2519,7 @@ ROM:1194 FF				     rst     add_fn_to_q
 ROM:1195 11 1A 00			     ld	     de, #0x1A			     ; print READY
 ROM:1198 FF				     rst     add_fn_to_q
 ROM:1199 3E 3C				     ld	     a,	#0x3C ;	'<'
-ROM:119B 32 25 E0			     ld	     (timer), a
+ROM:119B 32 25 E0			     ld	     (timer), a			     ; init timer
 ROM:119E C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:11A1	     ; ---------------------------------------------------------------------------
 ROM:11A1
@@ -2534,7 +2534,7 @@ ROM:11AF 11 1A 01			     ld	     de, #0x11A			     ; print READY
 ROM:11B2 FF				     rst     add_fn_to_q
 ROM:11B3 11 18 01			     ld	     de, #0x118			     ; print PLAYER 1
 ROM:11B6 FF				     rst     add_fn_to_q
-ROM:11B7 CD 71 10			     call    clear_all_player_bullets
+ROM:11B7 CD 71 10			     call    clear_all_player_sprite_bullets
 ROM:11BA CD 2C 2B			     call    init_some_stuff
 ROM:11BD AF				     xor     a
 ROM:11BE 32 C8 E0			     ld	     (formations_destroyed_cnt), a
@@ -2549,7 +2549,7 @@ ROM:11D3 11 00 0D			     ld	     de, #0xD00			     ; show bombs
 ROM:11D6 FF				     rst     add_fn_to_q
 ROM:11D7
 ROM:11D7	     loc_11D7:							     ; CODE XREF: ROM:11CCj
-ROM:11D7 CD 46 2B			     call    lookup_a_whole_bunch_of_data
+ROM:11D7 CD 46 2B			     call    init_planet_area_data
 ROM:11DA C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:11DD	     ; ---------------------------------------------------------------------------
 ROM:11DD
@@ -2690,7 +2690,7 @@ ROM:12C5
 ROM:12C8	     ; ---------------------------------------------------------------------------
 ROM:12C8
 ROM:12C8	     vbl_0_3_fn_5__game_over:					     ; DATA XREF: ROM:1065o
-ROM:12C8 CD F4 49			     call    sub_49F4
+ROM:12C8 CD F4 49			     call    sub_49F4			     ; map stuff
 ROM:12CB 21 25 E0			     ld	     hl, #timer
 ROM:12CE 35				     dec     (hl)
 ROM:12CF C0				     ret     NZ
@@ -6175,9 +6175,9 @@ ROM:2B46
 ROM:2B46	     ; =============== S U B R O U T I N E =======================================
 ROM:2B46
 ROM:2B46
-ROM:2B46	     lookup_a_whole_bunch_of_data:				     ; CODE XREF: ROM:0B55p
+ROM:2B46	     init_planet_area_data:					     ; CODE XREF: ROM:0B55p
 ROM:2B46									     ; ROM:loc_11D7p ...
-ROM:2B46 21 AC 5D			     ld	     hl, #off_5DAC
+ROM:2B46 21 AC 5D			     ld	     hl, #planet_area_data_tbl
 ROM:2B49 3A 02 E5			     ld	     a,	(map_planet)
 ROM:2B4C EF				     rst     de_eq_contents_hl_plus_2a
 ROM:2B4D 3A 03 E5			     ld	     a,	(map_area)
@@ -6188,45 +6188,45 @@ ROM:2B54 29				     add     hl, hl			     ; x4
 ROM:2B55 29				     add     hl, hl			     ; x8
 ROM:2B56 29				     add     hl, hl			     ; x16
 ROM:2B57 19				     add     hl, de			     ; entry + (map_area) x16
-ROM:2B58 7E				     ld	     a,	(hl)
+ROM:2B58 7E				     ld	     a,	(hl)			     ; @$0
 ROM:2B59 23				     inc     hl
 ROM:2B5A 32 A4 E0			     ld	     (max_alien_bullets), a
-ROM:2B5D 7E				     ld	     a,	(hl)
+ROM:2B5D 7E				     ld	     a,	(hl)			     ; @$1
 ROM:2B5E 23				     inc     hl
 ROM:2B5F 32 B6 E0			     ld	     (byte_E0B6), a
-ROM:2B62 7E				     ld	     a,	(hl)
+ROM:2B62 7E				     ld	     a,	(hl)			     ; @$2
 ROM:2B63 23				     inc     hl
 ROM:2B64 32 A7 E0			     ld	     (byte_E0A7), a
 ROM:2B67 32 A8 E0			     ld	     (byte_E0A8), a
-ROM:2B6A 7E				     ld	     a,	(hl)
+ROM:2B6A 7E				     ld	     a,	(hl)			     ; @$3
 ROM:2B6B 23				     inc     hl
 ROM:2B6C 32 B7 E0			     ld	     (byte_E0B7), a
-ROM:2B6F 7E				     ld	     a,	(hl)
+ROM:2B6F 7E				     ld	     a,	(hl)			     ; @$4
 ROM:2B70 23				     inc     hl
 ROM:2B71 32 B8 E0			     ld	     (missed_E_cnt), a
-ROM:2B74 7E				     ld	     a,	(hl)
+ROM:2B74 7E				     ld	     a,	(hl)			     ; @$5
 ROM:2B75 23				     inc     hl
 ROM:2B76 32 B9 E0			     ld	     (byte_E0B9), a
-ROM:2B79 7E				     ld	     a,	(hl)
+ROM:2B79 7E				     ld	     a,	(hl)			     ; @$6
 ROM:2B7A 23				     inc     hl
 ROM:2B7B 32 BA E0			     ld	     (byte_E0BA), a
 ROM:2B7E 3E 10				     ld	     a,	#0x10
 ROM:2B80 32 BB E0			     ld	     (byte_E0BB), a
-ROM:2B83 7E				     ld	     a,	(hl)
+ROM:2B83 7E				     ld	     a,	(hl)			     ; @$7
 ROM:2B84 23				     inc     hl
 ROM:2B85 32 A5 E0			     ld	     (byte_E0A5), a
 ROM:2B88 32 A6 E0			     ld	     (byte_E0A6), a
-ROM:2B8B 7E				     ld	     a,	(hl)
+ROM:2B8B 7E				     ld	     a,	(hl)			     ; @$8
 ROM:2B8C 23				     inc     hl
 ROM:2B8D 32 BC E0			     ld	     (byte_E0BC), a
 ROM:2B90 32 BD E0			     ld	     (byte_E0BD), a
-ROM:2B93 7E				     ld	     a,	(hl)
+ROM:2B93 7E				     ld	     a,	(hl)			     ; @$9
 ROM:2B94 23				     inc     hl
 ROM:2B95 32 BE E0			     ld	     (byte_E0BE), a
-ROM:2B98 7E				     ld	     a,	(hl)
+ROM:2B98 7E				     ld	     a,	(hl)			     ; @$A
 ROM:2B99 23				     inc     hl
 ROM:2B9A 32 BF E0			     ld	     (byte_E0BF), a
-ROM:2B9D 7E				     ld	     a,	(hl)
+ROM:2B9D 7E				     ld	     a,	(hl)			     ; @$B
 ROM:2B9E 23				     inc     hl
 ROM:2B9F 47				     ld	     b,	a
 ROM:2BA0 E6 0F				     and     #0xF
@@ -6238,37 +6238,37 @@ ROM:2BA8 0F				     rrca
 ROM:2BA9 0F				     rrca
 ROM:2BAA E6 0F				     and     #0xF			     ; hi->lo nibble
 ROM:2BAC 32 C1 E0			     ld	     (byte_E0C1), a
-ROM:2BAF 7E				     ld	     a,	(hl)
+ROM:2BAF 7E				     ld	     a,	(hl)			     ; @$C
 ROM:2BB0 23				     inc     hl
 ROM:2BB1 32 C3 E0			     ld	     (byte_E0C3), a
-ROM:2BB4 7E				     ld	     a,	(hl)
+ROM:2BB4 7E				     ld	     a,	(hl)			     ; @$D
 ROM:2BB5 23				     inc     hl
 ROM:2BB6 32 C0 E0			     ld	     (byte_E0C0), a
 ROM:2BB9 32 C4 E0			     ld	     (byte_E0C4), a
 ROM:2BBC AF				     xor     a
 ROM:2BBD 32 C6 E0			     ld	     (byte_E0C6), a
-ROM:2BC0 7E				     ld	     a,	(hl)
+ROM:2BC0 7E				     ld	     a,	(hl)			     ; @$E
 ROM:2BC1 23				     inc     hl
 ROM:2BC2 32 B5 E0			     ld	     (byte_E0B5), a
 ROM:2BC5 3D				     dec     a
 ROM:2BC6 32 C9 E0			     ld	     (byte_E0C9), a
-ROM:2BC9 7E				     ld	     a,	(hl)
+ROM:2BC9 7E				     ld	     a,	(hl)			     ; @$F
 ROM:2BCA 23				     inc     hl
 ROM:2BCB 32 CB E0			     ld	     (byte_E0CB), a
 ROM:2BCE 32 AA E0			     ld	     (byte_E0AA), a
 ROM:2BD1 3E 01				     ld	     a,	#1
 ROM:2BD3 32 B2 E0			     ld	     (byte_E0B2), a
 ROM:2BD6 21 E1 2B			     ld	     hl, #max_large_alien_bullet_tbl
-ROM:2BD9 3A 02 E5			     ld	     a,	(map_planet)
+ROM:2BD9 3A 02 E5			     ld	     a,	(map_planet)		     ; calc offset
 ROM:2BDC E7				     rst     content_hl_plus_a
 ROM:2BDD 32 1E E0			     ld	     (max_bullets_with_large_alien), a
 ROM:2BE0 C9				     ret
-ROM:2BE0	     ; End of function lookup_a_whole_bunch_of_data
+ROM:2BE0	     ; End of function init_planet_area_data
 ROM:2BE0
 ROM:2BE0	     ; ---------------------------------------------------------------------------
-ROM:2BE1	     ; maximum number of slots to check	for alien bullets
+ROM:2BE1	     ; maximum number of slots to check	for large alien	bullets
 ROM:2BE1
-ROM:2BE1 00 01 02 03+max_large_alien_bullet_tbl:.db 0, 1, 2, 3,	3, 4, 4, 4, 4, 4     ; DATA XREF: lookup_a_whole_bunch_of_data+90o
+ROM:2BE1 00 01 02 03+max_large_alien_bullet_tbl:.db 0, 1, 2, 3,	3, 4, 4, 4, 4, 4     ; DATA XREF: init_planet_area_data+90o
 ROM:2BEB
 ROM:2BEB	     ; =============== S U B R O U T I N E =======================================
 ROM:2BEB
@@ -6333,7 +6333,7 @@ ROM:2C32 35				     dec     (hl)
 ROM:2C33 C0				     ret     NZ
 ROM:2C34 21 03 E5			     ld	     hl, #map_area
 ROM:2C37 34				     inc     (hl)
-ROM:2C38 C3 46 2B			     jp	     lookup_a_whole_bunch_of_data
+ROM:2C38 C3 46 2B			     jp	     init_planet_area_data
 ROM:2C38	     ; End of function sub_2BEB
 ROM:2C38
 ROM:2C3B
@@ -10619,7 +10619,7 @@ ROM:4974
 ROM:4974	     loc_4974:							     ; CODE XREF: build_bg_prerender_buffer+C7j
 ROM:4974 32 02 E5			     ld	     (map_planet), a
 ROM:4977 CD 2C 2B			     call    init_some_stuff
-ROM:497A CD 46 2B			     call    lookup_a_whole_bunch_of_data
+ROM:497A CD 46 2B			     call    init_planet_area_data
 ROM:497D
 ROM:497D	     loc_497D:							     ; CODE XREF: build_bg_prerender_buffer+B3j
 ROM:497D 21 BE 49			     ld	     hl, #word_49BE
@@ -11340,265 +11340,227 @@ ROM:5B6C 80 80 80 80+			     .db 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80,
 ROM:5B6C 80 80 80 80+			     .db 0x80, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84
 ROM:5B6C 80 80 80 80+			     .db 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84, 0x84
 ROM:5DAC	     ; variables for each planet 1-3,4-6,7-9
-ROM:5DAC BE 5D	     off_5DAC:		     .dw byte_5DBE			     ; DATA XREF: lookup_a_whole_bunch_of_datao
-ROM:5DAE 1E 5F				     .dw byte_5F1E
-ROM:5DB0 7E 60				     .dw byte_607E
-ROM:5DB2 DE 61				     .dw byte_61DE
-ROM:5DB4 3E 63				     .dw byte_633E
-ROM:5DB6 9E 64				     .dw byte_649E
-ROM:5DB8 FE 65				     .dw byte_65FE
-ROM:5DBA 5E 67				     .dw byte_675E
-ROM:5DBC BE 68				     .dw byte_68BE
-ROM:5DBE 03 0A 0A 0A+byte_5DBE:		     .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5,	0xC, 0xC, 0x10
-ROM:5DBE 07 02 3C 12+								     ; DATA XREF: ROM:off_5DACo
-ROM:5DBE 05 0C 0C 10+			     .db 0, 0xE, 0, 5, 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5
-ROM:5DBE 00 0E 00 05+			     .db 0xC, 0xC, 0x10, 3, 0xE, 0, 0, 2, 0xA, 0xA, 0xA, 4, 2
-ROM:5DBE 03 0A 0A 0A+			     .db 0x3C, 0x12, 3,	0xC, 0xC, 0x10,	0, 0xE,	2, 5, 2, 0xA
-ROM:5DBE 07 02 3C 12+			     .db 0xA, 0xA, 4, 2, 0x3C, 0x12, 3,	0xC, 0xC, 0x10,	3, 0xE
-ROM:5DBE 05 0C 0C 10+			     .db 2, 0, 0, 0xA, 0xA, 0xA, 6, 2, 0x3C, 0x12, 4, 2, 0x5C
-ROM:5DBE 03 0E 00 00+			     .db 0, 0, 0, 0, 5,	0, 0xA,	0xA, 0xA, 6, 2,	0x3C, 0x12, 4
-ROM:5DBE 02 0A 0A 0A+			     .db 2, 0xC, 0, 0, 0, 0, 0,	2, 0xA,	0xE, 0xC, 6, 2,	0x3C
-ROM:5DBE 04 02 3C 12+			     .db 0x12, 5, 2, 0xC, 0, 0,	0xE, 0,	6, 2, 0xA, 0xF,	0xA, 6
-ROM:5DBE 03 0C 0C 10+			     .db 2, 0x3C, 0x12,	5, 2, 0xC, 0x10, 3, 0xE, 0, 0, 2, 0xA
-ROM:5DBE 00 0E 02 05+			     .db 0xF, 0xA, 7, 2, 0x3C, 0x12, 5,	1, 0xC,	0, 0, 0xE, 0
-ROM:5DBE 02 0A 0A 0A+			     .db 7, 2, 0xA, 0x10, 0xB, 7, 2, 0x3C, 0x12, 5, 1, 0xC, 0x10
-ROM:5DBE 04 02 3C 12+			     .db 3, 0xE, 0, 0, 3, 0xA, 0x10, 0xA, 7, 2,	0x3C, 0x12, 5
-ROM:5DBE 03 0C 0C 10+			     .db 1, 0xC, 0, 0, 0xE, 0, 8, 3, 0xA, 0x11,	0xA, 7,	2, 0x3C
-ROM:5DBE 03 0E 02 00+			     .db 0x12, 5, 1, 0xC, 0x10,	3, 0xE,	0, 0, 2, 0xA, 0x11, 0xD
-ROM:5DBE 00 0A 0A 0A+			     .db 4, 2, 0x3C, 0x12, 2, 0, 0xC, 0, 0, 0xE, 2, 5, 2, 0xA
-ROM:5DBE 06 02 3C 12+			     .db 0x12, 0xA, 4, 2, 0x3C,	0x12, 2, 0, 0xC, 0x10, 3, 0xE
-ROM:5DBE 04 02 5C 00+			     .db 2, 0, 0, 0xA, 0xA, 0xA, 7, 0, 0x3C, 0x12, 5, 0, 0xC
-ROM:5DBE 00 00 00 05+			     .db 0, 0, 8, 0, 6,	0, 0xA,	0xA, 0xA, 7, 0,	0x3C, 0x12, 5
-ROM:5DBE 00 0A 0A 0A+			     .db 0, 0xC, 0x10, 3, 8, 0,	0, 0, 0xA, 0xA,	0xA, 0,	0, 0x3C
-ROM:5DBE 06 02 3C 12+			     .db 0x12, 0, 1, 0xC, 0, 0,	8, 0, 0, 0, 0xA, 0xA, 0xA, 0
-ROM:5DBE 04 02 0C 00+			     .db 0, 0x3C, 0x12,	0, 1, 0xC, 0x10, 7, 8, 0, 7, 0,	0xA, 0xA
-ROM:5DBE 00 00 00 00+			     .db 0xA, 0, 0, 0x3C, 0x12,	0, 0, 0xC, 0x10, 7, 8, 0, 8, 0
-ROM:5DBE 02 0A 0E 0C+			     .db 0xA, 0xA, 0xA,	0, 0, 0x3C, 0x12, 0, 0xE, 0xC, 0x10, 7
-ROM:5DBE 06 02 3C 12+			     .db 0x26, 0, 8, 0,	0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0, 2
-ROM:5DBE 05 02 0C 00+			     .db 0xC, 0x10, 7, 8, 0, 5,	0, 0xA,	0xA, 0xA, 0, 0,	0x3C
-ROM:5DBE 00 0E 00 06+			     .db 0x12, 0, 2, 0xC, 0, 0,	8, 0, 0
-ROM:5F1E 03 0A 0A 0B+byte_5F1E:		     .db 3, 0xA, 0xA, 0xB, 5, 1, 0x3C, 0x12, 4,	5, 0xC,	0, 0
+ROM:5DAC BE 5D	     planet_area_data_tbl:   .dw planet_1_area_data_tbl		     ; DATA XREF: init_planet_area_datao
+ROM:5DAE 1E 5F				     .dw planet_2_area_data_tbl
+ROM:5DB0 7E 60				     .dw planet_3_area_data_tbl
+ROM:5DB2 DE 61				     .dw planet_4_area_data_tbl
+ROM:5DB4 3E 63				     .dw planet_5_area_data_tbl
+ROM:5DB6 9E 64				     .dw planet_6_area_data_tbl
+ROM:5DB8 FE 65				     .dw planet_7_area_data_tbl
+ROM:5DBA 5E 67				     .dw planet_8_area_data_tbl
+ROM:5DBC BE 68				     .dw planet_9_area_data_tbl
+ROM:5DBE	     ; Each planet has 22 blocks of 16-byte data
+ROM:5DBE	     ; - interesting because there are only 16 areas/planet?!?
+ROM:5DBE	     ; $0: max_alien_bullets
+ROM:5DBE	     ; $4: (missed_e_cnt)
+ROM:5DBE	     ; $B: (large alien	type)
+ROM:5DBE 03 0A 0A 0A+planet_1_area_data_tbl: .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5,	0xC, 0xC, 0x10,	0, 0xE,	0, 5
+ROM:5DBE 07 02 3C 12+								     ; DATA XREF: ROM:planet_area_data_tblo
+ROM:5DBE 05 0C 0C 10+			     .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5,	0xC, 0xC, 0x10,	3, 0xE,	0, 0
+ROM:5DBE 00 0E 00 05+			     .db 2, 0xA, 0xA, 0xA, 4, 2, 0x3C, 0x12, 3,	0xC, 0xC, 0x10,	0, 0xE,	2, 5
+ROM:5DBE 03 0A 0A 0A+			     .db 2, 0xA, 0xA, 0xA, 4, 2, 0x3C, 0x12, 3,	0xC, 0xC, 0x10,	3, 0xE,	2, 0
+ROM:5DBE 07 02 3C 12+			     .db 0, 0xA, 0xA, 0xA, 6, 2, 0x3C, 0x12, 4,	2, 0x5C, 0, 0, 0, 0, 5
+ROM:5DBE 05 0C 0C 10+			     .db 0, 0xA, 0xA, 0xA, 6, 2, 0x3C, 0x12, 4,	2, 0xC,	0, 0, 0, 0, 0
+ROM:5DBE 03 0E 00 00+			     .db 2, 0xA, 0xE, 0xC, 6, 2, 0x3C, 0x12, 5,	2, 0xC,	0, 0, 0xE, 0, 6
+ROM:5DBE 02 0A 0A 0A+			     .db 2, 0xA, 0xF, 0xA, 6, 2, 0x3C, 0x12, 5,	2, 0xC,	0x10, 3, 0xE, 0, 0
+ROM:5DBE 04 02 3C 12+			     .db 2, 0xA, 0xF, 0xA, 7, 2, 0x3C, 0x12, 5,	1, 0xC,	0, 0, 0xE, 0, 7
+ROM:5DBE 03 0C 0C 10+			     .db 2, 0xA, 0x10, 0xB, 7, 2, 0x3C,	0x12, 5, 1, 0xC, 0x10, 3, 0xE, 0, 0
+ROM:5DBE 00 0E 02 05+			     .db 3, 0xA, 0x10, 0xA, 7, 2, 0x3C,	0x12, 5, 1, 0xC, 0, 0, 0xE, 0, 8
+ROM:5DBE 02 0A 0A 0A+			     .db 3, 0xA, 0x11, 0xA, 7, 2, 0x3C,	0x12, 5, 1, 0xC, 0x10, 3, 0xE, 0, 0
+ROM:5DBE 04 02 3C 12+			     .db 2, 0xA, 0x11, 0xD, 4, 2, 0x3C,	0x12, 2, 0, 0xC, 0, 0, 0xE, 2, 5
+ROM:5DBE 03 0C 0C 10+			     .db 2, 0xA, 0x12, 0xA, 4, 2, 0x3C,	0x12, 2, 0, 0xC, 0x10, 3, 0xE, 2, 0
+ROM:5DBE 03 0E 02 00+			     .db 0, 0xA, 0xA, 0xA, 7, 0, 0x3C, 0x12, 5,	0, 0xC,	0, 0, 8, 0, 6
+ROM:5DBE 00 0A 0A 0A+			     .db 0, 0xA, 0xA, 0xA, 7, 0, 0x3C, 0x12, 5,	0, 0xC,	0x10, 3, 8, 0, 0
+ROM:5DBE 06 02 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	1, 0xC,	0, 0, 8, 0, 0
+ROM:5DBE 04 02 5C 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	1, 0xC,	0x10, 7, 8, 0, 7
+ROM:5DBE 00 00 00 05+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0, 0xC,	0x10, 7, 8, 0, 8
+ROM:5DBE 00 0A 0A 0A+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xE, 0xC, 0x10,	7, 0x26, 0, 8
+ROM:5DBE 06 02 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	2, 0xC,	0x10, 7, 8, 0, 5
+ROM:5DBE 04 02 0C 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	2, 0xC,	0, 0, 8, 0, 0
+ROM:5F1E 03 0A 0A 0B+planet_2_area_data_tbl: .db 3, 0xA, 0xA, 0xB, 5, 1, 0x3C, 0x12, 4,	5, 0xC,	0, 0, 0xE, 0, 8
 ROM:5F1E 05 01 3C 12+								     ; DATA XREF: ROM:5DAEo
-ROM:5F1E 04 05 0C 00+			     .db 0xE, 0, 8, 3, 0xA, 0xA, 0xB, 5, 1, 0x3C, 0x12,	4, 5
-ROM:5F1E 00 0E 00 08+			     .db 0xC, 0x11, 0, 0xE, 0, 0, 4, 0xA, 0xA, 0xC, 6, 1, 0x3C
-ROM:5F1E 03 0A 0A 0B+			     .db 0x12, 4, 5, 0xC, 0, 0,	0xE, 0,	8, 4, 0xA, 0xA,	0xB, 6
-ROM:5F1E 05 01 3C 12+			     .db 1, 0x3C, 0x12,	4, 5, 0xC, 0x11, 0, 0xE, 0, 0, 4, 0xA
-ROM:5F1E 04 05 0C 11+			     .db 0xA, 0xB, 6, 1, 0x3C, 0x12, 5,	0xE, 0xC, 0, 0,	0xE, 0
-ROM:5F1E 00 0E 00 00+			     .db 5, 4, 0xA, 0xA, 0xB, 6, 1, 0x3C, 0x12,	5, 0xE,	0xC, 0x11
-ROM:5F1E 04 0A 0A 0C+			     .db 0, 0xE, 0, 0, 5, 0xA, 0xA, 0xD, 6, 1, 0x3C, 0x12, 5
-ROM:5F1E 06 01 3C 12+			     .db 0xE, 0xC, 0, 0, 0xC, 0, 5, 5, 0xA, 0xA, 0xB, 6, 1, 0x3C
-ROM:5F1E 04 05 0C 00+			     .db 0x12, 5, 0xE, 0xC, 0x11, 0, 0xC, 0, 0,	1, 0xA,	0xA, 0xB
-ROM:5F1E 00 0E 00 08+			     .db 4, 0, 0x3C, 0x12, 4, 0xE, 0xC,	0, 0, 0, 1, 6, 1, 0xA
-ROM:5F1E 04 0A 0A 0B+			     .db 0xA, 0xC, 4, 0, 0x3C, 0x12, 4,	0xF, 0xC, 0x11,	0, 0xC
-ROM:5F1E 06 01 3C 12+			     .db 1, 0, 1, 0xA, 0xA, 0xB, 5, 0, 0x3C, 0x12, 4, 0xF, 0xC
-ROM:5F1E 04 05 0C 11+			     .db 0, 0, 0xA, 1, 6, 1, 0xA, 0xA, 0xB, 5, 0, 0x3C,	0x12
-ROM:5F1E 00 0E 00 00+			     .db 4, 0xF, 0xC, 0x11, 0, 0xA, 1, 0, 2, 0xA, 0xA, 0xD, 6
-ROM:5F1E 04 0A 0A 0B+			     .db 0, 0x3C, 0x12,	5, 0xD,	0xC, 0,	0, 0xA,	0, 7, 2, 0xA
-ROM:5F1E 06 01 3C 12+			     .db 0xA, 0xB, 6, 0, 0x3C, 0x12, 5,	0xD, 0xC, 0x11,	0, 0xA
-ROM:5F1E 05 0E 0C 00+			     .db 0, 0, 2, 0xA, 0xA, 0xD, 7, 0, 0x3C, 0x12, 6, 0xD, 0xC
-ROM:5F1E 00 0E 00 05+			     .db 0, 0, 8, 0, 7,	2, 0xA,	0xA, 0xB, 7, 0,	0x3C, 0x12, 6
-ROM:5F1E 04 0A 0A 0B+			     .db 0xD, 0xC, 0x11, 0, 8, 0, 0, 0,	0xA, 0xA, 0xA, 0, 0, 0x3C
-ROM:5F1E 06 01 3C 12+			     .db 0x12, 4, 2, 0x5C, 0x20, 3, 0x1E, 0, 0,	0, 0xA,	0xA, 0xA
-ROM:5F1E 05 0E 0C 11+			     .db 0, 0, 0x3C, 0x12, 4, 2, 0x5C, 0x31, 1,	0x1E, 0, 0, 0
-ROM:5F1E 00 0E 00 00+			     .db 0xA, 0xA, 0xA,	0, 0, 0x3C, 0x12, 4, 2,	0x5C, 0x32, 2
-ROM:5F1E 05 0A 0A 0D+			     .db 0x1E, 0, 0, 0,	0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4, 2
-ROM:5F1E 06 01 3C 12+			     .db 0x5C, 0x32, 4,	0x3C, 0, 0, 0, 0xA, 0xA, 0xA, 0, 0, 0x3C
-ROM:5F1E 05 0E 0C 00+			     .db 0x12, 4, 2, 0x5C, 0x32, 5, 0x1E, 0, 0,	0, 0xA,	0xA, 0xA
-ROM:5F1E 00 0C 00 05+			     .db 0, 0, 0x3C, 0x12, 0, 2, 0x5C, 0, 0, 0,	0, 0
-ROM:607E 03 0A 0A 0B+byte_607E:		     .db 3, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 4,	0xC, 0xC, 0, 5
+ROM:5F1E 04 05 0C 00+			     .db 3, 0xA, 0xA, 0xB, 5, 1, 0x3C, 0x12, 4,	5, 0xC,	0x11, 0, 0xE, 0, 0
+ROM:5F1E 00 0E 00 08+			     .db 4, 0xA, 0xA, 0xC, 6, 1, 0x3C, 0x12, 4,	5, 0xC,	0, 0, 0xE, 0, 8
+ROM:5F1E 03 0A 0A 0B+			     .db 4, 0xA, 0xA, 0xB, 6, 1, 0x3C, 0x12, 4,	5, 0xC,	0x11, 0, 0xE, 0, 0
+ROM:5F1E 05 01 3C 12+			     .db 4, 0xA, 0xA, 0xB, 6, 1, 0x3C, 0x12, 5,	0xE, 0xC, 0, 0,	0xE, 0,	5
+ROM:5F1E 04 05 0C 11+			     .db 4, 0xA, 0xA, 0xB, 6, 1, 0x3C, 0x12, 5,	0xE, 0xC, 0x11,	0, 0xE,	0, 0
+ROM:5F1E 00 0E 00 00+			     .db 5, 0xA, 0xA, 0xD, 6, 1, 0x3C, 0x12, 5,	0xE, 0xC, 0, 0,	0xC, 0,	5
+ROM:5F1E 04 0A 0A 0C+			     .db 5, 0xA, 0xA, 0xB, 6, 1, 0x3C, 0x12, 5,	0xE, 0xC, 0x11,	0, 0xC,	0, 0
+ROM:5F1E 06 01 3C 12+			     .db 1, 0xA, 0xA, 0xB, 4, 0, 0x3C, 0x12, 4,	0xE, 0xC, 0, 0,	0, 1, 6
+ROM:5F1E 04 05 0C 00+			     .db 1, 0xA, 0xA, 0xC, 4, 0, 0x3C, 0x12, 4,	0xF, 0xC, 0x11,	0, 0xC,	1, 0
+ROM:5F1E 00 0E 00 08+			     .db 1, 0xA, 0xA, 0xB, 5, 0, 0x3C, 0x12, 4,	0xF, 0xC, 0, 0,	0xA, 1,	6
+ROM:5F1E 04 0A 0A 0B+			     .db 1, 0xA, 0xA, 0xB, 5, 0, 0x3C, 0x12, 4,	0xF, 0xC, 0x11,	0, 0xA,	1, 0
+ROM:5F1E 06 01 3C 12+			     .db 2, 0xA, 0xA, 0xD, 6, 0, 0x3C, 0x12, 5,	0xD, 0xC, 0, 0,	0xA, 0,	7
+ROM:5F1E 04 05 0C 11+			     .db 2, 0xA, 0xA, 0xB, 6, 0, 0x3C, 0x12, 5,	0xD, 0xC, 0x11,	0, 0xA,	0, 0
+ROM:5F1E 00 0E 00 00+			     .db 2, 0xA, 0xA, 0xD, 7, 0, 0x3C, 0x12, 6,	0xD, 0xC, 0, 0,	8, 0, 7
+ROM:5F1E 04 0A 0A 0B+			     .db 2, 0xA, 0xA, 0xB, 7, 0, 0x3C, 0x12, 6,	0xD, 0xC, 0x11,	0, 8, 0, 0
+ROM:5F1E 06 01 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x20, 3, 0x1E,	0, 0
+ROM:5F1E 05 0E 0C 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x31, 1, 0x1E,	0, 0
+ROM:5F1E 00 0E 00 05+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 2, 0x1E,	0, 0
+ROM:5F1E 04 0A 0A 0B+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 4, 0x3C,	0, 0
+ROM:5F1E 06 01 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 5, 0x1E,	0, 0
+ROM:5F1E 05 0E 0C 11+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	2, 0x5C, 0, 0, 0, 0, 0
+ROM:607E 03 0A 0A 0B+planet_3_area_data_tbl: .db 3, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 4,	0xC, 0xC, 0, 5,	0xE, 0,	5
 ROM:607E 06 03 3C 12+								     ; DATA XREF: ROM:5DB0o
-ROM:607E 04 0C 0C 00+			     .db 0xE, 0, 5, 3, 0xA, 0xA, 0xC, 6, 3, 0x3C, 0x12,	4, 0xC
-ROM:607E 05 0E 00 05+			     .db 0xC, 0x12, 5, 0xE, 0, 0, 3, 0xA, 0xA, 0xB, 6, 3, 0x3C
-ROM:607E 03 0A 0A 0C+			     .db 0x12, 5, 8, 0x78, 0, 0, 0, 0, 9, 3, 0xA, 0xA, 0xB, 6
-ROM:607E 06 03 3C 12+			     .db 3, 0x3C, 0x12,	5, 0xC,	0xC, 0x12, 5, 0xE, 0, 0, 3, 0xA
-ROM:607E 04 0C 0C 12+			     .db 0xA, 0xB, 7, 3, 0x3C, 0x12, 5,	2, 0xC,	0, 5, 0xE, 0
-ROM:607E 05 0E 00 00+			     .db 5, 3, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12,	5, 2, 0xC, 0x12
-ROM:607E 03 0A 0A 0B+			     .db 5, 0xE, 0, 0, 4, 0xA, 0xA, 0xD, 7, 3, 0x3C, 0x12, 6
-ROM:607E 06 03 3C 12+			     .db 2, 0xC, 0, 5, 0xC, 0, 6, 4, 0xA, 0xA, 0xB, 7, 3, 0x3C
-ROM:607E 05 08 78 00+			     .db 0x12, 6, 2, 0xC, 0x12,	5, 0xC,	0, 0, 4, 0xA, 0xA, 0xB
-ROM:607E 00 00 00 09+			     .db 7, 4, 0x3C, 0x12, 6, 7, 0xC, 0, 5, 0xC, 0, 7, 4, 0xA
-ROM:607E 03 0A 0A 0B+			     .db 0xA, 0xC, 7, 4, 0x3C, 0x12, 6,	7, 0xC,	0x12, 5, 0xC
-ROM:607E 06 03 3C 12+			     .db 0, 0, 1, 0xA, 0xA, 0xB, 4, 0, 0x3C, 0x12, 2, 7, 0xC
-ROM:607E 05 0C 0C 12+			     .db 0, 5, 0xA, 3, 8, 1, 0xA, 0xA, 0xB, 4, 0, 0x3C,	0x12
-ROM:607E 05 0E 00 00+			     .db 2, 7, 0xC, 0x12, 5, 0xA, 3, 0,	3, 0xA,	0xA, 0xB, 7, 4
-ROM:607E 03 0A 0A 0B+			     .db 0x3C, 0x12, 5,	0xB, 0xC, 0, 5,	0xA, 0,	5, 3, 0xA, 0xA
-ROM:607E 07 03 3C 12+			     .db 0xC, 7, 4, 0x3C, 0x12,	5, 0xB,	0xC, 0x12, 5, 0xA, 0
-ROM:607E 05 02 0C 00+			     .db 0, 4, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0x12,	6, 0xB,	0xC, 0
-ROM:607E 05 0E 00 05+			     .db 5, 8, 0, 6, 4,	0xA, 0xA, 0xB, 7, 4, 0x3C, 0x12, 6, 0xB
-ROM:607E 03 0A 0A 0B+			     .db 0xC, 0x12, 5, 8, 0, 0,	0, 0xA,	0xA, 0xA, 0, 0,	0x3C
-ROM:607E 07 03 3C 12+			     .db 0x12, 0, 0xC, 0xC, 0x10, 3, 8,	1, 0, 5, 0xA, 0xA, 0xA
-ROM:607E 05 02 0C 12+			     .db 0, 0, 0x3C, 0x12, 0, 0xC, 0xC,	0x12, 5, 8, 3, 0, 6, 0xA
-ROM:607E 05 0E 00 00+			     .db 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0x13, 6, 0, 4
-ROM:607E 04 0A 0A 0D+			     .db 0, 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0
-ROM:607E 07 03 3C 12+			     .db 6, 0, 4, 0, 6,	0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2,	8, 0xC
-ROM:607E 06 02 0C 00+			     .db 0xC, 0, 6, 0, 4, 0, 6,	0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2
-ROM:607E 05 0C 00 06+			     .db 8, 0xC, 0xC, 0, 6, 0, 4, 0
-ROM:61DE 03 0A 0A 0B+byte_61DE:		     .db 3, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0xE, 5, 0xC, 0xC, 0, 0
+ROM:607E 04 0C 0C 00+			     .db 3, 0xA, 0xA, 0xC, 6, 3, 0x3C, 0x12, 4,	0xC, 0xC, 0x12,	5, 0xE,	0, 0
+ROM:607E 05 0E 00 05+			     .db 3, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 5,	8, 0x78, 0, 0, 0, 0, 9
+ROM:607E 03 0A 0A 0C+			     .db 3, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 5,	0xC, 0xC, 0x12,	5, 0xE,	0, 0
+ROM:607E 06 03 3C 12+			     .db 3, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 5,	2, 0xC,	0, 5, 0xE, 0, 5
+ROM:607E 04 0C 0C 12+			     .db 3, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 5,	2, 0xC,	0x12, 5, 0xE, 0, 0
+ROM:607E 05 0E 00 00+			     .db 4, 0xA, 0xA, 0xD, 7, 3, 0x3C, 0x12, 6,	2, 0xC,	0, 5, 0xC, 0, 6
+ROM:607E 03 0A 0A 0B+			     .db 4, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 6,	2, 0xC,	0x12, 5, 0xC, 0, 0
+ROM:607E 06 03 3C 12+			     .db 4, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0x12, 6,	7, 0xC,	0, 5, 0xC, 0, 7
+ROM:607E 05 08 78 00+			     .db 4, 0xA, 0xA, 0xC, 7, 4, 0x3C, 0x12, 6,	7, 0xC,	0x12, 5, 0xC, 0, 0
+ROM:607E 00 00 00 09+			     .db 1, 0xA, 0xA, 0xB, 4, 0, 0x3C, 0x12, 2,	7, 0xC,	0, 5, 0xA, 3, 8
+ROM:607E 03 0A 0A 0B+			     .db 1, 0xA, 0xA, 0xB, 4, 0, 0x3C, 0x12, 2,	7, 0xC,	0x12, 5, 0xA, 3, 0
+ROM:607E 06 03 3C 12+			     .db 3, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0x12, 5,	0xB, 0xC, 0, 5,	0xA, 0,	5
+ROM:607E 05 0C 0C 12+			     .db 3, 0xA, 0xA, 0xC, 7, 4, 0x3C, 0x12, 5,	0xB, 0xC, 0x12,	5, 0xA,	0, 0
+ROM:607E 05 0E 00 00+			     .db 4, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0x12, 6,	0xB, 0xC, 0, 5,	8, 0, 6
+ROM:607E 03 0A 0A 0B+			     .db 4, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0x12, 6,	0xB, 0xC, 0x12,	5, 8, 0, 0
+ROM:607E 07 03 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x10,	3, 8, 1, 0
+ROM:607E 05 02 0C 00+			     .db 5, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x12,	5, 8, 3, 0
+ROM:607E 05 0E 00 05+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0x13, 6, 0, 4,	0
+ROM:607E 03 0A 0A 0B+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:607E 07 03 3C 12+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:607E 05 02 0C 12+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:61DE 03 0A 0A 0B+planet_4_area_data_tbl: .db 3, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0xE, 5, 0xC, 0xC, 0, 0, 0xE, 0, 5
 ROM:61DE 07 04 3C 0E+								     ; DATA XREF: ROM:5DB2o
-ROM:61DE 05 0C 0C 00+			     .db 0xE, 0, 5, 3, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0xE, 5, 0xC
-ROM:61DE 00 0E 00 05+			     .db 0xC, 0x10, 4, 0xE, 0, 0, 4, 0xA, 0xA, 0xC, 7, 4, 0x3C
-ROM:61DE 03 0A 0A 0B+			     .db 0xE, 6, 8, 0xC, 0, 0, 0xE, 0, 5, 4, 0xA, 0xA, 0xB, 7
-ROM:61DE 07 04 3C 0E+			     .db 4, 0x3C, 0xE, 6, 8, 0xC, 0x10,	4, 0xE,	0, 0, 3, 0xA
-ROM:61DE 05 0C 0C 10+			     .db 0xA, 0xB, 5, 4, 0x3C, 0xE, 4, 3, 0xC, 0, 0, 0,	5, 5
-ROM:61DE 04 0E 00 00+			     .db 3, 0xA, 0xA, 0xD, 5, 4, 0x3C, 0xE, 4, 3, 0xC, 0x10, 4
-ROM:61DE 04 0A 0A 0C+			     .db 0, 4, 0, 4, 0xA, 0xA, 0xD, 7, 2, 0x3C,	0xE, 5,	0, 0xC
-ROM:61DE 07 04 3C 0E+			     .db 0, 0, 0xC, 0, 6, 3, 0xA, 0xA, 0xB, 7, 4, 0x3C,	0xE, 6
-ROM:61DE 06 08 0C 00+			     .db 1, 0xC, 0x10, 4, 0, 0,	0, 4, 0xA, 0xA,	0xD, 7,	2, 0x3C
-ROM:61DE 00 0E 00 05+			     .db 0xE, 6, 0, 0xC, 0, 0, 0xC, 0, 7, 4, 0xA, 0xA, 0xB, 7
-ROM:61DE 04 0A 0A 0B+			     .db 1, 0x3C, 0xE, 6, 0, 0xC, 0x10,	4, 0, 0, 0, 3, 0xA, 0xA
-ROM:61DE 07 04 3C 0E+			     .db 0xB, 6, 2, 0x3C, 0xE, 5, 0, 0xC, 0, 0,	0xA, 3,	8, 2
-ROM:61DE 06 08 0C 10+			     .db 0xA, 0xA, 0xC,	6, 0, 0x3C, 0xE, 5, 0xD, 0xC, 0x10, 4
-ROM:61DE 04 0E 00 00+			     .db 0, 5, 0, 4, 0xA, 0xA, 0xB, 5, 2, 0x3C,	0xE, 4,	0, 0xC
-ROM:61DE 03 0A 0A 0B+			     .db 0, 0, 0xA, 2, 5, 2, 0xA, 0xA, 0xD, 7, 0, 0x3C,	0xE, 6
-ROM:61DE 05 04 3C 0E+			     .db 0xF, 0xC, 0x10, 4, 0, 5, 0, 4,	0xA, 0xA, 0xB, 7, 2, 0x3C
-ROM:61DE 04 03 0C 00+			     .db 0xE, 6, 0, 0xC, 0, 0, 8, 0, 6,	6, 0xA,	0xA, 0xC, 7, 1
-ROM:61DE 00 00 05 05+			     .db 0x3C, 0xE, 6, 0xA, 0xC, 0x10, 4, 0, 0,	0, 0, 0xA, 0xA
-ROM:61DE 03 0A 0A 0D+			     .db 0xA, 0, 0, 0x3C, 0x12,	0, 1, 0xC, 0x10, 3, 8, 0, 7, 0
-ROM:61DE 05 04 3C 0E+			     .db 0xA, 0xA, 0xA,	0, 0, 0x3C, 0x12, 0, 0,	0xC, 0x10, 3
-ROM:61DE 04 03 0C 10+			     .db 8, 4, 0, 0, 0xA, 0xA, 0xA, 0, 0, 0x3C,	0x12, 0, 0, 0xC
-ROM:61DE 04 00 04 00+			     .db 0x10, 3, 8, 0,	8, 0, 0xA, 0xA,	0xA, 0,	0, 0x3C, 0x12
-ROM:61DE 04 0A 0A 0D+			     .db 0, 0xE, 0xC, 0x10, 3, 8, 5, 8,	0, 0xA,	0xA, 0xA, 0, 0
-ROM:61DE 07 02 3C 0E+			     .db 0x3C, 0x12, 0,	0, 0xC,	0x10, 3, 8, 0, 0, 0, 0xA, 0xA
-ROM:61DE 05 00 0C 00+			     .db 0xA, 0, 0, 0x3C, 0x12,	0, 0xC,	0xC, 0x10, 3, 8, 0, 5
-ROM:633E 03 0A 0A 0B+byte_633E:		     .db 3, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 5,	0, 0x10, 0x11
+ROM:61DE 05 0C 0C 00+			     .db 3, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0xE, 5, 0xC, 0xC, 0x10, 4, 0xE, 0, 0
+ROM:61DE 00 0E 00 05+			     .db 4, 0xA, 0xA, 0xC, 7, 4, 0x3C, 0xE, 6, 8, 0xC, 0, 0, 0xE, 0, 5
+ROM:61DE 03 0A 0A 0B+			     .db 4, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0xE, 6, 8, 0xC, 0x10, 4,	0xE, 0,	0
+ROM:61DE 07 04 3C 0E+			     .db 3, 0xA, 0xA, 0xB, 5, 4, 0x3C, 0xE, 4, 3, 0xC, 0, 0, 0,	5, 5
+ROM:61DE 05 0C 0C 10+			     .db 3, 0xA, 0xA, 0xD, 5, 4, 0x3C, 0xE, 4, 3, 0xC, 0x10, 4,	0, 4, 0
+ROM:61DE 04 0E 00 00+			     .db 4, 0xA, 0xA, 0xD, 7, 2, 0x3C, 0xE, 5, 0, 0xC, 0, 0, 0xC, 0, 6
+ROM:61DE 04 0A 0A 0C+			     .db 3, 0xA, 0xA, 0xB, 7, 4, 0x3C, 0xE, 6, 1, 0xC, 0x10, 4,	0, 0, 0
+ROM:61DE 07 04 3C 0E+			     .db 4, 0xA, 0xA, 0xD, 7, 2, 0x3C, 0xE, 6, 0, 0xC, 0, 0, 0xC, 0, 7
+ROM:61DE 06 08 0C 00+			     .db 4, 0xA, 0xA, 0xB, 7, 1, 0x3C, 0xE, 6, 0, 0xC, 0x10, 4,	0, 0, 0
+ROM:61DE 00 0E 00 05+			     .db 3, 0xA, 0xA, 0xB, 6, 2, 0x3C, 0xE, 5, 0, 0xC, 0, 0, 0xA, 3, 8
+ROM:61DE 04 0A 0A 0B+			     .db 2, 0xA, 0xA, 0xC, 6, 0, 0x3C, 0xE, 5, 0xD, 0xC, 0x10, 4, 0, 5,	0
+ROM:61DE 07 04 3C 0E+			     .db 4, 0xA, 0xA, 0xB, 5, 2, 0x3C, 0xE, 4, 0, 0xC, 0, 0, 0xA, 2, 5
+ROM:61DE 06 08 0C 10+			     .db 2, 0xA, 0xA, 0xD, 7, 0, 0x3C, 0xE, 6, 0xF, 0xC, 0x10, 4, 0, 5,	0
+ROM:61DE 04 0E 00 00+			     .db 4, 0xA, 0xA, 0xB, 7, 2, 0x3C, 0xE, 6, 0, 0xC, 0, 0, 8,	0, 6
+ROM:61DE 03 0A 0A 0B+			     .db 6, 0xA, 0xA, 0xC, 7, 1, 0x3C, 0xE, 6, 0xA, 0xC, 0x10, 4, 0, 0,	0
+ROM:61DE 05 04 3C 0E+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	1, 0xC,	0x10, 3, 8, 0, 7
+ROM:61DE 04 03 0C 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0, 0xC,	0x10, 3, 8, 4, 0
+ROM:61DE 00 00 05 05+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0, 0xC,	0x10, 3, 8, 0, 8
+ROM:61DE 03 0A 0A 0D+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xE, 0xC, 0x10,	3, 8, 5, 8
+ROM:61DE 05 04 3C 0E+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0, 0xC,	0x10, 3, 8, 0, 0
+ROM:61DE 04 03 0C 10+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x10,	3, 8, 0, 5
+ROM:633E 03 0A 0A 0B+planet_5_area_data_tbl: .db 3, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 5,	0, 0x10, 0x11, 1, 0xE, 0, 0
 ROM:633E 06 03 3C 12+								     ; DATA XREF: ROM:5DB4o
-ROM:633E 05 00 10 11+			     .db 1, 0xE, 0, 0, 3, 0xA, 0xA, 0xC, 6, 3, 0x3C, 0x12, 5
-ROM:633E 01 0E 00 00+			     .db 4, 0xA, 0, 1, 0, 0, 6,	4, 0xA,	0xA, 0xB, 6, 3,	0x3C
-ROM:633E 03 0A 0A 0C+			     .db 0x12, 5, 0, 0xC, 0x11,	1, 0xE,	0, 0, 5, 0xA, 0xA, 0xC
-ROM:633E 06 03 3C 12+			     .db 6, 2, 0x3C, 0x12, 5, 7, 0xC, 0, 1, 0, 5, 8, 3,	0xA, 0xA
-ROM:633E 05 04 0A 00+			     .db 0xB, 7, 3, 0x3C, 0x12,	5, 0, 0xC, 0x11, 1, 0xE, 0, 0
-ROM:633E 01 00 00 06+			     .db 5, 0xA, 0xA, 0xC, 7, 1, 0x3C, 0x12, 6,	5, 0xC,	0, 1
-ROM:633E 04 0A 0A 0B+			     .db 0, 0, 5, 4, 0xA, 0xA, 0xB, 7, 3, 0x3C,	0x12, 6, 0, 0xC
-ROM:633E 06 03 3C 12+			     .db 0x11, 1, 0xC, 0, 0, 5,	0xA, 0xA, 0xC, 7, 1, 0x3C, 0x12
-ROM:633E 05 00 0C 11+			     .db 6, 0xB, 0xC, 0, 1, 0, 0, 6, 5,	0xA, 0xA, 0xB, 8, 1, 0x3C
-ROM:633E 01 0E 00 00+			     .db 0x12, 6, 0, 0xC, 0x11,	1, 0xC,	5, 0, 2, 0xA, 0xA, 0xC
-ROM:633E 05 0A 0A 0C+			     .db 7, 0, 0x3C, 0x12, 7, 0xE, 0xC,	0, 1, 0, 1, 7, 3, 0xA
-ROM:633E 06 02 3C 12+			     .db 0xA, 0xB, 7, 3, 0x3C, 0x12, 6,	0, 0xC,	0x11, 1, 0xA
-ROM:633E 05 07 0C 00+			     .db 1, 0, 3, 0xA, 0xA, 0xC, 7, 0, 0x3C, 0x12, 7, 6, 0xC
-ROM:633E 01 00 05 08+			     .db 0, 1, 0, 1, 5,	3, 0xA,	0xA, 0xB, 8, 0,	0x3C, 0x12, 7
-ROM:633E 03 0A 0A 0B+			     .db 0, 0xC, 0x11, 1, 0xA, 5, 0, 4,	0xA, 0xA, 0xC, 8, 1, 0x3C
-ROM:633E 07 03 3C 12+			     .db 0x12, 6, 8, 0xC, 0, 1,	0, 1, 6, 6, 0xA, 0xA, 0xB, 8
-ROM:633E 05 00 0C 11+			     .db 1, 0x3C, 0x12,	7, 0, 0xC, 0x11, 1, 8, 0, 0, 4,	0xA, 0xA
-ROM:633E 01 0E 00 00+			     .db 0xC, 7, 4, 0x3C, 0x12,	6, 8, 0xC, 0, 1, 0, 0, 7, 0, 0xA
-ROM:633E 05 0A 0A 0C+			     .db 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x20, 3, 0x1E
-ROM:633E 07 01 3C 12+			     .db 0, 0, 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4, 0, 0x5A
-ROM:633E 06 05 0C 00+			     .db 0x31, 1, 0x1E,	0, 5, 0, 0xA, 0xA, 0xA,	0, 0, 0x3C, 0x12
-ROM:633E 01 00 00 05+			     .db 4, 2, 0x5C, 0x32, 2, 0x1E, 0, 0, 0, 0xA, 0xA, 0xA, 0
-ROM:633E 04 0A 0A 0B+			     .db 0, 0x3C, 0x12,	4, 1, 0x5A, 0x32, 4, 0x3C, 0, 6, 0, 0xA
-ROM:633E 07 03 3C 12+			     .db 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 5, 0x1E
-ROM:633E 06 00 0C 11+			     .db 0, 0, 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0, 2, 0x5A
-ROM:633E 01 0C 00 00+			     .db 0, 0, 0, 0, 7
-ROM:649E 03 0A 0A 0B+byte_649E:		     .db 3, 0xA, 0xA, 0xB, 8, 0, 0x3C, 0x12, 7,	8, 0x10, 0, 0
+ROM:633E 05 00 10 11+			     .db 3, 0xA, 0xA, 0xC, 6, 3, 0x3C, 0x12, 5,	4, 0xA,	0, 1, 0, 0, 6
+ROM:633E 01 0E 00 00+			     .db 4, 0xA, 0xA, 0xB, 6, 3, 0x3C, 0x12, 5,	0, 0xC,	0x11, 1, 0xE, 0, 0
+ROM:633E 03 0A 0A 0C+			     .db 5, 0xA, 0xA, 0xC, 6, 2, 0x3C, 0x12, 5,	7, 0xC,	0, 1, 0, 5, 8
+ROM:633E 06 03 3C 12+			     .db 3, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 5,	0, 0xC,	0x11, 1, 0xE, 0, 0
+ROM:633E 05 04 0A 00+			     .db 5, 0xA, 0xA, 0xC, 7, 1, 0x3C, 0x12, 6,	5, 0xC,	0, 1, 0, 0, 5
+ROM:633E 01 00 00 06+			     .db 4, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 6,	0, 0xC,	0x11, 1, 0xC, 0, 0
+ROM:633E 04 0A 0A 0B+			     .db 5, 0xA, 0xA, 0xC, 7, 1, 0x3C, 0x12, 6,	0xB, 0xC, 0, 1,	0, 0, 6
+ROM:633E 06 03 3C 12+			     .db 5, 0xA, 0xA, 0xB, 8, 1, 0x3C, 0x12, 6,	0, 0xC,	0x11, 1, 0xC, 5, 0
+ROM:633E 05 00 0C 11+			     .db 2, 0xA, 0xA, 0xC, 7, 0, 0x3C, 0x12, 7,	0xE, 0xC, 0, 1,	0, 1, 7
+ROM:633E 01 0E 00 00+			     .db 3, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 6,	0, 0xC,	0x11, 1, 0xA, 1, 0
+ROM:633E 05 0A 0A 0C+			     .db 3, 0xA, 0xA, 0xC, 7, 0, 0x3C, 0x12, 7,	6, 0xC,	0, 1, 0, 1, 5
+ROM:633E 06 02 3C 12+			     .db 3, 0xA, 0xA, 0xB, 8, 0, 0x3C, 0x12, 7,	0, 0xC,	0x11, 1, 0xA, 5, 0
+ROM:633E 05 07 0C 00+			     .db 4, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 6,	8, 0xC,	0, 1, 0, 1, 6
+ROM:633E 01 00 05 08+			     .db 6, 0xA, 0xA, 0xB, 8, 1, 0x3C, 0x12, 7,	0, 0xC,	0x11, 1, 8, 0, 0
+ROM:633E 03 0A 0A 0B+			     .db 4, 0xA, 0xA, 0xC, 7, 4, 0x3C, 0x12, 6,	8, 0xC,	0, 1, 0, 0, 7
+ROM:633E 07 03 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x20, 3, 0x1E,	0, 0
+ROM:633E 05 00 0C 11+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	0, 0x5A, 0x31, 1, 0x1E,	0, 5
+ROM:633E 01 0E 00 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 2, 0x1E,	0, 0
+ROM:633E 05 0A 0A 0C+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	1, 0x5A, 0x32, 4, 0x3C,	0, 6
+ROM:633E 07 01 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 5, 0x1E,	0, 0
+ROM:633E 06 05 0C 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	2, 0x5A, 0, 0, 0, 0, 7
+ROM:649E 03 0A 0A 0B+planet_6_area_data_tbl: .db 3, 0xA, 0xA, 0xB, 8, 0, 0x3C, 0x12, 7,	8, 0x10, 0, 0, 0xE, 3, 5
 ROM:649E 08 00 3C 12+								     ; DATA XREF: ROM:5DB6o
-ROM:649E 07 08 10 00+			     .db 0xE, 3, 5, 3, 0xA, 0xA, 0xC, 8, 0, 0x3C, 0x12,	7, 0
-ROM:649E 00 0E 03 05+			     .db 0xC, 0x12, 2, 0xE, 3, 0, 4, 0xA, 0xA, 0xC, 7, 4, 0x3C
-ROM:649E 03 0A 0A 0C+			     .db 0x12, 6, 4, 0x10, 0, 0, 0xE, 5, 6, 0, 0xA, 0xA, 0xB
-ROM:649E 08 00 3C 12+			     .db 7, 0, 0x3C, 0x12, 6, 0, 0xC, 0x12, 2, 0xE, 3, 0, 3, 0xA
-ROM:649E 07 00 0C 12+			     .db 0xA, 0xC, 7, 4, 0x3C, 0x12, 4,	3, 0x10, 0, 0, 0, 0, 7
-ROM:649E 02 0E 03 00+			     .db 4, 0xA, 0xA, 0xC, 7, 2, 0x3C, 0x12, 6,	0, 0xC,	0x12
-ROM:649E 04 0A 0A 0C+			     .db 2, 0, 0, 0, 5,	0xA, 0xA, 0xB, 7, 2, 0x3C, 0x12, 6, 2
-ROM:649E 07 04 3C 12+			     .db 0x10, 0, 0, 0xE, 0, 8,	4, 0xA,	0xA, 0xC, 7, 0,	0x3C
-ROM:649E 06 04 10 00+			     .db 0x12, 7, 0, 0xC, 0x12,	2, 0xE,	0, 0, 0, 0xA, 0xA, 0xC
-ROM:649E 00 0E 05 06+			     .db 6, 0, 0x3C, 0x12, 5, 1, 0x10, 0, 0, 0xE, 0, 7,	0, 0xA
-ROM:649E 00 0A 0A 0B+			     .db 0xA, 0xB, 6, 0, 0x3C, 0x12, 5,	0, 0xC,	0x12, 2, 0xE
-ROM:649E 07 00 3C 12+			     .db 0, 0, 3, 0xA, 0xA, 0xC, 7, 0, 0x3C, 0x12, 6, 7, 0x10
-ROM:649E 06 00 0C 12+			     .db 0, 0, 0xE, 0, 8, 4, 0xA, 0xA, 0xC, 7, 3, 0x3C,	0x12
-ROM:649E 02 0E 03 00+			     .db 6, 0, 0xC, 0x12, 2, 0xE, 0, 0,	4, 0xA,	0xA, 0xB, 7, 3
-ROM:649E 03 0A 0A 0C+			     .db 0x3C, 0x12, 6,	0, 0x10, 0, 0, 0xE, 0, 5, 6, 0xA, 0xA
-ROM:649E 07 04 3C 12+			     .db 0xC, 8, 1, 0x3C, 0x12,	7, 0, 0xC, 0x12, 2, 0xE, 0, 0
-ROM:649E 04 03 10 00+			     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7,	5, 0x10, 0, 0
-ROM:649E 00 00 00 07+			     .db 8, 3, 6, 3, 0xA, 0xA, 0xB, 7, 0, 0x3C,	0x12, 7, 0, 0xC
-ROM:649E 04 0A 0A 0C+			     .db 0x12, 2, 8, 3,	0, 0, 0xA, 0xA,	0xA, 0,	0, 0x3C, 0x12
-ROM:649E 07 02 3C 12+			     .db 0, 0xC, 0xC, 0x10, 3, 8, 4, 0,	5, 0xA,	0xA, 0xA, 0, 0
-ROM:649E 06 00 0C 12+			     .db 0x3C, 0x12, 0,	0xC, 0xC, 0x12,	5, 8, 5, 0, 6, 0xA, 0xA
-ROM:649E 02 00 00 00+			     .db 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0x13, 6, 0,	4, 0
-ROM:649E 05 0A 0A 0B+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6
-ROM:649E 07 02 3C 12+			     .db 0, 4, 0, 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8,	0xC, 0xC
-ROM:649E 06 02 10 00+			     .db 0, 6, 0, 4, 0,	6, 0xA,	0xA, 0xA, 8, 0xA, 0xFA,	2, 8
-ROM:649E 00 0E 00 08+			     .db 0xC, 0xC, 0, 6, 0, 4, 0
-ROM:65FE 04 0A 0A 0C+byte_65FE:		     .db 4, 0xA, 0xA, 0xC, 8, 2, 0x3C, 0x12, 5,	0xB, 0x10, 0
+ROM:649E 07 08 10 00+			     .db 3, 0xA, 0xA, 0xC, 8, 0, 0x3C, 0x12, 7,	0, 0xC,	0x12, 2, 0xE, 3, 0
+ROM:649E 00 0E 03 05+			     .db 4, 0xA, 0xA, 0xC, 7, 4, 0x3C, 0x12, 6,	4, 0x10, 0, 0, 0xE, 5, 6
+ROM:649E 03 0A 0A 0C+			     .db 0, 0xA, 0xA, 0xB, 7, 0, 0x3C, 0x12, 6,	0, 0xC,	0x12, 2, 0xE, 3, 0
+ROM:649E 08 00 3C 12+			     .db 3, 0xA, 0xA, 0xC, 7, 4, 0x3C, 0x12, 4,	3, 0x10, 0, 0, 0, 0, 7
+ROM:649E 07 00 0C 12+			     .db 4, 0xA, 0xA, 0xC, 7, 2, 0x3C, 0x12, 6,	0, 0xC,	0x12, 2, 0, 0, 0
+ROM:649E 02 0E 03 00+			     .db 5, 0xA, 0xA, 0xB, 7, 2, 0x3C, 0x12, 6,	2, 0x10, 0, 0, 0xE, 0, 8
+ROM:649E 04 0A 0A 0C+			     .db 4, 0xA, 0xA, 0xC, 7, 0, 0x3C, 0x12, 7,	0, 0xC,	0x12, 2, 0xE, 0, 0
+ROM:649E 07 04 3C 12+			     .db 0, 0xA, 0xA, 0xC, 6, 0, 0x3C, 0x12, 5,	1, 0x10, 0, 0, 0xE, 0, 7
+ROM:649E 06 04 10 00+			     .db 0, 0xA, 0xA, 0xB, 6, 0, 0x3C, 0x12, 5,	0, 0xC,	0x12, 2, 0xE, 0, 0
+ROM:649E 00 0E 05 06+			     .db 3, 0xA, 0xA, 0xC, 7, 0, 0x3C, 0x12, 6,	7, 0x10, 0, 0, 0xE, 0, 8
+ROM:649E 00 0A 0A 0B+			     .db 4, 0xA, 0xA, 0xC, 7, 3, 0x3C, 0x12, 6,	0, 0xC,	0x12, 2, 0xE, 0, 0
+ROM:649E 07 00 3C 12+			     .db 4, 0xA, 0xA, 0xB, 7, 3, 0x3C, 0x12, 6,	0, 0x10, 0, 0, 0xE, 0, 5
+ROM:649E 06 00 0C 12+			     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7,	0, 0xC,	0x12, 2, 0xE, 0, 0
+ROM:649E 02 0E 03 00+			     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7,	5, 0x10, 0, 0, 8, 3, 6
+ROM:649E 03 0A 0A 0C+			     .db 3, 0xA, 0xA, 0xB, 7, 0, 0x3C, 0x12, 7,	0, 0xC,	0x12, 2, 8, 3, 0
+ROM:649E 07 04 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x10,	3, 8, 4, 0
+ROM:649E 04 03 10 00+			     .db 5, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x12,	5, 8, 5, 0
+ROM:649E 00 00 00 07+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0x13, 6, 0, 4,	0
+ROM:649E 04 0A 0A 0C+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:649E 07 02 3C 12+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:649E 06 00 0C 12+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:65FE 04 0A 0A 0C+planet_7_area_data_tbl: .db 4, 0xA, 0xA, 0xC, 8, 2, 0x3C, 0x12, 5,	0xB, 0x10, 0, 0, 0xE, 0, 5
 ROM:65FE 08 02 3C 12+								     ; DATA XREF: ROM:5DB8o
-ROM:65FE 05 0B 10 00+			     .db 0, 0xE, 0, 5, 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7
-ROM:65FE 00 0E 00 05+			     .db 0, 0x10, 0, 0,	0xE, 2,	0, 5, 0xA, 0xA,	0xD, 8,	2, 0x3C
-ROM:65FE 06 0A 0A 0C+			     .db 0x12, 6, 0xD, 0x10, 0,	0, 0xE,	0, 5, 6, 0xA, 0xA, 0xC
-ROM:65FE 08 01 3C 12+			     .db 8, 1, 0x3C, 0x12, 8, 0, 0x10, 0x10, 3,	0xE, 0,	0, 5
-ROM:65FE 07 00 10 00+			     .db 0xA, 0xA, 0xC,	8, 2, 0x3C, 0x12, 7, 0xE, 0x10,	0, 0
-ROM:65FE 00 0E 02 00+			     .db 0, 0, 5, 4, 0xA, 0xA, 0xD, 7, 3, 0x3C,	0x12, 6, 0, 0x10
-ROM:65FE 05 0A 0A 0D+			     .db 0, 0, 0, 2, 0,	5, 0xA,	0xA, 0xC, 8, 2,	0x3C, 0x12, 6
-ROM:65FE 08 02 3C 12+			     .db 0xF, 0x10, 0, 0, 0xE, 0, 6, 5,	0xA, 0xA, 0xC, 7, 3, 0x3C
-ROM:65FE 06 0D 10 00+			     .db 0x12, 7, 0, 0x10, 0x11, 0, 0xE, 5, 0, 4, 0xA, 0xA, 0xD
-ROM:65FE 00 0E 00 05+			     .db 8, 3, 0x3C, 0x12, 7, 6, 0x10, 0, 0, 0xE, 0, 7,	4, 0xA
-ROM:65FE 06 0A 0A 0C+			     .db 0xA, 0xC, 8, 4, 0x3C, 0x12, 7,	0, 0x10, 0, 0, 0xE, 2
-ROM:65FE 08 01 3C 12+			     .db 0, 4, 0xA, 0xA, 0xC, 8, 3, 0x3C, 0x12,	7, 0xA,	0x10
-ROM:65FE 08 00 10 10+			     .db 0, 0, 0xE, 0, 8, 5, 0xA, 0xA, 0xD, 8, 4, 0x3C,	0x12
-ROM:65FE 03 0E 00 00+			     .db 8, 0, 0x10, 0x12, 5, 0xE, 5, 0, 5, 0xA, 0xA, 0xC, 8
-ROM:65FE 05 0A 0A 0C+			     .db 4, 0x3C, 0x12,	7, 8, 0x10, 0, 0, 0xE, 0, 5, 6,	0xA, 0xA
-ROM:65FE 08 02 3C 12+			     .db 0xC, 8, 1, 0x3C, 0x12,	8, 0, 0x10, 0, 0, 0xE, 2, 0, 5
-ROM:65FE 07 0E 10 00+			     .db 0xA, 0xA, 0xD,	8, 4, 0x3C, 0x12, 7, 0xC, 0x10,	0, 0
-ROM:65FE 00 00 00 05+			     .db 8, 0, 6, 6, 0xA, 0xA, 0xC, 9, 1, 0x3C,	0x12, 8, 0, 0x10
-ROM:65FE 04 0A 0A 0D+			     .db 0x10, 4, 8, 0,	0, 0, 0xA, 0xA,	0xA, 0,	0, 0x3C, 0x12
-ROM:65FE 07 03 3C 12+			     .db 0, 1, 0xC, 0, 0, 8, 0,	0, 0, 0xA, 0xA,	0xA, 0,	0, 0x3C
-ROM:65FE 06 00 10 00+			     .db 0x12, 0, 1, 0xC, 0x10,	7, 8, 4, 7, 0, 0xA, 0xA, 0xA
-ROM:65FE 00 00 02 00+			     .db 0, 0, 0x3C, 0x12, 0, 0, 0xC, 0x10, 7, 8, 4, 8,	0, 0xA
-ROM:65FE 05 0A 0A 0C+			     .db 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xE, 0xC, 0x10,	7, 8
-ROM:65FE 08 02 3C 12+			     .db 4, 8, 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0, 2, 0xC
-ROM:65FE 06 0F 10 00+			     .db 0x10, 7, 8, 4,	5, 0, 0xA, 0xA,	0xA, 0,	0, 0x3C, 0x12
-ROM:65FE 00 0E 00 06+			     .db 0, 2, 0xC, 0, 0, 8, 0,	0
-ROM:675E 06 0A 0A 0C+byte_675E:		     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7,	0, 0xC,	0, 0
+ROM:65FE 05 0B 10 00+			     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7,	0, 0x10, 0, 0, 0xE, 2, 0
+ROM:65FE 00 0E 00 05+			     .db 5, 0xA, 0xA, 0xD, 8, 2, 0x3C, 0x12, 6,	0xD, 0x10, 0, 0, 0xE, 0, 5
+ROM:65FE 06 0A 0A 0C+			     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 8,	0, 0x10, 0x10, 3, 0xE, 0, 0
+ROM:65FE 08 01 3C 12+			     .db 5, 0xA, 0xA, 0xC, 8, 2, 0x3C, 0x12, 7,	0xE, 0x10, 0, 0, 0, 0, 5
+ROM:65FE 07 00 10 00+			     .db 4, 0xA, 0xA, 0xD, 7, 3, 0x3C, 0x12, 6,	0, 0x10, 0, 0, 0, 2, 0
+ROM:65FE 00 0E 02 00+			     .db 5, 0xA, 0xA, 0xC, 8, 2, 0x3C, 0x12, 6,	0xF, 0x10, 0, 0, 0xE, 0, 6
+ROM:65FE 05 0A 0A 0D+			     .db 5, 0xA, 0xA, 0xC, 7, 3, 0x3C, 0x12, 7,	0, 0x10, 0x11, 0, 0xE, 5, 0
+ROM:65FE 08 02 3C 12+			     .db 4, 0xA, 0xA, 0xD, 8, 3, 0x3C, 0x12, 7,	6, 0x10, 0, 0, 0xE, 0, 7
+ROM:65FE 06 0D 10 00+			     .db 4, 0xA, 0xA, 0xC, 8, 4, 0x3C, 0x12, 7,	0, 0x10, 0, 0, 0xE, 2, 0
+ROM:65FE 00 0E 00 05+			     .db 4, 0xA, 0xA, 0xC, 8, 3, 0x3C, 0x12, 7,	0xA, 0x10, 0, 0, 0xE, 0, 8
+ROM:65FE 06 0A 0A 0C+			     .db 5, 0xA, 0xA, 0xD, 8, 4, 0x3C, 0x12, 8,	0, 0x10, 0x12, 5, 0xE, 5, 0
+ROM:65FE 08 01 3C 12+			     .db 5, 0xA, 0xA, 0xC, 8, 4, 0x3C, 0x12, 7,	8, 0x10, 0, 0, 0xE, 0, 5
+ROM:65FE 08 00 10 10+			     .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xE, 2, 0
+ROM:65FE 03 0E 00 00+			     .db 5, 0xA, 0xA, 0xD, 8, 4, 0x3C, 0x12, 7,	0xC, 0x10, 0, 0, 8, 0, 6
+ROM:65FE 05 0A 0A 0C+			     .db 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12, 8,	0, 0x10, 0x10, 4, 8, 0,	0
+ROM:65FE 08 02 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	1, 0xC,	0, 0, 8, 0, 0
+ROM:65FE 07 0E 10 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	1, 0xC,	0x10, 7, 8, 4, 7
+ROM:65FE 00 00 00 05+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0, 0xC,	0x10, 7, 8, 4, 8
+ROM:65FE 04 0A 0A 0D+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xE, 0xC, 0x10,	7, 8, 4, 8
+ROM:65FE 07 03 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	2, 0xC,	0x10, 7, 8, 4, 5
+ROM:65FE 06 00 10 00+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	2, 0xC,	0, 0, 8, 0, 0
+ROM:675E 06 0A 0A 0C+planet_8_area_data_tbl: .db 6, 0xA, 0xA, 0xC, 8, 1, 0x3C, 0x12, 7,	0, 0xC,	0, 0, 0xE, 1, 0
 ROM:675E 08 01 3C 12+								     ; DATA XREF: ROM:5DBAo
-ROM:675E 07 00 0C 00+			     .db 0xE, 1, 0, 4, 0xA, 0xA, 0xC, 8, 3, 0x3C, 0x12,	6, 8
-ROM:675E 00 0E 01 00+			     .db 0x10, 0, 0, 0xE, 1, 5,	6, 0xA,	0xA, 0xC, 9, 1,	0x3C
-ROM:675E 04 0A 0A 0C+			     .db 0x12, 8, 0, 0x10, 0, 0, 0xE, 0, 0, 5, 0xA, 0xA, 0xD
-ROM:675E 08 03 3C 12+			     .db 8, 3, 0x3C, 0x12, 7, 4, 0x10, 0x11, 1,	0xE, 5,	6, 5
-ROM:675E 06 08 10 00+			     .db 0xA, 0xA, 0xD,	8, 3, 0x3C, 0x12, 7, 0,	0x10, 0, 0, 0
-ROM:675E 00 0E 01 05+			     .db 0, 0, 4, 0xA, 0xA, 0xC, 8, 0, 0x3C, 0x12, 7, 3, 0x10
-ROM:675E 06 0A 0A 0C+			     .db 0, 0, 0, 0, 7,	5, 0xA,	0xA, 0xC, 8, 3,	0x3C, 0x12, 7
-ROM:675E 09 01 3C 12+			     .db 0, 0x10, 0, 0,	0xE, 1,	0, 4, 0xA, 0xA,	0xD, 9,	0, 0x3C
-ROM:675E 08 00 10 00+			     .db 0x12, 7, 2, 0x10, 0x12, 2, 0xC, 1, 8, 4, 0xA, 0xA, 0xC
-ROM:675E 00 0E 00 00+			     .db 9, 0, 0x3C, 0x12, 8, 0, 0x10, 0, 0, 0xE, 0, 0,	5, 0xA
-ROM:675E 05 0A 0A 0D+			     .db 0xA, 0xC, 9, 2, 0x3C, 0x12, 8,	1, 0x10, 0, 0, 0xC, 5
-ROM:675E 08 03 3C 12+			     .db 5, 4, 0xA, 0xA, 0xC, 9, 0, 0x3C, 0x12,	8, 0, 0x10, 0
-ROM:675E 07 04 10 11+			     .db 0, 0xE, 0, 0, 5, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 8
-ROM:675E 01 0E 05 06+			     .db 7, 0x10, 0x10,	3, 0xA,	0, 6, 5, 0xA, 0xA, 0xD,	9, 2
-ROM:675E 05 0A 0A 0D+			     .db 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xE, 1, 0, 5, 0xA, 0xA
-ROM:675E 08 03 3C 12+			     .db 0xC, 9, 4, 0x3C, 0x12,	8, 0, 0x10, 0, 0, 0xA, 1, 7, 5
-ROM:675E 07 00 10 00+			     .db 0xA, 0xA, 0xD,	9, 2, 0x3C, 0x12, 8, 5,	0x10, 0, 0, 8
-ROM:675E 00 00 00 00+			     .db 0, 0, 5, 0xA, 0xA, 0xC, 9, 4, 0x3C, 0x12, 8, 0, 0xC
-ROM:675E 04 0A 0A 0C+			     .db 0x11, 0, 8, 0,	8, 6, 0xA, 0xA,	0xA, 0,	0, 0x3C, 0x12
-ROM:675E 08 00 3C 12+			     .db 4, 2, 0x5C, 0x20, 3, 0x1E, 0, 0, 6, 0xA, 0xA, 0xA, 0
-ROM:675E 07 03 10 00+			     .db 0, 0x3C, 0x12,	4, 5, 0x5C, 0x31, 1, 0x1E, 0, 5, 6, 0xA
-ROM:675E 00 00 00 07+			     .db 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 2, 0x1E
-ROM:675E 05 0A 0A 0C+			     .db 0, 0, 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4, 0xE, 0x5C
-ROM:675E 08 03 3C 12+			     .db 0x32, 4, 0x3C,	0, 6, 6, 0xA, 0xA, 0xA,	0, 0, 0x3C, 0x12
-ROM:675E 07 00 10 00+			     .db 4, 2, 0x5C, 0x32, 5, 0x1E, 0, 0, 6, 0xA, 0xA, 0xA, 0
-ROM:675E 00 0E 01 00+			     .db 0, 0x3C, 0x12,	0, 0xF,	0x5C, 0, 0, 0, 0, 7
-ROM:68BE 06 0A 0A 0C+byte_68BE:		     .db 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12, 7,	0, 0, 0, 0, 0xE
+ROM:675E 07 00 0C 00+			     .db 4, 0xA, 0xA, 0xC, 8, 3, 0x3C, 0x12, 6,	8, 0x10, 0, 0, 0xE, 1, 5
+ROM:675E 00 0E 01 00+			     .db 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xE, 0, 0
+ROM:675E 04 0A 0A 0C+			     .db 5, 0xA, 0xA, 0xD, 8, 3, 0x3C, 0x12, 7,	4, 0x10, 0x11, 1, 0xE, 5, 6
+ROM:675E 08 03 3C 12+			     .db 5, 0xA, 0xA, 0xD, 8, 3, 0x3C, 0x12, 7,	0, 0x10, 0, 0, 0, 0, 0
+ROM:675E 06 08 10 00+			     .db 4, 0xA, 0xA, 0xC, 8, 0, 0x3C, 0x12, 7,	3, 0x10, 0, 0, 0, 0, 7
+ROM:675E 00 0E 01 05+			     .db 5, 0xA, 0xA, 0xC, 8, 3, 0x3C, 0x12, 7,	0, 0x10, 0, 0, 0xE, 1, 0
+ROM:675E 06 0A 0A 0C+			     .db 4, 0xA, 0xA, 0xD, 9, 0, 0x3C, 0x12, 7,	2, 0x10, 0x12, 2, 0xC, 1, 8
+ROM:675E 09 01 3C 12+			     .db 4, 0xA, 0xA, 0xC, 9, 0, 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xE, 0, 0
+ROM:675E 08 00 10 00+			     .db 5, 0xA, 0xA, 0xC, 9, 2, 0x3C, 0x12, 8,	1, 0x10, 0, 0, 0xC, 5, 5
+ROM:675E 00 0E 00 00+			     .db 4, 0xA, 0xA, 0xC, 9, 0, 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xE, 0, 0
+ROM:675E 05 0A 0A 0D+			     .db 5, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 8,	7, 0x10, 0x10, 3, 0xA, 0, 6
+ROM:675E 08 03 3C 12+			     .db 5, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xE, 1, 0
+ROM:675E 07 04 10 11+			     .db 5, 0xA, 0xA, 0xC, 9, 4, 0x3C, 0x12, 8,	0, 0x10, 0, 0, 0xA, 1, 7
+ROM:675E 01 0E 05 06+			     .db 5, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 8,	5, 0x10, 0, 0, 8, 0, 0
+ROM:675E 05 0A 0A 0D+			     .db 5, 0xA, 0xA, 0xC, 9, 4, 0x3C, 0x12, 8,	0, 0xC,	0x11, 0, 8, 0, 8
+ROM:675E 08 03 3C 12+			     .db 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x20, 3, 0x1E,	0, 0
+ROM:675E 07 00 10 00+			     .db 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	5, 0x5C, 0x31, 1, 0x1E,	0, 5
+ROM:675E 00 00 00 00+			     .db 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 2, 0x1E,	0, 0
+ROM:675E 04 0A 0A 0C+			     .db 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	0xE, 0x5C, 0x32, 4, 0x3C, 0, 6
+ROM:675E 08 00 3C 12+			     .db 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 4,	2, 0x5C, 0x32, 5, 0x1E,	0, 0
+ROM:675E 07 03 10 00+			     .db 6, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xF, 0x5C, 0, 0, 0, 0, 7
+ROM:68BE 06 0A 0A 0C+planet_9_area_data_tbl: .db 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12, 7,	0, 0, 0, 0, 0xE, 0, 0
 ROM:68BE 09 01 3C 12+								     ; DATA XREF: ROM:5DBCo
-ROM:68BE 07 00 00 00+			     .db 0, 0, 6, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 8, 0xB, 0x10
-ROM:68BE 00 0E 00 00+			     .db 0, 0, 0xE, 0, 5, 6, 0xA, 0xA, 0xD, 9, 3, 0x3C,	0x12
-ROM:68BE 06 0A 0A 0D+			     .db 8, 0, 0, 0, 0,	0xE, 0,	0, 6, 0xA, 0xA,	0xC, 9,	4, 0x3C
-ROM:68BE 09 02 3C 12+			     .db 0x12, 8, 0xD, 0x10, 0x12, 5, 0xE, 5, 6, 6, 0xA, 0xA
-ROM:68BE 08 0B 10 00+			     .db 0xD, 9, 0, 0x3C, 0x12,	9, 0, 0, 0, 0, 0, 0, 0,	6, 0xA
-ROM:68BE 00 0E 00 05+			     .db 0xA, 0xD, 9, 2, 0x3C, 0x12, 9,	0xE, 0x10, 0, 0, 0, 0
-ROM:68BE 06 0A 0A 0D+			     .db 7, 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12,	9, 0, 0, 0, 0
-ROM:68BE 09 03 3C 12+			     .db 0xE, 3, 0, 6, 0xA, 0xA, 0xD, 9, 3, 0x3C, 0x12,	8, 0xF
-ROM:68BE 08 00 00 00+			     .db 0x10, 0x10, 4,	0xE, 5,	8, 6, 0xA, 0xA,	0xD, 9,	0, 0x3C
-ROM:68BE 00 0E 00 00+			     .db 0x12, 9, 0, 0,	0, 0, 0xE, 3, 0, 6, 0xA, 0xA, 0xC, 9
-ROM:68BE 06 0A 0A 0C+			     .db 4, 0x3C, 0x12,	9, 6, 0x10, 0, 0, 0xE, 3, 7, 6,	0xA, 0xA
-ROM:68BE 09 04 3C 12+			     .db 0xD, 9, 0, 0x3C, 0x12,	9, 0, 0, 0, 0, 0xE, 3, 0, 6, 0xA
-ROM:68BE 08 0D 10 12+			     .db 0xA, 0xC, 9, 1, 0x3C, 0x12, 9,	0xA, 0x10, 0x11, 1, 0xE
-ROM:68BE 05 0E 05 06+			     .db 3, 6, 6, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 9, 0, 0, 0
-ROM:68BE 06 0A 0A 0D+			     .db 0, 0xE, 0, 0, 6, 0xA, 0xA, 0xD, 9, 3, 0x3C, 0x12, 9
-ROM:68BE 09 00 3C 12+			     .db 8, 0x10, 0, 0,	0xE, 0,	5, 6, 0xA, 0xA,	0xD, 9,	1, 0x3C
-ROM:68BE 09 00 00 00+			     .db 0x12, 9, 0, 0,	0, 0, 8, 0, 0, 6, 0xA, 0xA, 0xC, 9, 4
-ROM:68BE 00 00 00 00+			     .db 0x3C, 0x12, 9,	0xC, 0x10, 0x12, 2, 8, 0, 6, 0,	0xA, 0xA
-ROM:68BE 06 0A 0A 0D+			     .db 0xA, 0, 0, 0x3C, 0x12,	0, 0xC,	0xC, 0x10, 3, 8, 4, 0
-ROM:68BE 09 02 3C 12+			     .db 5, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x12
-ROM:68BE 09 0E 10 00+			     .db 5, 8, 4, 0, 6,	0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2,	8, 0xC
-ROM:68BE 00 00 00 07+			     .db 0xC, 0x13, 6, 0, 4, 0,	6, 0xA,	0xA, 0xA, 8, 0xA, 0xFA
-ROM:68BE 06 0A 0A 0C+			     .db 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0,	6, 0xA,	0xA, 0xA, 8, 0xA
-ROM:68BE 09 01 3C 12+			     .db 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0,	4, 0, 6, 0xA, 0xA, 0xA
-ROM:68BE 09 00 00 00+			     .db 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0,	4, 0
+ROM:68BE 07 00 00 00+			     .db 6, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 8,	0xB, 0x10, 0, 0, 0xE, 0, 5
+ROM:68BE 00 0E 00 00+			     .db 6, 0xA, 0xA, 0xD, 9, 3, 0x3C, 0x12, 8,	0, 0, 0, 0, 0xE, 0, 0
+ROM:68BE 06 0A 0A 0D+			     .db 6, 0xA, 0xA, 0xC, 9, 4, 0x3C, 0x12, 8,	0xD, 0x10, 0x12, 5, 0xE, 5, 6
+ROM:68BE 09 02 3C 12+			     .db 6, 0xA, 0xA, 0xD, 9, 0, 0x3C, 0x12, 9,	0, 0, 0, 0, 0, 0, 0
+ROM:68BE 08 0B 10 00+			     .db 6, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 9,	0xE, 0x10, 0, 0, 0, 0, 7
+ROM:68BE 00 0E 00 05+			     .db 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12, 9,	0, 0, 0, 0, 0xE, 3, 0
+ROM:68BE 06 0A 0A 0D+			     .db 6, 0xA, 0xA, 0xD, 9, 3, 0x3C, 0x12, 8,	0xF, 0x10, 0x10, 4, 0xE, 5, 8
+ROM:68BE 09 03 3C 12+			     .db 6, 0xA, 0xA, 0xD, 9, 0, 0x3C, 0x12, 9,	0, 0, 0, 0, 0xE, 3, 0
+ROM:68BE 08 00 00 00+			     .db 6, 0xA, 0xA, 0xC, 9, 4, 0x3C, 0x12, 9,	6, 0x10, 0, 0, 0xE, 3, 7
+ROM:68BE 00 0E 00 00+			     .db 6, 0xA, 0xA, 0xD, 9, 0, 0x3C, 0x12, 9,	0, 0, 0, 0, 0xE, 3, 0
+ROM:68BE 06 0A 0A 0C+			     .db 6, 0xA, 0xA, 0xC, 9, 1, 0x3C, 0x12, 9,	0xA, 0x10, 0x11, 1, 0xE, 3, 6
+ROM:68BE 09 04 3C 12+			     .db 6, 0xA, 0xA, 0xD, 9, 2, 0x3C, 0x12, 9,	0, 0, 0, 0, 0xE, 0, 0
+ROM:68BE 08 0D 10 12+			     .db 6, 0xA, 0xA, 0xD, 9, 3, 0x3C, 0x12, 9,	8, 0x10, 0, 0, 0xE, 0, 5
+ROM:68BE 05 0E 05 06+			     .db 6, 0xA, 0xA, 0xD, 9, 1, 0x3C, 0x12, 9,	0, 0, 0, 0, 8, 0, 0
+ROM:68BE 06 0A 0A 0D+			     .db 6, 0xA, 0xA, 0xC, 9, 4, 0x3C, 0x12, 9,	0xC, 0x10, 0x12, 2, 8, 0, 6
+ROM:68BE 09 00 3C 12+			     .db 0, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x10,	3, 8, 4, 0
+ROM:68BE 09 00 00 00+			     .db 5, 0xA, 0xA, 0xA, 0, 0, 0x3C, 0x12, 0,	0xC, 0xC, 0x12,	5, 8, 4, 0
+ROM:68BE 00 00 00 00+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0x13, 6, 0, 4,	0
+ROM:68BE 06 0A 0A 0D+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:68BE 09 02 3C 12+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:68BE 09 0E 10 00+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
 ROM:6A1E
 ROM:6A1E	     ; =============== S U B R O U T I N E =======================================
 ROM:6A1E
@@ -13251,7 +13213,7 @@ RAM:E01C									     ; init_p1_p2_data+21r
 RAM:E01D ??	     cabinet:		     .ds 1				     ; DATA XREF: ROM:0129w
 RAM:E01D									     ; ROM:116Dr
 RAM:E01E ??	     max_bullets_with_large_alien:.ds 1				     ; DATA XREF: handle_large_alien_bullets+11r
-RAM:E01E									     ; lookup_a_whole_bunch_of_data+97w
+RAM:E01E									     ; init_planet_area_data+97w
 RAM:E01F ??	     byte_E01F:		     .ds 1				     ; DATA XREF: ROM:11C1w
 RAM:E01F									     ; ROM:loc_121Br ...
 RAM:E020 ??	     tmp_e020:		     .ds 1				     ; DATA XREF: sub_4110o
@@ -13348,17 +13310,17 @@ RAM:E0A2 ??				     .ds 1
 RAM:E0A3 ??				     .ds 1
 RAM:E0A4 ??	     max_alien_bullets:	     .ds 1				     ; DATA XREF: ROM:0C4Ew
 RAM:E0A4									     ; handle_e200_firing+5r ...
-RAM:E0A5 ??	     byte_E0A5:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+3Fw
+RAM:E0A5 ??	     byte_E0A5:		     .ds 1				     ; DATA XREF: init_planet_area_data+3Fw
 RAM:E0A5									     ; spawn_e200_objects+3Dr
-RAM:E0A6 ??	     byte_E0A6:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+42w
+RAM:E0A6 ??	     byte_E0A6:		     .ds 1				     ; DATA XREF: init_planet_area_data+42w
 RAM:E0A6									     ; sub_2BEB:loc_2BFBo ...
 RAM:E0A7 ??	     byte_E0A7:		     .ds 1				     ; DATA XREF: handle_e200_firing+91r
-RAM:E0A7									     ; lookup_a_whole_bunch_of_data+1Ew
+RAM:E0A7									     ; init_planet_area_data+1Ew
 RAM:E0A8 ??	     byte_E0A8:		     .ds 1				     ; DATA XREF: handle_e200_firingr
 RAM:E0A8									     ; handle_e200_firing+94w ...
 RAM:E0A9 ??				     .ds 1
 RAM:E0AA ??	     byte_E0AA:		     .ds 1				     ; DATA XREF: init_some_stuff+2w
-RAM:E0AA									     ; lookup_a_whole_bunch_of_data+88w ...
+RAM:E0AA									     ; init_planet_area_data+88w ...
 RAM:E0AB ??	     byte_E0AB:		     .ds 1				     ; DATA XREF: ROM:20C8o
 RAM:E0AB									     ; init_some_stuff+9w ...
 RAM:E0AC ??				     .ds 1
@@ -13369,54 +13331,54 @@ RAM:E0AF ??				     .ds 1
 RAM:E0B0 ??				     .ds 1
 RAM:E0B1 ??	     byte_E0B1:		     .ds 1				     ; DATA XREF: init_some_stuff+Fw
 RAM:E0B2 ??	     byte_E0B2:		     .ds 1				     ; DATA XREF: init_some_stuff+5w
-RAM:E0B2									     ; lookup_a_whole_bunch_of_data+8Dw ...
+RAM:E0B2									     ; init_planet_area_data+8Dw ...
 RAM:E0B3 ??	     byte_E0B3:		     .ds 1				     ; DATA XREF: spawn_e300_objects+32r
 RAM:E0B4 ??	     byte_E0B4:		     .ds 1				     ; DATA XREF: spawn_e300_objects+5r
 RAM:E0B4									     ; spawn_e300_objects+35w
-RAM:E0B5 ??	     byte_E0B5:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+7Cw
+RAM:E0B5 ??	     byte_E0B5:		     .ds 1				     ; DATA XREF: init_planet_area_data+7Cw
 RAM:E0B5									     ; spawn_e300_objectsr
 RAM:E0B6 ??	     byte_E0B6:		     .ds 1				     ; DATA XREF: handle_e200_firing+23r
-RAM:E0B6									     ; lookup_a_whole_bunch_of_data+19w
+RAM:E0B6									     ; init_planet_area_data+19w
 RAM:E0B7 ??	     byte_E0B7:		     .ds 1				     ; DATA XREF: handle_e200_firing+84r
-RAM:E0B7									     ; lookup_a_whole_bunch_of_data+26w
-RAM:E0B8 ??	     missed_E_cnt:	     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+2Bw
+RAM:E0B7									     ; init_planet_area_data+26w
+RAM:E0B8 ??	     missed_E_cnt:	     .ds 1				     ; DATA XREF: init_planet_area_data+2Bw
 RAM:E0B8									     ; spawn_e200_objects+11r ...
-RAM:E0B9 ??	     byte_E0B9:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+30w
+RAM:E0B9 ??	     byte_E0B9:		     .ds 1				     ; DATA XREF: init_planet_area_data+30w
 RAM:E0B9									     ; spawn_e200_object+6r ...
-RAM:E0BA ??	     byte_E0BA:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+35w
+RAM:E0BA ??	     byte_E0BA:		     .ds 1				     ; DATA XREF: init_planet_area_data+35w
 RAM:E0BA									     ; spawn_e200_objects:loc_2C7Fr
-RAM:E0BB ??	     byte_E0BB:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+3Aw
+RAM:E0BB ??	     byte_E0BB:		     .ds 1				     ; DATA XREF: init_planet_area_data+3Aw
 RAM:E0BB									     ; sub_2BEB:loc_2C03o ...
-RAM:E0BC ??	     byte_E0BC:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+47w
+RAM:E0BC ??	     byte_E0BC:		     .ds 1				     ; DATA XREF: init_planet_area_data+47w
 RAM:E0BC									     ; sub_2BEB+22r
-RAM:E0BD ??	     byte_E0BD:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+4Aw
+RAM:E0BD ??	     byte_E0BD:		     .ds 1				     ; DATA XREF: init_planet_area_data+4Aw
 RAM:E0BD									     ; sub_2BEB+25w ...
-RAM:E0BE ??	     byte_E0BE:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+4Fw
+RAM:E0BE ??	     byte_E0BE:		     .ds 1				     ; DATA XREF: init_planet_area_data+4Fw
 RAM:E0BE									     ; spawn_e200_objects+253o
-RAM:E0BF ??	     byte_E0BF:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+54w
+RAM:E0BF ??	     byte_E0BF:		     .ds 1				     ; DATA XREF: init_planet_area_data+54w
 RAM:E0BF									     ; sub_2BEB:loc_2C21o
-RAM:E0C0 ??	     byte_E0C0:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+70w
+RAM:E0C0 ??	     byte_E0C0:		     .ds 1				     ; DATA XREF: init_planet_area_data+70w
 RAM:E0C0									     ; ROM:3789r
-RAM:E0C1 ??	     byte_E0C1:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+66w
+RAM:E0C1 ??	     byte_E0C1:		     .ds 1				     ; DATA XREF: init_planet_area_data+66w
 RAM:E0C1									     ; spawn_large_alienr ...
-RAM:E0C2 ??	     byte_E0C2:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+5Cw
+RAM:E0C2 ??	     byte_E0C2:		     .ds 1				     ; DATA XREF: init_planet_area_data+5Cw
 RAM:E0C2									     ; ROM:3773r
-RAM:E0C3 ??	     byte_E0C3:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+6Bw
+RAM:E0C3 ??	     byte_E0C3:		     .ds 1				     ; DATA XREF: init_planet_area_data+6Bw
 RAM:E0C3									     ; ROM:3752r
-RAM:E0C4 ??	     byte_E0C4:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+73w
+RAM:E0C4 ??	     byte_E0C4:		     .ds 1				     ; DATA XREF: init_planet_area_data+73w
 RAM:E0C4									     ; sub_2BEB+2Eo ...
 RAM:E0C5 ??	     byte_E0C5:		     .ds 1				     ; DATA XREF: init_some_stuff+Cw
 RAM:E0C5									     ; sub_2BEB:loc_2C2Fo
-RAM:E0C6 ??	     byte_E0C6:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+77w
+RAM:E0C6 ??	     byte_E0C6:		     .ds 1				     ; DATA XREF: init_planet_area_data+77w
 RAM:E0C7 ??	     byte_E0C7:		     .ds 1				     ; DATA XREF: init_objs_at_e200_from_tbl+12w
 RAM:E0C7									     ; ROM:loc_2331r ...
 RAM:E0C8 ??	     formations_destroyed_cnt:.ds 1				     ; DATA XREF: ROM:0B5Cw
 RAM:E0C8									     ; ROM:11BEw ...
-RAM:E0C9 ??	     byte_E0C9:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+80w
+RAM:E0C9 ??	     byte_E0C9:		     .ds 1				     ; DATA XREF: init_planet_area_data+80w
 RAM:E0C9									     ; spawn_e300_objectr
 RAM:E0CA ??	     missed_S_cnt:	     .ds 1				     ; DATA XREF: ROM:missed_Sr
 RAM:E0CA									     ; ROM:3713w
-RAM:E0CB ??	     byte_E0CB:		     .ds 1				     ; DATA XREF: lookup_a_whole_bunch_of_data+85w
+RAM:E0CB ??	     byte_E0CB:		     .ds 1				     ; DATA XREF: init_planet_area_data+85w
 RAM:E0CB									     ; spawn_e200_objects:loc_2E81r ...
 RAM:E0CC ??	     byte_E0CC:		     .ds 1				     ; DATA XREF: ROM:loc_2207r
 RAM:E0CC									     ; sub_2BEB:loc_2BF3o ...
@@ -13504,7 +13466,7 @@ RAM:E110	     ; $03    -	obj x msb (== sprite x)
 RAM:E110	     ; $04    -	obj x lsb
 RAM:E110	     ; $05/06 -	fg videoram addr
 RAM:E110 ?? ?? ?? ??+bullet_obj_tbl:	     .ds 0x10				     ; DATA XREF: zero_object_data+1Do
-RAM:E110 ?? ?? ?? ??+								     ; clear_all_player_bullets+14o ...
+RAM:E110 ?? ?? ?? ??+								     ; clear_all_player_sprite_bullets+14o ...
 RAM:E120 ?? ?? ?? ??+			     .ds 0x10
 RAM:E130 ?? ?? ?? ??+			     .ds 0x10
 RAM:E140 ?? ?? ?? ??+			     .ds 0x10
@@ -13940,7 +13902,7 @@ RAM:E500									     ; ROM:06D1o ...
 RAM:E501 ??	     byte_E501:		     .ds 1				     ; DATA XREF: ROM:0B48w
 RAM:E501									     ; ROM:1224o ...
 RAM:E502 ??	     map_planet:	     .ds 1				     ; DATA XREF: ROM:0B4Dw
-RAM:E502									     ; lookup_a_whole_bunch_of_data+3r	...
+RAM:E502									     ; init_planet_area_data+3r ...
 RAM:E503 ??	     map_area:		     .ds 1				     ; DATA XREF: ROM:0B52w
 RAM:E503									     ; ROM:120Fr ...
 RAM:E504 ??	     curr_bonus_life_1st:    .ds 1				     ; DATA XREF: ROM:06BEo
