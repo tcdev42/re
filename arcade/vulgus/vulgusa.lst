@@ -191,10 +191,10 @@ ROM:00D9 E6 07				     and     #7				     ; coinB
 ROM:00DB 21 56 01			     ld	     hl, #coin_tbl
 ROM:00DE 87				     add     a,	a
 ROM:00DF E7				     rst     content_hl_plus_a		     ; coinB setting
-ROM:00E0 32 12 E0			     ld	     (coinb_coins), a
+ROM:00E0 32 12 E0			     ld	     (coinB_coins), a
 ROM:00E3 23				     inc     hl
 ROM:00E4 7E				     ld	     a,	(hl)
-ROM:00E5 32 14 E0			     ld	     (coinb_credits), a
+ROM:00E5 32 14 E0			     ld	     (coinB_credits), a
 ROM:00E8 A7				     and     a				     ; zero credits?
 ROM:00E9 20 04				     jr	     NZ, loc_EF			     ; no, skip
 ROM:00EB 3D				     dec     a				     ; $FF
@@ -956,8 +956,8 @@ ROM:068E	     ; ----------------------------------------------------------------
 ROM:068E
 ROM:068E	     main_fn_8__add_to_score_update_hi:				     ; DATA XREF: process_q+2Fo
 ROM:068E 3A 05 E0			     ld	     a,	(vbl_lvl_0_fn)
-ROM:0691 3D				     dec     a
-ROM:0692 C8				     ret     Z
+ROM:0691 3D				     dec     a				     ; attract mode?
+ROM:0692 C8				     ret     Z				     ; yes, exit
 ROM:0693 21 53 07			     ld	     hl, #points_tbl
 ROM:0696 3A A4 ED			     ld	     a,	(q_param)		     ; points ordinal
 ROM:0699 EF				     rst     de_eq_contents_hl_plus_2a	     ; get points entry
@@ -987,7 +987,7 @@ ROM:06B9 77				     ld	     (hl), a			     ; update score byte
 ROM:06BA 57				     ld	     d,	a			     ; save
 ROM:06BB
 ROM:06BB	     loc_6BB:							     ; CODE XREF: ROM:06B1j
-ROM:06BB CD 20 07			     call    sub_720
+ROM:06BB CD 20 07			     call    chk_jap_symbol_bonus
 ROM:06BE 21 04 E5			     ld	     hl, #curr_bonus_life_1st
 ROM:06C1 7E				     ld	     a,	(hl)			     ; bonus life score
 ROM:06C2 A7				     and     a				     ; used?
@@ -1052,19 +1052,17 @@ ROM:0718 ED B0				     ldir				     ; copy to hi score
 ROM:071A CD 15 42			     call    print_hi_score_0
 ROM:071D C3 BA 03			     jp	     main_fn_2__print_curr_score
 ROM:0720
-ROM:0720	     ; NFI what	this does... compares scores to	???
-ROM:0720
 ROM:0720	     ; =============== S U B R O U T I N E =======================================
 ROM:0720
 ROM:0720
-ROM:0720	     sub_720:							     ; CODE XREF: ROM:loc_6BBp
+ROM:0720	     chk_jap_symbol_bonus:					     ; CODE XREF: ROM:loc_6BBp
 ROM:0720 21 41 EE			     ld	     hl, #p1_score
 ROM:0723 3A 01 EC			     ld	     a,	(curr_player)
 ROM:0726 E6 01				     and     #1				     ; p1?
 ROM:0728 28 03				     jr	     Z,	loc_72D			     ; yes, skip
 ROM:072A 21 44 EE			     ld	     hl, #p2_score
 ROM:072D
-ROM:072D	     loc_72D:							     ; CODE XREF: sub_720+8j
+ROM:072D	     loc_72D:							     ; CODE XREF: chk_jap_symbol_bonus+8j
 ROM:072D 7E				     ld	     a,	(hl)			     ; score byte MSB
 ROM:072E 0F				     rrca
 ROM:072F 0F				     rrca
@@ -1081,19 +1079,19 @@ ROM:073A 0F				     rrca
 ROM:073B E6 0F				     and     #0xF			     ; high nibble to low nibble
 ROM:073D 82				     add     a,	d			     ; combine (y0,00[0])
 ROM:073E 57				     ld	     d,	a			     ; save (xy0,00[0])	tens of	thousands
-ROM:073F 3A 07 E5			     ld	     a,	(byte_E507)
-ROM:0742 FE 60				     cp	     #0x60 ; '`'                     ; less than $60?
+ROM:073F 3A 07 E5			     ld	     a,	(next_jap_symbol_bonus_score)
+ROM:0742 FE 60				     cp	     #0x60 ; '`'                     ; score less than 600,000?
 ROM:0744 D0				     ret     NC				     ; no, exit
-ROM:0745 5F				     ld	     e,	a			     ; [$E507]
-ROM:0746 7A				     ld	     a,	d			     ; 10,000's
-ROM:0747 BB				     cp	     e				     ; score 10,000's more than $E507?
+ROM:0745 5F				     ld	     e,	a			     ; next japanese bonus score
+ROM:0746 7A				     ld	     a,	d			     ; curr score 10,000's
+ROM:0747 BB				     cp	     e				     ; more than next bonus?
 ROM:0748 D8				     ret     C				     ; no, exit
-ROM:0749 7B				     ld	     a,	e			     ; [$E507]
-ROM:074A C6 10				     add     a,	#0x10			     ; add 10x10,000's (100,000)
-ROM:074C 32 07 E5			     ld	     (byte_E507), a		     ; update
+ROM:0749 7B				     ld	     a,	e			     ; get bobus score
+ROM:074A C6 10				     add     a,	#0x10			     ; add 100,000
+ROM:074C 32 07 E5			     ld	     (next_jap_symbol_bonus_score), a ;	update
 ROM:074F 32 9D E0			     ld	     (spawn_jap_symb_flag), a	     ; flag japanese symbol
 ROM:0752 C9				     ret
-ROM:0752	     ; End of function sub_720
+ROM:0752	     ; End of function chk_jap_symbol_bonus
 ROM:0752
 ROM:0752	     ; ---------------------------------------------------------------------------
 ROM:0753 05 00	     points_tbl:	     .dw 5				     ; DATA XREF: ROM:0693o
@@ -1291,7 +1289,7 @@ ROM:093C F7				     rst     jp_tbl_vector
 ROM:093C	     ; ---------------------------------------------------------------------------
 ROM:093D ED 0A				     .dw vbl_0_1_fn_0__render_hi_score_screen
 ROM:093F 0B 0B				     .dw vbl_0_1_fn_1__wait_timer
-ROM:0941 13 0B				     .dw vbl_0_1_fn_2__init_attract_mode_objs
+ROM:0941 13 0B				     .dw vbl_0_1_fn_2__reset_attract_mode_gameplay
 ROM:0943 30 0B				     .dw vbl_0_1_fn_3__init_attract_mode_map
 ROM:0945 72 0B				     .dw vbl_0_1_fn_4__init_attract_mode_ship
 ROM:0947 8E 0B				     .dw vbl_0_1_fn_5__attract_mode_gameplay
@@ -1347,7 +1345,7 @@ ROM:0996	     ; ----------------------------------------------------------------
 ROM:0997 7B 0F				     .dw vbl_0_2_fn_0__cls_print_PUSH_START
 ROM:0999 8E 0F				     .dw vbl_0_2_fn_1__render_attract_mode_text
 ROM:099B B3 0F				     .dw vbl_0_2_fn_2__wait_2_credits
-ROM:099D BC 0F				     .dw vbl_0_2_fn_3__
+ROM:099D BC 0F				     .dw vbl_0_2_fn_3__show_lives_bonus_title
 ROM:099F CB 0F				     .dw locret_FCB
 ROM:09A1	     ; ---------------------------------------------------------------------------
 ROM:09A1
@@ -1619,7 +1617,7 @@ ROM:0B0F C0				     ret     NZ
 ROM:0B10 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0B13	     ; ---------------------------------------------------------------------------
 ROM:0B13
-ROM:0B13	     vbl_0_1_fn_2__init_attract_mode_objs:			     ; DATA XREF: ROM:0941o
+ROM:0B13	     vbl_0_1_fn_2__reset_attract_mode_gameplay:			     ; DATA XREF: ROM:0941o
 ROM:0B13 21 A0 E0			     ld	     hl, #unk_E0A0
 ROM:0B16 11 A1 E0			     ld	     de, #unk_E0A1
 ROM:0B19 36 00				     ld	     (hl), #0
@@ -1629,7 +1627,7 @@ ROM:0B20 CD DE 0B			     call    zero_object_data
 ROM:0B23 CD 7B 2A			     call    init_rand
 ROM:0B26 AF				     xor     a
 ROM:0B27 32 00 E0			     ld	     (vblank_tick), a
-ROM:0B2A CD 2C 2B			     call    init_some_stuff
+ROM:0B2A CD 2C 2B			     call    reset_some_stuff
 ROM:0B2D C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0B30	     ; ---------------------------------------------------------------------------
 ROM:0B30
@@ -1687,8 +1685,8 @@ ROM:0B8B C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:0B8E	     ; ---------------------------------------------------------------------------
 ROM:0B8E
 ROM:0B8E	     vbl_0_1_fn_5__attract_mode_gameplay:			     ; DATA XREF: ROM:0947o
-ROM:0B8E CD 1E 6A			     call    sub_6A1E			     ; e380 tbl	???
-ROM:0B91 CD EB 2B			     call    sub_2BEB			     ; difficulty???
+ROM:0B8E CD 1E 6A			     call    update_aiming_table
+ROM:0B91 CD EB 2B			     call    tick_timers
 ROM:0B94 CD 3B 2C			     call    spawn_e200_objects
 ROM:0B97 CD A1 16			     call    attract_mode_move_ship	     ; also bombs
 ROM:0B9A CD F4 49			     call    sub_49F4			     ; map stuff
@@ -1793,7 +1791,7 @@ ROM:0C44 32 00 EF			     ld	     (spriteram_shadow), a	     ; s0.code (player sh
 ROM:0C47 AF				     xor     a
 ROM:0C48 32 01 EF			     ld	     (spriteram_shadow+1), a	     ; s0.colour
 ROM:0C4B 32 9C E0			     ld	     (pow_instruct_aliens_destroyed), a
-ROM:0C4E 32 A4 E0			     ld	     (max_alien_bullets), a	     ; init
+ROM:0C4E 32 A4 E0			     ld	     (area_max_alien_bullets), a     ; init
 ROM:0C51 3D				     dec     a
 ROM:0C52 32 00 E1			     ld	     (ship_obj), a		     ; flag active
 ROM:0C55 21 25 E0			     ld	     hl, #timer
@@ -2229,7 +2227,7 @@ ROM:0FB8 D2 D6 0F			     jp	     NC, next_vbl_lvl_1_fn
 ROM:0FBB C9				     ret
 ROM:0FBC	     ; ---------------------------------------------------------------------------
 ROM:0FBC
-ROM:0FBC	     vbl_0_2_fn_3__:						     ; DATA XREF: ROM:099Do
+ROM:0FBC	     vbl_0_2_fn_3__show_lives_bonus_title:			     ; DATA XREF: ROM:099Do
 ROM:0FBC 11 09 00			     ld	     de, #9			     ; show lives ships
 ROM:0FBF FF				     rst     add_fn_to_q
 ROM:0FC0 11 00 0E			     ld	     de, #0xE00			     ; prnt bonus life scores
@@ -2275,7 +2273,7 @@ ROM:0FE7 01 04 00			     ld	     bc, #4			     ; bytes per sprite
 ROM:0FEA D9				     exx
 ROM:0FEB 7E				     ld	     a,	(hl)			     ; 1st entry in table
 ROM:0FEC 47				     ld	     b,	a			     ; # objects to init
-ROM:0FED 32 C7 E0			     ld	     (byte_E0C7), a		     ; save
+ROM:0FED 32 C7 E0			     ld	     (formation_cnt__maybe), a	     ; save
 ROM:0FF0 23				     inc     hl
 ROM:0FF1
 ROM:0FF1	     loc_FF1:							     ; CODE XREF: init_objs_at_e200_from_tbl+5Cj
@@ -2303,7 +2301,7 @@ ROM:1019 DD 77 0C			     ld	     0xC(ix), a
 ROM:101C DD 77 02			     ld	     2(ix), a			     ; obj timer
 ROM:101F DD 77 03			     ld	     3(ix), a			     ; obj y lsb
 ROM:1022 DD 77 04			     ld	     4(ix), a			     ; obj x lsb
-ROM:1025 DD 36 0F 08			     ld	     0xF(ix), #8
+ROM:1025 DD 36 0F 08			     ld	     0xF(ix), #8		     ; obj aiming entry
 ROM:1029 DD 36 0A 05			     ld	     0xA(ix), #5		     ; dy_dx lookup tbl	index
 ROM:102D D9				     exx
 ROM:102E DD 19				     add     ix, de			     ; next object data
@@ -2394,24 +2392,24 @@ ROM:10B6 10 FB				     djnz    loc_10B3
 ROM:10B8 21 20 E5			     ld	     hl, #p1_lives_left
 ROM:10BB 3A 1C E0			     ld	     a,	(start_lives)
 ROM:10BE 77				     ld	     (hl), a			     ; init current lives
-ROM:10BF 2C				     inc     l				     ; e521
+ROM:10BF 2C				     inc     l
 ROM:10C0 36 00				     ld	     (hl), #0
-ROM:10C2 2C				     inc     l				     ; e522
-ROM:10C3 36 00				     ld	     (hl), #0
-ROM:10C5 2C				     inc     l				     ; e523
-ROM:10C6 36 04				     ld	     (hl), #4
+ROM:10C2 2C				     inc     l
+ROM:10C3 36 00				     ld	     (hl), #0			     ; init map_planet
+ROM:10C5 2C				     inc     l
+ROM:10C6 36 04				     ld	     (hl), #4			     ; init map_area
 ROM:10C8 2C				     inc     l
 ROM:10C9 3A 1A E0			     ld	     a,	(bonus_life_1st)
-ROM:10CC 77				     ld	     (hl), a			     ; init curr bonus life 1st
+ROM:10CC 77				     ld	     (hl), a
 ROM:10CD 2C				     inc     l
-ROM:10CE 3A 1B E0			     ld	     a,	(bonus_life_2nd)	     ; init curr bonus life 2nd
+ROM:10CE 3A 1B E0			     ld	     a,	(bonus_life_2nd)
 ROM:10D1 77				     ld	     (hl), a
 ROM:10D2 2C				     inc     l
-ROM:10D3 36 06				     ld	     (hl), #6
+ROM:10D3 36 06				     ld	     (hl), #6			     ; init curr_num_bombs
 ROM:10D5 2C				     inc     l
-ROM:10D6 36 15				     ld	     (hl), #0x15		     ; $E527->$E507
+ROM:10D6 36 15				     ld	     (hl), #0x15		     ; init jap	symbol appearance score	=150,000
 ROM:10D8 2C				     inc     l
-ROM:10D9 36 00				     ld	     (hl), #0
+ROM:10D9 36 00				     ld	     (hl), #0			     ; bomb_fired???
 ROM:10DB 21 41 EE			     ld	     hl, #p1_score
 ROM:10DE 36 00				     ld	     (hl), #0
 ROM:10E0 2C				     inc     l
@@ -2535,7 +2533,7 @@ ROM:11B2 FF				     rst     add_fn_to_q
 ROM:11B3 11 18 01			     ld	     de, #0x118			     ; print PLAYER 1
 ROM:11B6 FF				     rst     add_fn_to_q
 ROM:11B7 CD 71 10			     call    clear_all_player_sprite_bullets
-ROM:11BA CD 2C 2B			     call    init_some_stuff
+ROM:11BA CD 2C 2B			     call    reset_some_stuff
 ROM:11BD AF				     xor     a
 ROM:11BE 32 C8 E0			     ld	     (formations_destroyed_cnt), a
 ROM:11C1 32 1F E0			     ld	     (byte_E01F), a
@@ -2554,8 +2552,8 @@ ROM:11DA C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:11DD	     ; ---------------------------------------------------------------------------
 ROM:11DD
 ROM:11DD	     vbl_0_3_fn_4__gameplay:					     ; DATA XREF: ROM:1063o
-ROM:11DD CD 1E 6A			     call    sub_6A1E			     ; tbl at e380 ???
-ROM:11E0 CD EB 2B			     call    sub_2BEB			     ; difficulty???
+ROM:11DD CD 1E 6A			     call    update_aiming_table
+ROM:11E0 CD EB 2B			     call    tick_timers
 ROM:11E3 CD 3B 2C			     call    spawn_e200_objects
 ROM:11E6 CD BC 1A			     call    move_ship
 ROM:11E9 CD F4 49			     call    sub_49F4			     ; map stuff
@@ -2570,15 +2568,21 @@ ROM:1201 CD 94 34			     call    update_pickup
 ROM:1204 CD D6 43			     call    check_objs_hit
 ROM:1207 CD AF 12			     call    flash_1up_2up
 ROM:120A 3A 00 E1			     ld	     a,	(ship_obj)
-ROM:120D A7				     and     a				     ; active?
+ROM:120D A7				     and     a				     ; inactive?
 ROM:120E C0				     ret     NZ				     ; no, exit
+ROM:120F	     ; player has died
 ROM:120F 3A 03 E5			     ld	     a,	(map_area)
+ROM:1212
+ROM:1212	     ; =============== S U B R O U T I N E =======================================
+ROM:1212
+ROM:1212
+ROM:1212	     sub_1212:
 ROM:1212 FE 10				     cp	     #16			     ; greater than 15?
 ROM:1214 38 05				     jr	     C,	loc_121B		     ; no, skip
 ROM:1216 3E 0F				     ld	     a,	#15			     ; max=15
 ROM:1218 32 03 E5			     ld	     (map_area), a		     ; update
 ROM:121B
-ROM:121B	     loc_121B:							     ; CODE XREF: ROM:1214j
+ROM:121B	     loc_121B:							     ; CODE XREF: sub_1212+2j
 ROM:121B 3A 1F E0			     ld	     a,	(byte_E01F)
 ROM:121E A7				     and     a
 ROM:121F 28 13				     jr	     Z,	loc_1234
@@ -2586,26 +2590,26 @@ ROM:1221 3C				     inc     a
 ROM:1222 28 10				     jr	     Z,	loc_1234
 ROM:1224 21 01 E5			     ld	     hl, #byte_E501
 ROM:1227 34				     inc     (hl)
-ROM:1228 2C				     inc     l
-ROM:1229 34				     inc     (hl)
+ROM:1228 2C				     inc     l				     ; ptr map_planet
+ROM:1229 34				     inc     (hl)			     ; next planet
 ROM:122A 7E				     ld	     a,	(hl)
-ROM:122B FE 09				     cp	     #9
-ROM:122D 38 02				     jr	     C,	loc_1231
-ROM:122F 36 00				     ld	     (hl), #0
+ROM:122B FE 09				     cp	     #9				     ; max?
+ROM:122D 38 02				     jr	     C,	loc_1231		     ; no, skip
+ROM:122F 36 00				     ld	     (hl), #0			     ; reset planet
 ROM:1231
-ROM:1231	     loc_1231:							     ; CODE XREF: ROM:122Dj
-ROM:1231 2C				     inc     l
-ROM:1232 36 00				     ld	     (hl), #0
+ROM:1231	     loc_1231:							     ; CODE XREF: sub_1212+1Bj
+ROM:1231 2C				     inc     l				     ; ptr map_area
+ROM:1232 36 00				     ld	     (hl), #0			     ; reset area
 ROM:1234
-ROM:1234	     loc_1234:							     ; CODE XREF: ROM:121Fj
-ROM:1234									     ; ROM:1222j
+ROM:1234	     loc_1234:							     ; CODE XREF: sub_1212+Dj
+ROM:1234									     ; sub_1212+10j
 ROM:1234 11 00 00			     ld	     de, #0			     ; print 1UP
 ROM:1237 3A 01 EC			     ld	     a,	(curr_player)
 ROM:123A A7				     and     a				     ; p1?
 ROM:123B 28 01				     jr	     Z,	dec_lives		     ; yes, skip
 ROM:123D 1C				     inc     e				     ; print 2UP
 ROM:123E
-ROM:123E	     dec_lives:							     ; CODE XREF: ROM:123Bj
+ROM:123E	     dec_lives:							     ; CODE XREF: sub_1212+29j
 ROM:123E FF				     rst     add_fn_to_q
 ROM:123F CD A1 02			     call    hide_all_sprites
 ROM:1242 CD DE 0B			     call    zero_object_data
@@ -2619,7 +2623,7 @@ ROM:1254 47				     ld	     b,	a
 ROM:1255 28 03				     jr	     Z,	game_over		     ; yes, skip
 ROM:1257 21 40 E5			     ld	     hl, #p2_lives_left
 ROM:125A
-ROM:125A	     game_over:							     ; CODE XREF: ROM:1255j
+ROM:125A	     game_over:							     ; CODE XREF: sub_1212+43j
 ROM:125A 36 00				     ld	     (hl), #0			     ; zero p1/p2 lives	left
 ROM:125C 78				     ld	     a,	b			     ; p1/p2
 ROM:125D C6 18				     add     a,	#0x18			     ; print PLAYER 1/2
@@ -2634,7 +2638,7 @@ ROM:126B CD 9D 47			     call    snd_cmd_08
 ROM:126E C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:1271	     ; ---------------------------------------------------------------------------
 ROM:1271
-ROM:1271	     loc_1271:							     ; CODE XREF: ROM:1249j
+ROM:1271	     loc_1271:							     ; CODE XREF: sub_1212+37j
 ROM:1271 11 00 09			     ld	     de, #0x900			     ; show lives ships
 ROM:1274 FF				     rst     add_fn_to_q
 ROM:1275 3A 00 EC			     ld	     a,	(two_P_game)
@@ -2646,7 +2650,7 @@ ROM:127F 11 20 E5			     ld	     de, #p1_lives_left
 ROM:1282 28 03				     jr	     Z,	save_curr_2p_status_and_switch ; yes, skip
 ROM:1284 11 40 E5			     ld	     de, #p2_lives_left
 ROM:1287
-ROM:1287	     save_curr_2p_status_and_switch:				     ; CODE XREF: ROM:1282j
+ROM:1287	     save_curr_2p_status_and_switch:				     ; CODE XREF: sub_1212+70j
 ROM:1287 21 00 E5			     ld	     hl, #curr_lives_left
 ROM:128A 01 10 00			     ld	     bc, #0x10
 ROM:128D ED B0				     ldir				     ; save current status to p1/p2 status
@@ -2659,7 +2663,7 @@ ROM:129A 32 06 E0			     ld	     (vbl_lvl_1_fn), a
 ROM:129D C9				     ret
 ROM:129E	     ; ---------------------------------------------------------------------------
 ROM:129E
-ROM:129E	     save_curr_1p_status:					     ; CODE XREF: ROM:1279j
+ROM:129E	     save_curr_1p_status:					     ; CODE XREF: sub_1212+67j
 ROM:129E 11 20 E5			     ld	     de, #p1_lives_left
 ROM:12A1 21 00 E5			     ld	     hl, #curr_lives_left
 ROM:12A4 01 10 00			     ld	     bc, #0x10
@@ -2667,6 +2671,8 @@ ROM:12A7 ED B0				     ldir
 ROM:12A9 3E 01				     ld	     a,	#1
 ROM:12AB 32 06 E0			     ld	     (vbl_lvl_1_fn), a
 ROM:12AE C9				     ret
+ROM:12AE	     ; End of function sub_1212
+ROM:12AE
 ROM:12AF
 ROM:12AF	     ; =============== S U B R O U T I N E =======================================
 ROM:12AF
@@ -2729,30 +2735,30 @@ ROM:1305 C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:1308	     ; ---------------------------------------------------------------------------
 ROM:1308
 ROM:1308	     vbl_0_3_fn_9__hi_score_entry:				     ; DATA XREF: ROM:106Do
-ROM:1308 CD 3A 13			     call    sub_133A
-ROM:130B CD 16 14			     call    sub_1416
-ROM:130E CD 5E 14			     call    handle_left
-ROM:1311 CD 36 14			     call    handle_right
+ROM:1308 CD 3A 13			     call    update_ranking_timer
+ROM:130B CD 16 14			     call    flash_curr_high_score_entry_char
+ROM:130E CD 5E 14			     call    check_hi_score_entry_left
+ROM:1311 CD 36 14			     call    check_hi_score_entry_right
 ROM:1314 3A 0C E0			     ld	     a,	(curr_player_b1)
-ROM:1317 FE FF				     cp	     #0xFF
-ROM:1319 28 08				     jr	     Z,	loc_1323
+ROM:1317 FE FF				     cp	     #0xFF			     ; held?
+ROM:1319 28 08				     jr	     Z,	check_hi_score_entry_B1	     ; yes, go
 ROM:131B E6 07				     and     #7				     ; last 3 reads
 ROM:131D C8				     ret     Z				     ; nothing,	return
 ROM:131E FE 03				     cp	     #3				     ; 011?
 ROM:1320 C0				     ret     NZ				     ; no, return
-ROM:1321 18 08				     jr	     loc_132B
+ROM:1321 18 08				     jr	     handle_hi_score_entry_B1
 ROM:1323	     ; ---------------------------------------------------------------------------
 ROM:1323
-ROM:1323	     loc_1323:							     ; CODE XREF: ROM:1319j
-ROM:1323 21 3F E0			     ld	     hl, #unk_E03F
-ROM:1326 34				     inc     (hl)
+ROM:1323	     check_hi_score_entry_B1:					     ; CODE XREF: ROM:1319j
+ROM:1323 21 3F E0			     ld	     hl, #hi_score_B1_repeat_tmr
+ROM:1326 34				     inc     (hl)			     ; tick
 ROM:1327 7E				     ld	     a,	(hl)
-ROM:1328 FE 0F				     cp	     #0xF
-ROM:132A C0				     ret     NZ
+ROM:1328 FE 0F				     cp	     #0xF			     ; expired?
+ROM:132A C0				     ret     NZ				     ; no, exit
 ROM:132B
-ROM:132B	     loc_132B:							     ; CODE XREF: ROM:1321j
-ROM:132B CD 63 13			     call    sub_1363
-ROM:132E C0				     ret     NZ
+ROM:132B	     handle_hi_score_entry_B1:					     ; CODE XREF: ROM:1321j
+ROM:132B CD 63 13			     call    hi_score_entry_B1		     ; max chars?
+ROM:132E C0				     ret     NZ				     ; no, exit
 ROM:132F C3 D6 0F			     jp	     next_vbl_lvl_1_fn
 ROM:1332	     ; ---------------------------------------------------------------------------
 ROM:1332
@@ -2765,113 +2771,100 @@ ROM:133A
 ROM:133A	     ; =============== S U B R O U T I N E =======================================
 ROM:133A
 ROM:133A
-ROM:133A	     sub_133A:							     ; CODE XREF: ROM:vbl_0_3_fn_9__hi_score_entryp
+ROM:133A	     update_ranking_timer:					     ; CODE XREF: ROM:vbl_0_3_fn_9__hi_score_entryp
 ROM:133A
 ROM:133A	     ; FUNCTION	CHUNK AT ROM:135E SIZE 00000004	BYTES
 ROM:133A
-ROM:133A 3A 40 E0			     ld	     a,	(byte_E040)
+ROM:133A 3A 40 E0			     ld	     a,	(ranking_timer_tmr)
 ROM:133D A7				     and     a
-ROM:133E 28 05				     jr	     Z,	loc_1345
+ROM:133E 28 05				     jr	     Z,	ranking_timer_tick
 ROM:1340 3D				     dec     a
-ROM:1341 32 40 E0			     ld	     (byte_E040), a
+ROM:1341 32 40 E0			     ld	     (ranking_timer_tmr), a
 ROM:1344 C9				     ret
 ROM:1345	     ; ---------------------------------------------------------------------------
 ROM:1345
-ROM:1345	     loc_1345:							     ; CODE XREF: sub_133A+4j
+ROM:1345	     ranking_timer_tick:					     ; CODE XREF: update_ranking_timer+4j
 ROM:1345 3E 3C				     ld	     a,	#0x3C ;	'<'
-ROM:1347 32 40 E0			     ld	     (byte_E040), a
-ROM:134A 21 41 E0			     ld	     hl, #byte_E041
+ROM:1347 32 40 E0			     ld	     (ranking_timer_tmr), a	     ; re-init
+ROM:134A 21 41 E0			     ld	     hl, #ranking_timer_value
 ROM:134D 7E				     ld	     a,	(hl)
-ROM:134E D6 01				     sub     #1
+ROM:134E D6 01				     sub     #1				     ; tick
 ROM:1350 27				     daa
-ROM:1351 DA 5E 13			     jp	     C,	loc_135E
-ROM:1354 77				     ld	     (hl), a
-ROM:1354	     ; End of function sub_133A
+ROM:1351 DA 5E 13			     jp	     C,	ranking_timer_expired	     ; exit if expired
+ROM:1354 77				     ld	     (hl), a			     ; update value
+ROM:1354	     ; End of function update_ranking_timer
 ROM:1354
 ROM:1355
 ROM:1355	     ; =============== S U B R O U T I N E =======================================
 ROM:1355
 ROM:1355
-ROM:1355	     sub_1355:							     ; CODE XREF: init_hi_score_entry+20p
-ROM:1355 21 D2 D2			     ld	     hl, # fgvideoram_code+0x2D2
-ROM:1358 0E 08				     ld	     c,	#8			     ; colour
-ROM:135A C3 BF 41			     jp	     print_hex_byte
-ROM:135A	     ; End of function sub_1355
+ROM:1355	     print_ranking_timer:					     ; CODE XREF: init_hi_score_entry+20p
+ROM:1355 21 D2 D2			     ld	     hl, # fgvideoram_code+0x2D2     ; ranking timer value addr
+ROM:1358 0E 08				     ld	     c,	#8			     ; update colour (red)
+ROM:135A C3 BF 41			     jp	     print_hex_byte		     ; print value
+ROM:135A	     ; End of function print_ranking_timer
 ROM:135A
 ROM:135D	     ; ---------------------------------------------------------------------------
 ROM:135D C9				     ret
 ROM:135E	     ; ---------------------------------------------------------------------------
-ROM:135E	     ; START OF	FUNCTION CHUNK FOR sub_133A
+ROM:135E	     ; START OF	FUNCTION CHUNK FOR update_ranking_timer
 ROM:135E
-ROM:135E	     loc_135E:							     ; CODE XREF: sub_133A+17j
-ROM:135E E1				     pop     hl
+ROM:135E	     ranking_timer_expired:					     ; CODE XREF: update_ranking_timer+17j
+ROM:135E E1				     pop     hl				     ; discard caller context
 ROM:135F C3 D6 0F			     jp	     next_vbl_lvl_1_fn
-ROM:135F	     ; END OF FUNCTION CHUNK FOR sub_133A
+ROM:135F	     ; END OF FUNCTION CHUNK FOR update_ranking_timer
 ROM:1362	     ; ---------------------------------------------------------------------------
 ROM:1362 C9				     ret
 ROM:1363
 ROM:1363	     ; =============== S U B R O U T I N E =======================================
 ROM:1363
 ROM:1363
-ROM:1363	     sub_1363:							     ; CODE XREF: ROM:loc_132Bp
-ROM:1363 2A 38 E0			     ld	     hl, (word_E038)
-ROM:1366 3A 37 E0			     ld	     a,	(byte_E037)
-ROM:1369 FE 3F				     cp	     #0x3F ; '?'
-ROM:136B CA D6 0F			     jp	     Z,	next_vbl_lvl_1_fn
-ROM:136E 77				     ld	     (hl), a
-ROM:136F CB D4				     set     2,	h
-ROM:1371 36 05				     ld	     (hl), #5
-ROM:1373 CB 94				     res     2,	h
-ROM:1375 ED 5B 3B E0			     ld	     de, (word_E03B)
-ROM:1379 12				     ld	     (de), a
-ROM:137A 13				     inc     de
+ROM:1363	     hi_score_entry_B1:						     ; CODE XREF: ROM:handle_hi_score_entry_B1p
+ROM:1363 2A 38 E0			     ld	     hl, (hi_score_entry_fgvideoram_addr)
+ROM:1366 3A 37 E0			     ld	     a,	(curr_hi_score_entry_char)
+ROM:1369 FE 3F				     cp	     #0x3F ; '?'                     ; END?
+ROM:136B CA D6 0F			     jp	     Z,	next_vbl_lvl_1_fn	     ; yes, go
+ROM:136E 77				     ld	     (hl), a			     ; update code
+ROM:136F CB D4				     set     2,	h			     ; ptr colour
+ROM:1371 36 05				     ld	     (hl), #5			     ; update colour (steel blue)
+ROM:1373 CB 94				     res     2,	h			     ; ptr code
+ROM:1375 ED 5B 3B E0			     ld	     de, (ptr_hi_score_entry_name)
+ROM:1379 12				     ld	     (de), a			     ; insert char
+ROM:137A 13				     inc     de				     ; next addr
 ROM:137B EB				     ex	     de, hl
-ROM:137C 22 3B E0			     ld	     (word_E03B), hl
-ROM:137F 21 20 00			     ld	     hl, #0x20 ; ' '
-ROM:1382 19				     add     hl, de
-ROM:1383 22 38 E0			     ld	     (word_E038), hl
-ROM:1386 3E 3F				     ld	     a,	#0x3F ;	'?'
-ROM:1388 32 37 E0			     ld	     (byte_E037), a
-ROM:138B 21 3F E0			     ld	     hl, #unk_E03F
-ROM:138E 36 00				     ld	     (hl), #0
-ROM:1390 3A 3A E0			     ld	     a,	(byte_E03A)
-ROM:1393 3C				     inc     a
-ROM:1394 32 3A E0			     ld	     (byte_E03A), a
-ROM:1397 FE 03				     cp	     #3
+ROM:137C 22 3B E0			     ld	     (ptr_hi_score_entry_name),	hl   ; update
+ROM:137F 21 20 00			     ld	     hl, #0x20 ; ' '                 ; column offset
+ROM:1382 19				     add     hl, de			     ; next char addr
+ROM:1383 22 38 E0			     ld	     (hi_score_entry_fgvideoram_addr), hl ; save
+ROM:1386 3E 3F				     ld	     a,	#0x3F ;	'?'                  ; END
+ROM:1388 32 37 E0			     ld	     (curr_hi_score_entry_char), a   ; save
+ROM:138B 21 3F E0			     ld	     hl, #hi_score_B1_repeat_tmr
+ROM:138E 36 00				     ld	     (hl), #0			     ; init
+ROM:1390 3A 3A E0			     ld	     a,	(num_hi_score_entry_chars)
+ROM:1393 3C				     inc     a				     ; inc
+ROM:1394 32 3A E0			     ld	     (num_hi_score_entry_chars), a
+ROM:1397 FE 03				     cp	     #3				     ; max?
 ROM:1399 C9				     ret
-ROM:1399	     ; End of function sub_1363
+ROM:1399	     ; End of function hi_score_entry_B1
 ROM:1399
-ROM:1399	     ; ---------------------------------------------------------------------------
-ROM:139A 3A				     .db 0x3A ;	:
-ROM:139B 0C				     .db  0xC
-ROM:139C E0				     .db 0xE0 ;	‡
-ROM:139D E6				     .db 0xE6 ;	Ê
-ROM:139E 07				     .db    7
-ROM:139F C8				     .db 0xC8 ;	»
-ROM:13A0 FE				     .db 0xFE ;	˛
-ROM:13A1 03				     .db    3
-ROM:13A2 C0				     .db 0xC0 ;	¿
-ROM:13A3 11				     .db 0x11
-ROM:13A4 00				     .db    0
-ROM:13A5 08				     .db    8
-ROM:13A6 C3				     .db 0xC3 ;	√
-ROM:13A7 38				     .db 0x38 ;	8
-ROM:13A8 00				     .db    0
-ROM:13A9 3A				     .db 0x3A ;	:
-ROM:13AA 0B				     .db  0xB
-ROM:13AB E0				     .db 0xE0 ;	‡
-ROM:13AC E6				     .db 0xE6 ;	Ê
-ROM:13AD 07				     .db    7
-ROM:13AE C8				     .db 0xC8 ;	»
-ROM:13AF FE				     .db 0xFE ;	˛
-ROM:13B0 03				     .db    3
-ROM:13B1 C0				     .db 0xC0 ;	¿
-ROM:13B2 11				     .db 0x11
-ROM:13B3 05				     .db    5
-ROM:13B4 08				     .db    8
-ROM:13B5 C3				     .db 0xC3 ;	√
-ROM:13B6 38				     .db 0x38 ;	8
-ROM:13B7 00				     .db    0
+ROM:139A	     ; ---------------------------------------------------------------------------
+ROM:139A	     ; *** UNUSED???
+ROM:139A 3A 0C E0			     ld	     a,	(curr_player_b1)
+ROM:139D E6 07				     and     #7				     ; pressed?
+ROM:139F C8				     ret     Z				     ; no, exit
+ROM:13A0 FE 03				     cp	     #3				     ; 011?
+ROM:13A2 C0				     ret     NZ				     ; no, exit
+ROM:13A3 11 00 08			     ld	     de, #0x800			     ; add to score and	update hi (50 pts)
+ROM:13A6 C3 38 00			     jp	     add_fn_to_q
+ROM:13A9	     ; ---------------------------------------------------------------------------
+ROM:13A9	     ; *** UNUSED???
+ROM:13A9 3A 0B E0			     ld	     a,	(curr_player_up)
+ROM:13AC E6 07				     and     #7				     ; pressed?
+ROM:13AE C8				     ret     Z				     ; no, exit
+ROM:13AF FE 03				     cp	     #3				     ; 011?
+ROM:13B1 C0				     ret     NZ				     ; no, exit
+ROM:13B2 11 05 08			     ld	     de, #0x805			     ; add to score and	update hi (500 pts)
+ROM:13B5 C3 38 00			     jp	     add_fn_to_q
 ROM:13B8	     ; ---------------------------------------------------------------------------
 ROM:13B8
 ROM:13B8	     check_lives_reset_lvl_1_inc_lvl_0:				     ; CODE XREF: ROM:12EDj
@@ -2910,26 +2903,26 @@ ROM:13E6	     ; =============== S U B R O U T I N E ============================
 ROM:13E6
 ROM:13E6
 ROM:13E6	     init_hi_score_entry:					     ; CODE XREF: ROM:1302p
-ROM:13E6 3E 3F				     ld	     a,	#0x3F ;	'?'
-ROM:13E8 32 37 E0			     ld	     (byte_E037), a
+ROM:13E6 3E 3F				     ld	     a,	#0x3F ;	'?'                  ; 'END'
+ROM:13E8 32 37 E0			     ld	     (curr_hi_score_entry_char), a   ; init
 ROM:13EB 3E 00				     ld	     a,	#0
-ROM:13ED 32 3A E0			     ld	     (byte_E03A), a
+ROM:13ED 32 3A E0			     ld	     (num_hi_score_entry_chars), a   ; init
 ROM:13F0 3A 32 E0			     ld	     a,	(curr_score_rank)
 ROM:13F3 3D				     dec     a
-ROM:13F4 21 0A 14			     ld	     hl, #off_140A
-ROM:13F7 EF				     rst     de_eq_contents_hl_plus_2a
+ROM:13F4 21 0A 14			     ld	     hl, #hi_score_entry_fgvideoram_addr_tbl
+ROM:13F7 EF				     rst     de_eq_contents_hl_plus_2a	     ; get video ram address for entry
 ROM:13F8 EB				     ex	     de, hl
-ROM:13F9 22 38 E0			     ld	     (word_E038), hl
+ROM:13F9 22 38 E0			     ld	     (hi_score_entry_fgvideoram_addr), hl ; store
 ROM:13FC 3E 3C				     ld	     a,	#0x3C ;	'<'
-ROM:13FE 32 40 E0			     ld	     (byte_E040), a
+ROM:13FE 32 40 E0			     ld	     (ranking_timer_tmr), a	     ; init
 ROM:1401 3E 60				     ld	     a,	#0x60 ;	'`'
-ROM:1403 32 41 E0			     ld	     (byte_E041), a
-ROM:1406 CD 55 13			     call    sub_1355
+ROM:1403 32 41 E0			     ld	     (ranking_timer_value), a	     ; init
+ROM:1406 CD 55 13			     call    print_ranking_timer
 ROM:1409 C9				     ret
 ROM:1409	     ; End of function init_hi_score_entry
 ROM:1409
 ROM:1409	     ; ---------------------------------------------------------------------------
-ROM:140A AD D2	     off_140A:		     .dw fgvideoram_code+0x2AD		     ; DATA XREF: init_hi_score_entry+Eo
+ROM:140A AD D2	     hi_score_entry_fgvideoram_addr_tbl:.dw fgvideoram_code+0x2AD    ; DATA XREF: init_hi_score_entry+Eo
 ROM:140C AB D2				     .dw fgvideoram_code+0x2AB
 ROM:140E A9 D2				     .dw fgvideoram_code+0x2A9
 ROM:1410 A7 D2				     .dw fgvideoram_code+0x2A7
@@ -2939,61 +2932,61 @@ ROM:1416
 ROM:1416	     ; =============== S U B R O U T I N E =======================================
 ROM:1416
 ROM:1416
-ROM:1416	     sub_1416:							     ; CODE XREF: ROM:130Bp
+ROM:1416	     flash_curr_high_score_entry_char:				     ; CODE XREF: ROM:130Bp
 ROM:1416 3A 00 E0			     ld	     a,	(vblank_tick)
-ROM:1419 47				     ld	     b,	a
-ROM:141A E6 03				     and     #3
-ROM:141C C0				     ret     NZ
-ROM:141D 2A 38 E0			     ld	     hl, (word_E038)
-ROM:1420 CB 50				     bit     2,	b
-ROM:1422 20 09				     jr	     NZ, loc_142D
-ROM:1424 3A 37 E0			     ld	     a,	(byte_E037)
-ROM:1427 77				     ld	     (hl), a
-ROM:1428 CB D4				     set     2,	h
-ROM:142A 36 08				     ld	     (hl), #8
+ROM:1419 47				     ld	     b,	a			     ; save
+ROM:141A E6 03				     and     #3				     ; time to blink?
+ROM:141C C0				     ret     NZ				     ; no exit
+ROM:141D 2A 38 E0			     ld	     hl, (hi_score_entry_fgvideoram_addr)
+ROM:1420 CB 50				     bit     2,	b			     ; grey-blue?
+ROM:1422 20 09				     jr	     NZ, display_char_grey_blue	     ; yes, go
+ROM:1424 3A 37 E0			     ld	     a,	(curr_hi_score_entry_char)
+ROM:1427 77				     ld	     (hl), a			     ; update code
+ROM:1428 CB D4				     set     2,	h			     ; ptr colour
+ROM:142A 36 08				     ld	     (hl), #8			     ; red
 ROM:142C C9				     ret
 ROM:142D	     ; ---------------------------------------------------------------------------
 ROM:142D
-ROM:142D	     loc_142D:							     ; CODE XREF: sub_1416+Cj
-ROM:142D 3A 37 E0			     ld	     a,	(byte_E037)
-ROM:1430 77				     ld	     (hl), a
-ROM:1431 CB D4				     set     2,	h
-ROM:1433 36 03				     ld	     (hl), #3
+ROM:142D	     display_char_grey_blue:					     ; CODE XREF: flash_curr_high_score_entry_char+Cj
+ROM:142D 3A 37 E0			     ld	     a,	(curr_hi_score_entry_char)   ; curr hi score entry char
+ROM:1430 77				     ld	     (hl), a			     ; update code
+ROM:1431 CB D4				     set     2,	h			     ; ptr colour
+ROM:1433 36 03				     ld	     (hl), #3			     ; grey-blue
 ROM:1435 C9				     ret
-ROM:1435	     ; End of function sub_1416
+ROM:1435	     ; End of function flash_curr_high_score_entry_char
 ROM:1435
 ROM:1436
 ROM:1436	     ; =============== S U B R O U T I N E =======================================
 ROM:1436
 ROM:1436
-ROM:1436	     handle_right:						     ; CODE XREF: ROM:1311p
+ROM:1436	     check_hi_score_entry_right:				     ; CODE XREF: ROM:1311p
 ROM:1436 3A 08 E0			     ld	     a,	(curr_player_right)
-ROM:1439 FE FF				     cp	     #0xFF
-ROM:143B 28 16				     jr	     Z,	loc_1453
+ROM:1439 FE FF				     cp	     #0xFF			     ; held?
+ROM:143B 28 16				     jr	     Z,	loc_1453		     ; yes, go
 ROM:143D E6 07				     and     #7				     ; last 3 reads
 ROM:143F C8				     ret     Z				     ; nothing,	return
 ROM:1440 FE 03				     cp	     #3				     ; 011?
 ROM:1442 C0				     ret     NZ				     ; no, return
 ROM:1443
-ROM:1443	     loc_1443:							     ; CODE XREF: handle_right+25j
-ROM:1443 3A 37 E0			     ld	     a,	(byte_E037)
-ROM:1446 FE 5A				     cp	     #0x5A ; 'Z'
-ROM:1448 C8				     ret     Z
-ROM:1449 3C				     inc     a
-ROM:144A 32 37 E0			     ld	     (byte_E037), a
-ROM:144D 21 3D E0			     ld	     hl, #unk_E03D
-ROM:1450 36 00				     ld	     (hl), #0
+ROM:1443	     loc_1443:							     ; CODE XREF: check_hi_score_entry_right+25j
+ROM:1443 3A 37 E0			     ld	     a,	(curr_hi_score_entry_char)
+ROM:1446 FE 5A				     cp	     #0x5A ; 'Z'                     ; 'Z'?
+ROM:1448 C8				     ret     Z				     ; yes, exit
+ROM:1449 3C				     inc     a				     ; next char
+ROM:144A 32 37 E0			     ld	     (curr_hi_score_entry_char), a
+ROM:144D 21 3D E0			     ld	     hl, #hi_score_right_repeat_tmr
+ROM:1450 36 00				     ld	     (hl), #0			     ; init
 ROM:1452 C9				     ret
 ROM:1453	     ; ---------------------------------------------------------------------------
 ROM:1453
-ROM:1453	     loc_1453:							     ; CODE XREF: handle_right+5j
-ROM:1453 21 3D E0			     ld	     hl, #unk_E03D
-ROM:1456 34				     inc     (hl)
+ROM:1453	     loc_1453:							     ; CODE XREF: check_hi_score_entry_right+5j
+ROM:1453 21 3D E0			     ld	     hl, #hi_score_right_repeat_tmr
+ROM:1456 34				     inc     (hl)			     ; tick
 ROM:1457 7E				     ld	     a,	(hl)
-ROM:1458 FE 0F				     cp	     #0xF
-ROM:145A C0				     ret     NZ
-ROM:145B 18 E6				     jr	     loc_1443
-ROM:145B	     ; End of function handle_right
+ROM:1458 FE 0F				     cp	     #0xF			     ; expired?
+ROM:145A C0				     ret     NZ				     ; no, exit
+ROM:145B 18 E6				     jr	     loc_1443			     ; do repeat
+ROM:145B	     ; End of function check_hi_score_entry_right
 ROM:145B
 ROM:145D	     ; ---------------------------------------------------------------------------
 ROM:145D C9				     ret
@@ -3001,34 +2994,34 @@ ROM:145E
 ROM:145E	     ; =============== S U B R O U T I N E =======================================
 ROM:145E
 ROM:145E
-ROM:145E	     handle_left:						     ; CODE XREF: ROM:130Ep
+ROM:145E	     check_hi_score_entry_left:					     ; CODE XREF: ROM:130Ep
 ROM:145E 3A 09 E0			     ld	     a,	(curr_player_left)
-ROM:1461 FE FF				     cp	     #0xFF
-ROM:1463 28 16				     jr	     Z,	loc_147B
+ROM:1461 FE FF				     cp	     #0xFF			     ; held?
+ROM:1463 28 16				     jr	     Z,	loc_147B		     ; yes, go
 ROM:1465 E6 07				     and     #7				     ; last 3 read
 ROM:1467 C8				     ret     Z				     ; nothing,	return
 ROM:1468 FE 03				     cp	     #3				     ; 011?
 ROM:146A C0				     ret     NZ				     ; no, return
 ROM:146B
-ROM:146B	     loc_146B:							     ; CODE XREF: handle_left+25j
-ROM:146B 3A 37 E0			     ld	     a,	(byte_E037)
-ROM:146E FE 3F				     cp	     #0x3F ; '?'
-ROM:1470 C8				     ret     Z
-ROM:1471 3D				     dec     a
-ROM:1472 32 37 E0			     ld	     (byte_E037), a
-ROM:1475 21 3E E0			     ld	     hl, #unk_E03E
-ROM:1478 36 00				     ld	     (hl), #0
+ROM:146B	     loc_146B:							     ; CODE XREF: check_hi_score_entry_left+25j
+ROM:146B 3A 37 E0			     ld	     a,	(curr_hi_score_entry_char)
+ROM:146E FE 3F				     cp	     #0x3F ; '?'                     ; END?
+ROM:1470 C8				     ret     Z				     ; yes, exit
+ROM:1471 3D				     dec     a				     ; previous	char
+ROM:1472 32 37 E0			     ld	     (curr_hi_score_entry_char), a   ; store
+ROM:1475 21 3E E0			     ld	     hl, #hi_score_left_repeat_tmr
+ROM:1478 36 00				     ld	     (hl), #0			     ; init
 ROM:147A C9				     ret
 ROM:147B	     ; ---------------------------------------------------------------------------
 ROM:147B
-ROM:147B	     loc_147B:							     ; CODE XREF: handle_left+5j
-ROM:147B 21 3E E0			     ld	     hl, #unk_E03E
-ROM:147E 34				     inc     (hl)
+ROM:147B	     loc_147B:							     ; CODE XREF: check_hi_score_entry_left+5j
+ROM:147B 21 3E E0			     ld	     hl, #hi_score_left_repeat_tmr
+ROM:147E 34				     inc     (hl)			     ; tick
 ROM:147F 7E				     ld	     a,	(hl)
-ROM:1480 FE 0F				     cp	     #0xF
-ROM:1482 C0				     ret     NZ
-ROM:1483 18 E6				     jr	     loc_146B
-ROM:1483	     ; End of function handle_left
+ROM:1480 FE 0F				     cp	     #0xF			     ; expired?
+ROM:1482 C0				     ret     NZ				     ; no, exit
+ROM:1483 18 E6				     jr	     loc_146B			     ; do repeat
+ROM:1483	     ; End of function check_hi_score_entry_left
 ROM:1483
 ROM:1485	     ; ---------------------------------------------------------------------------
 ROM:1485 C9				     ret
@@ -3040,7 +3033,7 @@ ROM:1486
 ROM:1486
 ROM:1486	     calc_score_rank:						     ; CODE XREF: ROM:vbl_0_3_fn_7__check_insert_hi_scorep
 ROM:1486 3E 06				     ld	     a,	#6
-ROM:1488 32 32 E0			     ld	     (curr_score_rank),	a
+ROM:1488 32 32 E0			     ld	     (curr_score_rank),	a	     ; init
 ROM:148B 11 41 EE			     ld	     de, #p1_score
 ROM:148E 3A 01 EC			     ld	     a,	(curr_player)
 ROM:1491 E6 01				     and     #1				     ; p1?
@@ -3116,14 +3109,14 @@ ROM:14EC EB				     ex	     de, hl
 ROM:14ED ED A0				     ldi
 ROM:14EF ED A0				     ldi
 ROM:14F1 ED A0				     ldi				     ; copy curr score to hi score table entry
-ROM:14F3 06 03				     ld	     b,	#3
+ROM:14F3 06 03				     ld	     b,	#3			     ; 3 chars to init
 ROM:14F5 EB				     ex	     de, hl
-ROM:14F6 22 3B E0			     ld	     (word_E03B), hl
+ROM:14F6 22 3B E0			     ld	     (ptr_hi_score_entry_name),	hl
 ROM:14F9
 ROM:14F9	     loc_14F9:							     ; CODE XREF: insert_hi_score+32j
-ROM:14F9 36 2E				     ld	     (hl), #0x2E ; '.'
-ROM:14FB 23				     inc     hl
-ROM:14FC 10 FB				     djnz    loc_14F9
+ROM:14F9 36 2E				     ld	     (hl), #0x2E ; '.'               ; '.'
+ROM:14FB 23				     inc     hl				     ; next addr
+ROM:14FC 10 FB				     djnz    loc_14F9			     ; loop
 ROM:14FE C9				     ret
 ROM:14FE	     ; End of function insert_hi_score
 ROM:14FE
@@ -3206,7 +3199,7 @@ ROM:1549	     ; =============== S U B R O U T I N E ============================
 ROM:1549
 ROM:1549
 ROM:1549	     sub_1549:							     ; CODE XREF: sub_1543p
-ROM:1549 21 2F E0			     ld	     hl, #unk_E02F
+ROM:1549 21 2F E0			     ld	     hl, #flipscreen_something__
 ROM:154C 11 82 EF			     ld	     de, #flipscreen_shadow
 ROM:154F 7E				     ld	     a,	(hl)
 ROM:1550 A7				     and     a
@@ -3240,7 +3233,7 @@ ROM:156B	     ; ----------------------------------------------------------------
 ROM:156B	     ; START OF	FUNCTION CHUNK FOR sub_1543
 ROM:156B
 ROM:156B	     loc_156B:							     ; CODE XREF: sub_1543+3j
-ROM:156B 21 9E E0			     ld	     hl, #unk_E09E
+ROM:156B 21 9E E0			     ld	     hl, #flipscreen_something___0
 ROM:156E 11 82 EF			     ld	     de, #flipscreen_shadow
 ROM:1571 7E				     ld	     a,	(hl)
 ROM:1572 A7				     and     a
@@ -3295,26 +3288,26 @@ ROM:1597
 ROM:1597	     loc_1597:							     ; CODE XREF: check_coin1+13j
 ROM:1597 CD 23 47			     call    snd_cmd_07
 ROM:159A 3A 11 E0			     ld	     a,	(coinA_coins)
-ROM:159D 47				     ld	     b,	a
-ROM:159E 21 15 E0			     ld	     hl, #unk_E015
-ROM:15A1 34				     inc     (hl)
+ROM:159D 47				     ld	     b,	a			     ; coins/credit
+ROM:159E 21 15 E0			     ld	     hl, #coinA_coins_inserted
+ROM:15A1 34				     inc     (hl)			     ; inc inserted
 ROM:15A2 7E				     ld	     a,	(hl)
-ROM:15A3 B8				     cp	     b
-ROM:15A4 D8				     ret     C
-ROM:15A5 36 00				     ld	     (hl), #0
-ROM:15A7 3A 13 E0			     ld	     a,	(coinA_credits)
-ROM:15AA 4F				     ld	     c,	a
+ROM:15A3 B8				     cp	     b				     ; enough for a credit?
+ROM:15A4 D8				     ret     C				     ; no, exit
+ROM:15A5 36 00				     ld	     (hl), #0			     ; init
+ROM:15A7 3A 13 E0			     ld	     a,	(coinA_credits)		     ; credits/coin
+ROM:15AA 4F				     ld	     c,	a			     ; save
 ROM:15AB
 ROM:15AB	     loc_15AB:							     ; CODE XREF: check_coin2+18j
 ROM:15AB 3A 22 E0			     ld	     a,	(credits)
-ROM:15AE FE 63				     cp	     #0x63 ; 'c'
-ROM:15B0 D0				     ret     NC
-ROM:15B1 81				     add     a,	c
+ROM:15AE FE 63				     cp	     #99			     ; max?
+ROM:15B0 D0				     ret     NC				     ; yes, exit
+ROM:15B1 81				     add     a,	c			     ; add new credits
 ROM:15B2 27				     daa
-ROM:15B3 32 22 E0			     ld	     (credits),	a
+ROM:15B3 32 22 E0			     ld	     (credits),	a		     ; update
 ROM:15B6 3A 05 E0			     ld	     a,	(vbl_lvl_0_fn)
-ROM:15B9 FE 03				     cp	     #3
-ROM:15BB C8				     ret     Z
+ROM:15B9 FE 03				     cp	     #3				     ; test mode?
+ROM:15BB C8				     ret     Z				     ; yes, exit
 ROM:15BC 16 06				     ld	     d,	#6			     ; print credits
 ROM:15BE C3 38 00			     jp	     add_fn_to_q
 ROM:15BE	     ; END OF FUNCTION CHUNK FOR check_coin1
@@ -3767,7 +3760,7 @@ ROM:1BB6 21 C0 00			     ld	     hl, #0xC0 ; '¿'                 ; background dy
 ROM:1BB9 22 09 E1			     ld	     (background_dy), hl	     ; update
 ROM:1BBC 21 10 FF			     ld	     hl, #0xFF10
 ROM:1BBF 22 0B E1			     ld	     (word_E10B), hl
-ROM:1BC2 21 00 FF			     ld	     hl, #-0x100		     ; dy
+ROM:1BC2 21 00 FF			     ld	     hl, #-256			     ; dy
 ROM:1BC5 19				     add     hl, de			     ; calc new	y
 ROM:1BC6 FD 74 02			     ld	     2(iy), h			     ; update s0.y
 ROM:1BC9 DD 75 06			     ld	     6(ix), l			     ; ship y lsb
@@ -3780,11 +3773,11 @@ ROM:1BD0 FE E0				     cp	     #224			     ; right-most?
 ROM:1BD2 28 1B				     jr	     Z,	cant_move_left_right	     ; yes, go
 ROM:1BD4 57				     ld	     d,	a
 ROM:1BD5 DD 5E 06			     ld	     e,	6(ix)			     ; ship y lsb
-ROM:1BD8 21 40 FF			     ld	     hl, #-0xC0			     ; background dy
+ROM:1BD8 21 40 FF			     ld	     hl, #-192			     ; background dy
 ROM:1BDB 22 09 E1			     ld	     (background_dy), hl	     ; update
-ROM:1BDE 21 F0 00			     ld	     hl, #0xF0 ; ''
+ROM:1BDE 21 F0 00			     ld	     hl, #240
 ROM:1BE1 22 0B E1			     ld	     (word_E10B), hl
-ROM:1BE4 21 00 01			     ld	     hl, #0x100			     ; dy
+ROM:1BE4 21 00 01			     ld	     hl, #256			     ; dy
 ROM:1BE7 19				     add     hl, de			     ; calc new	y
 ROM:1BE8 FD 74 02			     ld	     2(iy), h			     ; update s0.y
 ROM:1BEB DD 75 06			     ld	     6(ix), l			     ; ship y lsb
@@ -4587,7 +4580,7 @@ ROM:217E E6 07				     and     #7
 ROM:2180 DD 77 0B			     ld	     0xB(ix), a
 ROM:2183 DD 36 0C 00			     ld	     0xC(ix), #0
 ROM:2187 DD 36 0E 20			     ld	     0xE(ix), #0x20 ; ' '
-ROM:218B DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:218B DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:218F C9				     ret
 ROM:2190	     ; ---------------------------------------------------------------------------
 ROM:2190
@@ -4637,7 +4630,7 @@ ROM:21E8 E6 07				     and     #7
 ROM:21EA DD 36 0B 07			     ld	     0xB(ix), #7
 ROM:21EE DD 36 0C 00			     ld	     0xC(ix), #0
 ROM:21F2 DD 36 0E 20			     ld	     0xE(ix), #0x20 ; ' '
-ROM:21F6 DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:21F6 DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:21FA C9				     ret
 ROM:21FB	     ; ---------------------------------------------------------------------------
 ROM:21FB
@@ -4654,9 +4647,9 @@ ROM:2207	     loc_2207:							     ; CODE XREF: ROM:21C9j
 ROM:2207 3A CC E0			     ld	     a,	(byte_E0CC)
 ROM:220A A7				     and     a
 ROM:220B CA 61 21			     jp	     Z,	loc_2161
-ROM:220E DD 7E 01			     ld	     a,	1(ix)
-ROM:2211 C6 02				     add     a,	#2
-ROM:2213 DD 77 01			     ld	     1(ix), a
+ROM:220E DD 7E 01			     ld	     a,	1(ix)			     ; obj counter
+ROM:2211 C6 02				     add     a,	#2			     ; +=2
+ROM:2213 DD 77 01			     ld	     1(ix), a			     ; update obj counter
 ROM:2216 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2219 0F				     rrca
 ROM:221A 0F				     rrca
@@ -4665,11 +4658,11 @@ ROM:221C 0F				     rrca
 ROM:221D E6 07				     and     #7
 ROM:221F 21 78 22			     ld	     hl, #byte_2278
 ROM:2222 E7				     rst     content_hl_plus_a
-ROM:2223 DD 77 0A			     ld	     0xA(ix), a
+ROM:2223 DD 77 0A			     ld	     0xA(ix), a			     ; lookup_dy_dx table entry
 ROM:2226 CD 98 28			     call    lookup_dy_dx_store
-ROM:2229 3A CD E0			     ld	     a,	(byte_E0CD)
+ROM:2229 3A CD E0			     ld	     a,	(related_to_big_alien_y)
 ROM:222C DD 77 0B			     ld	     0xB(ix), a
-ROM:222F 3A CE E0			     ld	     a,	(byte_E0CE)
+ROM:222F 3A CE E0			     ld	     a,	(related_to_big_alien_x)
 ROM:2232 DD 77 0C			     ld	     0xC(ix), a
 ROM:2235 DD 66 06			     ld	     h,	6(ix)
 ROM:2238 DD 6E 07			     ld	     l,	7(ix)			     ; HL=obj dy
@@ -4680,7 +4673,7 @@ ROM:223E 29				     add     hl, hl			     ; x16
 ROM:223F 29				     add     hl, hl			     ; x32
 ROM:2240 DD 56 0B			     ld	     d,	0xB(ix)
 ROM:2243 1E 00				     ld	     e,	#0
-ROM:2245 19				     add     hl, de
+ROM:2245 19				     add     hl, de			     ; dy x 32 + [$0B].00
 ROM:2246 FD 74 02			     ld	     2(iy), h			     ; update sprite y
 ROM:2249 DD 66 08			     ld	     h,	8(ix)
 ROM:224C DD 6E 09			     ld	     l,	9(ix)			     ; HL=obj dx
@@ -4691,7 +4684,7 @@ ROM:2252 29				     add     hl, hl			     ; x16
 ROM:2253 29				     add     hl, hl			     ; x32
 ROM:2254 DD 56 0C			     ld	     d,	0xC(ix)
 ROM:2257 1E 00				     ld	     e,	#0
-ROM:2259 19				     add     hl, de
+ROM:2259 19				     add     hl, de			     ; dx x 32 + [$0C].00
 ROM:225A FD 74 03			     ld	     3(iy), h			     ; update sprite x
 ROM:225D
 ROM:225D	     ; =============== S U B R O U T I N E =======================================
@@ -4715,6 +4708,7 @@ ROM:2277 C9				     ret
 ROM:2277	     ; End of function set_rock_sprite_code
 ROM:2277
 ROM:2277	     ; ---------------------------------------------------------------------------
+ROM:2278	     ; lookup dy_dx table entry
 ROM:2278 00 01 02 03+byte_2278:		     .db 0, 1, 2, 3, 4,	3, 2, 1		     ; DATA XREF: ROM:221Fo
 ROM:2280 F4 F5 F6 F7+rock_sprite_code_tbl:   .db 0xF4, 0xF5, 0xF6, 0xF7, 0xFC, 0xFD, 0xFE, 0xF4
 ROM:2280 FC FD FE F4								     ; DATA XREF: set_rock_sprite_code+7o
@@ -4731,40 +4725,41 @@ ROM:2290	     loc_2290:							     ; CODE XREF: ROM:22CEj
 ROM:2290 DD 7E 0A			     ld	     a,	0xA(ix)
 ROM:2293 3C				     inc     a
 ROM:2294 C2 90 29			     jp	     NZ, deactivate_obj
-ROM:2297 DD 7E 02			     ld	     a,	2(ix)
+ROM:2297 DD 7E 02			     ld	     a,	2(ix)			     ; obj timer
 ROM:229A FE 3C				     cp	     #0x3C ; '<'
 ROM:229C 28 0A				     jr	     Z,	loc_22A8
 ROM:229E DD 35 02			     dec     2(ix)
 ROM:22A1 CA 90 29			     jp	     Z,	deactivate_obj
-ROM:22A4 CD 6F 29			     call    move_x_minus_128
+ROM:22A4 CD 6F 29			     call    scroll_with_background
 ROM:22A7 C9				     ret
 ROM:22A8	     ; ---------------------------------------------------------------------------
 ROM:22A8
 ROM:22A8	     loc_22A8:							     ; CODE XREF: ROM:229Cj
-ROM:22A8 DD 7E 01			     ld	     a,	1(ix)
-ROM:22AB 21 BA 22			     ld	     hl, #unk_22BA
+ROM:22A8 DD 7E 01			     ld	     a,	1(ix)			     ; obj counter
+ROM:22AB 21 BA 22			     ld	     hl, #some_bonus_score_sprite_code_tbl
 ROM:22AE E7				     rst     content_hl_plus_a
-ROM:22AF FD 77 00			     ld	     0(iy), a
-ROM:22B2 FD 36 01 00			     ld	     1(iy), #0
-ROM:22B6 DD 35 02			     dec     2(ix)
+ROM:22AF FD 77 00			     ld	     0(iy), a			     ; sprite code
+ROM:22B2 FD 36 01 00			     ld	     1(iy), #0			     ; sprite colour
+ROM:22B6 DD 35 02			     dec     2(ix)			     ; obj timer -= 2
 ROM:22B9 C9				     ret
 ROM:22B9	     ; ---------------------------------------------------------------------------
-ROM:22BA 30	     unk_22BA:		     .db 0x30 ;	0			     ; DATA XREF: ROM:22ABo
-ROM:22BB 31				     .db 0x31 ;	1
-ROM:22BC 32				     .db 0x32 ;	2
-ROM:22BD 35				     .db 0x35 ;	5
-ROM:22BE 33				     .db 0x33 ;	3
-ROM:22BF 34				     .db 0x34 ;	4
-ROM:22C0 36				     .db 0x36 ;	6
-ROM:22C1 37				     .db 0x37 ;	7
-ROM:22C2 38				     .db 0x38 ;	8
-ROM:22C3 39				     .db 0x39 ;	9
-ROM:22C4 3A				     .db 0x3A ;	:
-ROM:22C5 3B				     .db 0x3B ;	;
-ROM:22C6 3C				     .db 0x3C ;	<
-ROM:22C7 3D				     .db 0x3D ;	=
-ROM:22C8 3E				     .db 0x3E ;	>
-ROM:22C9 02				     .db    2
+ROM:22BA 30	     some_bonus_score_sprite_code_tbl:.db 0x30 ; 0		     ; DATA XREF: ROM:22ABo
+ROM:22BA									     ; '100'
+ROM:22BB 31				     .db 0x31 ;	1			     ; '200'
+ROM:22BC 32				     .db 0x32 ;	2			     ; '400'
+ROM:22BD 35				     .db 0x35 ;	5			     ; '500'
+ROM:22BE 33				     .db 0x33 ;	3			     ; '800'
+ROM:22BF 34				     .db 0x34 ;	4			     ; '800'
+ROM:22C0 36				     .db 0x36 ;	6			     ; '1000'
+ROM:22C1 37				     .db 0x37 ;	7			     ; '1500'
+ROM:22C2 38				     .db 0x38 ;	8			     ; '2000'
+ROM:22C3 39				     .db 0x39 ;	9			     ; '2500'
+ROM:22C4 3A				     .db 0x3A ;	:			     ; '3000'
+ROM:22C5 3B				     .db 0x3B ;	;			     ; '3500'
+ROM:22C6 3C				     .db 0x3C ;	<			     ; '4000'
+ROM:22C7 3D				     .db 0x3D ;	=			     ; '4500'
+ROM:22C8 3E				     .db 0x3E ;	>			     ; '5000'
+ROM:22C9 02				     .db    2				     ; ship
 ROM:22CA	     ; ---------------------------------------------------------------------------
 ROM:22CA
 ROM:22CA	     loc_22CA:							     ; CODE XREF: ROM:20E1j
@@ -4779,7 +4774,7 @@ ROM:22DA 20 03				     jr	     NZ, loc_22DF
 ROM:22DC FD 34 00			     inc     0(iy)			     ; sprite code++
 ROM:22DF
 ROM:22DF	     loc_22DF:							     ; CODE XREF: ROM:22DAj
-ROM:22DF C3 6F 29			     jp	     move_x_minus_128
+ROM:22DF C3 6F 29			     jp	     scroll_with_background
 ROM:22E2	     ; ---------------------------------------------------------------------------
 ROM:22E2
 ROM:22E2	     loc_22E2:							     ; CODE XREF: ROM:2305j
@@ -4796,12 +4791,12 @@ ROM:22FD C9				     ret
 ROM:22FE	     ; ---------------------------------------------------------------------------
 ROM:22FE
 ROM:22FE	     loc_22FE:							     ; CODE XREF: ROM:22D3j
-ROM:22FE DD 7E 05			     ld	     a,	5(ix)
+ROM:22FE DD 7E 05			     ld	     a,	5(ix)			     ; obj type
 ROM:2301 E6 0F				     and     #0xF
 ROM:2303 FE 0F				     cp	     #0xF
 ROM:2305 28 DB				     jr	     Z,	loc_22E2
-ROM:2307 FE 0A				     cp	     #0xA
-ROM:2309 D2 C1 23			     jp	     NC, loc_23C1
+ROM:2307 FE 0A				     cp	     #0xA			     ; rock?
+ROM:2309 D2 C1 23			     jp	     NC, loc_23C1		     ; no, go
 ROM:230C 3E 24				     ld	     a,	#0x24 ;	'$'
 ROM:230E DD 77 00			     ld	     0(ix), a			     ; obj state=
 ROM:2311 FD 36 00 20			     ld	     0(iy), #0x20 ; ' '              ; sprite code=explosion
@@ -4821,15 +4816,15 @@ ROM:232E C3 38 00			     jp	     add_fn_to_q
 ROM:2331	     ; ---------------------------------------------------------------------------
 ROM:2331
 ROM:2331	     loc_2331:							     ; CODE XREF: ROM:2329j
-ROM:2331 3A C7 E0			     ld	     a,	(byte_E0C7)
+ROM:2331 3A C7 E0			     ld	     a,	(formation_cnt__maybe)
 ROM:2334 3D				     dec     a
-ROM:2335 32 C7 E0			     ld	     (byte_E0C7), a
+ROM:2335 32 C7 E0			     ld	     (formation_cnt__maybe), a
 ROM:2338 FD 36 01 05			     ld	     1(iy), #5			     ; sprite colour
 ROM:233C 20 ED				     jr	     NZ, loc_232B
-ROM:233E DD 7E 05			     ld	     a,	5(ix)
+ROM:233E DD 7E 05			     ld	     a,	5(ix)			     ; obj type
 ROM:2341 E6 0F				     and     #0xF
-ROM:2343 FE 09				     cp	     #9
-ROM:2345 28 6A				     jr	     Z,	loc_23B1
+ROM:2343 FE 09				     cp	     #9				     ; spinning_disc?
+ROM:2345 28 6A				     jr	     Z,	loc_23B1		     ; yes, go
 ROM:2347 DD 36 02 3C			     ld	     2(ix), #0x3C ; '<'
 ROM:234B DD 36 0A FF			     ld	     0xA(ix), #0xFF
 ROM:234F 21 C8 E0			     ld	     hl, #formations_destroyed_cnt
@@ -4871,9 +4866,9 @@ ROM:2387	     ; =============== S U B R O U T I N E ============================
 ROM:2387
 ROM:2387
 ROM:2387	     sub_2387:							     ; CODE XREF: ROM:2371p
-ROM:2387 3A C7 E0			     ld	     a,	(byte_E0C7)
+ROM:2387 3A C7 E0			     ld	     a,	(formation_cnt__maybe)
 ROM:238A 3D				     dec     a
-ROM:238B 32 C7 E0			     ld	     (byte_E0C7), a
+ROM:238B 32 C7 E0			     ld	     (formation_cnt__maybe), a
 ROM:238E FD 36 01 05			     ld	     1(iy), #5			     ; sprite colour
 ROM:2392 C0				     ret     NZ
 ROM:2393 DD 7E 05			     ld	     a,	5(ix)			     ; obj type
@@ -5108,7 +5103,7 @@ ROM:24E8
 ROM:24E8	     loc_24E8:							     ; CODE XREF: sub_24AE+24j
 ROM:24E8 E1				     pop     hl
 ROM:24E9 DD CB 05 BE			     res     7,	5(ix)
-ROM:24ED DD 7E 05			     ld	     a,	5(ix)
+ROM:24ED DD 7E 05			     ld	     a,	5(ix)			     ; obj type
 ROM:24F0 0F				     rrca
 ROM:24F1 0F				     rrca
 ROM:24F2 0F				     rrca
@@ -5125,7 +5120,7 @@ ROM:24FD 21 25				     .dw loc_2521
 ROM:24FF	     ; ---------------------------------------------------------------------------
 ROM:24FF
 ROM:24FF	     loc_24FF:							     ; DATA XREF: ROM:24F9o
-ROM:24FF CD 9C 6A			     call    loc_6A9C
+ROM:24FF CD 9C 6A			     call    aim_near_ship
 ROM:2502 DD 77 01			     ld	     1(ix), a
 ROM:2505
 ROM:2505	     loc_2505:							     ; DATA XREF: ROM:24F7o
@@ -5138,7 +5133,7 @@ ROM:250C DD 36 06 60			     ld	     6(ix), #0x60 ; '`'
 ROM:2510 DD 36 08 00			     ld	     8(ix), #0
 ROM:2514 DD 36 0A 06			     ld	     0xA(ix), #6
 ROM:2518 DD 36 0E 18			     ld	     0xE(ix), #0x18
-ROM:251C DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:251C DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2520 C9				     ret
 ROM:2521	     ; ---------------------------------------------------------------------------
 ROM:2521
@@ -5150,7 +5145,7 @@ ROM:2529 DD 36 06 50			     ld	     6(ix), #0x50 ; 'P'
 ROM:252D DD 36 08 FF			     ld	     8(ix), #0xFF
 ROM:2531 DD 36 0A 03			     ld	     0xA(ix), #3
 ROM:2535 DD 36 0E FF			     ld	     0xE(ix), #0xFF
-ROM:2539 DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2539 DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:253D C9				     ret
 ROM:253E
 ROM:253E	     ; =============== S U B R O U T I N E =======================================
@@ -5170,7 +5165,7 @@ ROM:254D
 ROM:254D	     loc_254D:							     ; CODE XREF: sub_253E+9j
 ROM:254D DD 7E 0E			     ld	     a,	0xE(ix)
 ROM:2550 DD 77 08			     ld	     8(ix), a			     ; update dx
-ROM:2553 CD 9C 6A			     call    loc_6A9C
+ROM:2553 CD 9C 6A			     call    aim_near_ship
 ROM:2556 DD 77 02			     ld	     2(ix), a
 ROM:2559 C9				     ret
 ROM:2559	     ; End of function sub_253E
@@ -5241,7 +5236,7 @@ ROM:25B0 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:25B3 E6 07				     and     #7				     ; time to ???
 ROM:25B5 CC C4 25			     call    Z,	sub_25C4
 ROM:25B8 CD 67 24			     call    sub_2467
-ROM:25BB C3 6F 29			     jp	     move_x_minus_128
+ROM:25BB C3 6F 29			     jp	     scroll_with_background
 ROM:25BE	     ; ---------------------------------------------------------------------------
 ROM:25BE
 ROM:25BE	     loc_25BE:							     ; DATA XREF: ROM:25A8o
@@ -5252,7 +5247,7 @@ ROM:25C4	     ; =============== S U B R O U T I N E ============================
 ROM:25C4
 ROM:25C4
 ROM:25C4	     sub_25C4:							     ; CODE XREF: ROM:25B5p
-ROM:25C4 CD 9C 6A			     call    loc_6A9C
+ROM:25C4 CD 9C 6A			     call    aim_near_ship
 ROM:25C7 DD 77 02			     ld	     2(ix), a
 ROM:25CA C9				     ret
 ROM:25CA	     ; End of function sub_25C4
@@ -5324,14 +5319,14 @@ ROM:260E	     ; END OF FUNCTION CHUNK FOR sub_2627
 ROM:260F	     ; ---------------------------------------------------------------------------
 ROM:260F
 ROM:260F	     loc_260F:							     ; DATA XREF: sub_2627-22o
-ROM:260F DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:260F DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2613 DD 36 0A 0C			     ld	     0xA(ix), #0xC
 ROM:2617 C9				     ret
 ROM:2618	     ; ---------------------------------------------------------------------------
 ROM:2618
 ROM:2618	     loc_2618:							     ; DATA XREF: sub_2627-20o
-ROM:2618 DD 36 0F 09			     ld	     0xF(ix), #9
-ROM:261C CD 9C 6A			     call    loc_6A9C
+ROM:2618 DD 36 0F 09			     ld	     0xF(ix), #9		     ; obj aiming entry
+ROM:261C CD 9C 6A			     call    aim_near_ship
 ROM:261F DD 77 02			     ld	     2(ix), a
 ROM:2622 DD 36 0A 04			     ld	     0xA(ix), #4
 ROM:2626 C9				     ret
@@ -5343,18 +5338,18 @@ ROM:2627	     sub_2627:							     ; CODE XREF: sub_25E4+9p
 ROM:2627
 ROM:2627	     ; FUNCTION	CHUNK AT ROM:25F4 SIZE 0000001B	BYTES
 ROM:2627
-ROM:2627 DD 7E 05			     ld	     a,	5(ix)
+ROM:2627 DD 7E 05			     ld	     a,	5(ix)			     ; obj type
 ROM:262A E6 0F				     and     #0xF
 ROM:262C FE 04				     cp	     #4
 ROM:262E 28 C4				     jr	     Z,	loc_25F4
 ROM:2630 21 6E 26			     ld	     hl, #off_266E
-ROM:2633 DD 7E 0B			     ld	     a,	0xB(ix)
-ROM:2636 EF				     rst     de_eq_contents_hl_plus_2a
+ROM:2633 DD 7E 0B			     ld	     a,	0xB(ix)			     ; offset of table
+ROM:2636 EF				     rst     de_eq_contents_hl_plus_2a	     ; addr of aiming entries table
 ROM:2637 EB				     ex	     de, hl
-ROM:2638 DD 7E 0C			     ld	     a,	0xC(ix)
-ROM:263B DD 34 0C			     inc     0xC(ix)
+ROM:2638 DD 7E 0C			     ld	     a,	0xC(ix)			     ; aiming table entry offset
+ROM:263B DD 34 0C			     inc     0xC(ix)			     ; ++
 ROM:263E E7				     rst     content_hl_plus_a
-ROM:263F 47				     ld	     b,	a
+ROM:263F 47				     ld	     b,	a			     ; save entry
 ROM:2640 FE FF				     cp	     #0xFF
 ROM:2642 28 21				     jr	     Z,	loc_2665
 ROM:2644 FE FE				     cp	     #0xFE ; '˛'
@@ -5363,15 +5358,15 @@ ROM:2648 0F				     rrca
 ROM:2649 0F				     rrca
 ROM:264A 0F				     rrca
 ROM:264B 0F				     rrca
-ROM:264C E6 F0				     and     #0xF0 ; ''
+ROM:264C E6 F0				     and     #0xF0 ; ''                     ; lo->hi nibble
 ROM:264E DD 77 0D			     ld	     0xD(ix), a
 ROM:2651 78				     ld	     a,	b
 ROM:2652 0F				     rrca
 ROM:2653 0F				     rrca
 ROM:2654 0F				     rrca
-ROM:2655 0F				     rrca
+ROM:2655 0F				     rrca				     ; hi->lo nibble
 ROM:2656 E6 0F				     and     #0xF
-ROM:2658 DD 77 0F			     ld	     0xF(ix), a
+ROM:2658 DD 77 0F			     ld	     0xF(ix), a			     ; obj aiming entry
 ROM:265B C9				     ret
 ROM:265C	     ; ---------------------------------------------------------------------------
 ROM:265C
@@ -5388,6 +5383,8 @@ ROM:266D C9				     ret
 ROM:266D	     ; End of function sub_2627
 ROM:266D
 ROM:266D	     ; ---------------------------------------------------------------------------
+ROM:266E	     ; hi nibble is aiming table entry
+ROM:266E	     ; lo nibble -> $0D
 ROM:266E 7E 26	     off_266E:		     .dw byte_267E			     ; DATA XREF: sub_2627+9o
 ROM:2670 85 26				     .dw byte_2685
 ROM:2672 8C 26				     .dw byte_268C
@@ -5461,7 +5458,7 @@ ROM:26EF
 ROM:26F0	     ; ---------------------------------------------------------------------------
 ROM:26F0
 ROM:26F0	     loc_26F0:							     ; CODE XREF: sub_26E0+9p
-ROM:26F0 CD 9C 6A			     call    loc_6A9C
+ROM:26F0 CD 9C 6A			     call    aim_near_ship
 ROM:26F3 DD 77 02			     ld	     2(ix), a			     ; obj timer
 ROM:26F6 0E 20				     ld	     c,	#0x20 ;	' '
 ROM:26F8 E6 80				     and     #0x80 ; 'Ä'
@@ -5694,19 +5691,14 @@ ROM:2884	     animate_spinning_disc:					     ; DATA XREF: ROM:272Bo
 ROM:2884 CD 5D 3E			     call    upd_spinning_disc_sprite_code
 ROM:2887 FD 36 01 06			     ld	     1(iy), #6			     ; sprite colour
 ROM:288B C9				     ret
-ROM:288B	     ; ---------------------------------------------------------------------------
-ROM:288C 0E				     .db  0xE
-ROM:288D C4				     .db 0xC4 ;	ƒ
-ROM:288E DD				     .db 0xDD ;	›
-ROM:288F 7E				     .db 0x7E ;	~
-ROM:2890 0B				     .db  0xB
-ROM:2891 E6				     .db 0xE6 ;	Ê
-ROM:2892 01				     .db    1
-ROM:2893 81				     .db 0x81 ;	Å
-ROM:2894 FD				     .db 0xFD ;	˝
-ROM:2895 77				     .db 0x77 ;	w
-ROM:2896 00				     .db    0
-ROM:2897 C9				     .db 0xC9 ;	…
+ROM:288C	     ; ---------------------------------------------------------------------------
+ROM:288C	     ; *** UNUSED???
+ROM:288C 0E C4				     ld	     c,	#0xC4 ;	'ƒ'
+ROM:288E DD 7E 0B			     ld	     a,	0xB(ix)
+ROM:2891 E6 01				     and     #1
+ROM:2893 81				     add     a,	c
+ROM:2894 FD 77 00			     ld	     0(iy), a
+ROM:2897 C9				     ret
 ROM:2898
 ROM:2898	     ; =============== S U B R O U T I N E =======================================
 ROM:2898
@@ -5753,7 +5745,7 @@ ROM:28CB DD 7E 0A			     ld	     a,	0xA(ix)
 ROM:28CE 21 20 9C			     ld	     hl, #off_9C20
 ROM:28D1 EF				     rst     de_eq_contents_hl_plus_2a
 ROM:28D2 EB				     ex	     de, hl
-ROM:28D3 DD 7E 01			     ld	     a,	1(ix)
+ROM:28D3 DD 7E 01			     ld	     a,	1(ix)			     ; obj counter
 ROM:28D6 47				     ld	     b,	a
 ROM:28D7 0F				     rrca
 ROM:28D8 E6 1F				     and     #0x1F
@@ -5857,7 +5849,7 @@ ROM:2947
 ROM:2947
 ROM:2947	     sub_2947:							     ; CODE XREF: ROM:loc_362Dp
 ROM:2947 FD 56 03			     ld	     d,	3(iy)			     ; sprite x
-ROM:294A 21 80 FF			     ld	     hl, #unk_FF80		     ; -128
+ROM:294A 21 80 FF			     ld	     hl, #-128
 ROM:294D DD 5E 04			     ld	     e,	4(ix)			     ; object x	LSB
 ROM:2950 19				     add     hl, de
 ROM:2951 FD 74 03			     ld	     3(iy), h			     ; update sprite x
@@ -5866,7 +5858,7 @@ ROM:2957 2A 0B E1			     ld	     hl, (word_E10B)
 ROM:295A 11 00 00			     ld	     de, #0
 ROM:295D EB				     ex	     de, hl
 ROM:295E A7				     and     a
-ROM:295F ED 52				     sbc     hl, de
+ROM:295F ED 52				     sbc     hl, de			     ; negate
 ROM:2961 FD 56 02			     ld	     d,	2(iy)			     ; sprite y
 ROM:2964 DD 5E 03			     ld	     e,	3(ix)
 ROM:2967 19				     add     hl, de
@@ -5879,7 +5871,7 @@ ROM:296F
 ROM:296F	     ; =============== S U B R O U T I N E =======================================
 ROM:296F
 ROM:296F
-ROM:296F	     move_x_minus_128:						     ; CODE XREF: ROM:22A4p
+ROM:296F	     scroll_with_background:					     ; CODE XREF: ROM:22A4p
 ROM:296F									     ; ROM:loc_22DFj ...
 ROM:296F FD 56 03			     ld	     d,	3(iy)			     ; sprite x
 ROM:2972 21 80 FF			     ld	     hl, #-128
@@ -5894,7 +5886,7 @@ ROM:2988 19				     add     hl, de			     ; move w/bg
 ROM:2989 FD 74 02			     ld	     2(iy), h			     ; update sprite y
 ROM:298C DD 75 03			     ld	     3(ix), l			     ; update obj y lsb
 ROM:298F C9				     ret
-ROM:298F	     ; End of function move_x_minus_128
+ROM:298F	     ; End of function scroll_with_background
 ROM:298F
 ROM:2990	     ; ---------------------------------------------------------------------------
 ROM:2990	     ; START OF	FUNCTION CHUNK FOR update_sprite_bullets
@@ -5958,10 +5950,10 @@ ROM:29DF	     ; =============== S U B R O U T I N E ============================
 ROM:29DF
 ROM:29DF
 ROM:29DF	     handle_e200_firing:					     ; CODE XREF: ROM:20F9p
-ROM:29DF 3A A8 E0			     ld	     a,	(byte_E0A8)
-ROM:29E2 A7				     and     a
-ROM:29E3 C0				     ret     NZ
-ROM:29E4 3A A4 E0			     ld	     a,	(max_alien_bullets)
+ROM:29DF 3A A8 E0			     ld	     a,	(alien_bullet_tmr)
+ROM:29E2 A7				     and     a				     ; expired?
+ROM:29E3 C0				     ret     NZ				     ; no, exit
+ROM:29E4 3A A4 E0			     ld	     a,	(area_max_alien_bullets)
 ROM:29E7 A7				     and     a				     ; zero?
 ROM:29E8 C8				     ret     Z				     ; yes, exit
 ROM:29E9 47				     ld	     b,	a			     ; save
@@ -5990,7 +5982,7 @@ ROM:2A0C FD 96 02			     sub     2(iy)
 ROM:2A0F 80				     add     a,	b
 ROM:2A10 B9				     cp	     c
 ROM:2A11 D8				     ret     C
-ROM:2A12 CD 95 6A			     call    sub_6A95
+ROM:2A12 CD 95 6A			     call    aim_directly_at_ship
 ROM:2A15 4F				     ld	     c,	a
 ROM:2A16 DD 96 01			     sub     1(ix)
 ROM:2A19 C6 20				     add     a,	#0x20 ;	' '
@@ -6033,10 +6025,10 @@ ROM:2A5C DD 71 01			     ld	     1(ix), c
 ROM:2A5F DD 36 05 00			     ld	     5(ix), #0
 ROM:2A63 3A B7 E0			     ld	     a,	(byte_E0B7)
 ROM:2A66 DD 77 0A			     ld	     0xA(ix), a
-ROM:2A69 DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2A69 DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2A6D CD 98 28			     call    lookup_dy_dx_store
-ROM:2A70 3A A7 E0			     ld	     a,	(byte_E0A7)
-ROM:2A73 32 A8 E0			     ld	     (byte_E0A8), a
+ROM:2A70 3A A7 E0			     ld	     a,	(area_alien_bullet_tmr_init)
+ROM:2A73 32 A8 E0			     ld	     (alien_bullet_tmr), a	     ; re-init bullet timer
 ROM:2A76 FD E1				     pop     iy
 ROM:2A78 DD E1				     pop     ix
 ROM:2A7A C9				     ret
@@ -6141,7 +6133,7 @@ ROM:2B07 D9				     exx
 ROM:2B08 FD 74 02			     ld	     2(iy), h			     ; copy to s.x
 ROM:2B0B FD 75 03			     ld	     3(iy), l			     ; copy to s.y
 ROM:2B0E FD 36 00 5F			     ld	     0(iy), #0x5F ; '_'              ; alien bullet
-ROM:2B12 CD 95 6A			     call    sub_6A95
+ROM:2B12 CD 95 6A			     call    aim_directly_at_ship
 ROM:2B15 DD 77 01			     ld	     1(ix), a
 ROM:2B18 DD 36 0A 0D			     ld	     0xA(ix), #0xD
 ROM:2B1C CD 98 28			     call    lookup_dy_dx_store
@@ -6156,20 +6148,20 @@ ROM:2B2C
 ROM:2B2C	     ; =============== S U B R O U T I N E =======================================
 ROM:2B2C
 ROM:2B2C
-ROM:2B2C	     init_some_stuff:						     ; CODE XREF: ROM:0B2Ap
+ROM:2B2C	     reset_some_stuff:						     ; CODE XREF: ROM:0B2Ap
 ROM:2B2C									     ; ROM:11BAp ...
 ROM:2B2C 3E 01				     ld	     a,	#1
 ROM:2B2E 32 AA E0			     ld	     (byte_E0AA), a
 ROM:2B31 32 B2 E0			     ld	     (byte_E0B2), a
 ROM:2B34 AF				     xor     a
 ROM:2B35 32 AB E0			     ld	     (byte_E0AB), a
-ROM:2B38 32 C5 E0			     ld	     (byte_E0C5), a
+ROM:2B38 32 C5 E0			     ld	     (area_tmr), a
 ROM:2B3B 32 B1 E0			     ld	     (byte_E0B1), a
 ROM:2B3E 32 99 E1			     ld	     (pickup_obj+9), a
 ROM:2B41 3D				     dec     a
 ROM:2B42 32 98 E1			     ld	     (pickup_obj+8), a
 ROM:2B45 C9				     ret
-ROM:2B45	     ; End of function init_some_stuff
+ROM:2B45	     ; End of function reset_some_stuff
 ROM:2B45
 ROM:2B46
 ROM:2B46	     ; =============== S U B R O U T I N E =======================================
@@ -6190,14 +6182,14 @@ ROM:2B56 29				     add     hl, hl			     ; x16
 ROM:2B57 19				     add     hl, de			     ; entry + (map_area) x16
 ROM:2B58 7E				     ld	     a,	(hl)			     ; @$0
 ROM:2B59 23				     inc     hl
-ROM:2B5A 32 A4 E0			     ld	     (max_alien_bullets), a
+ROM:2B5A 32 A4 E0			     ld	     (area_max_alien_bullets), a
 ROM:2B5D 7E				     ld	     a,	(hl)			     ; @$1
 ROM:2B5E 23				     inc     hl
 ROM:2B5F 32 B6 E0			     ld	     (byte_E0B6), a
 ROM:2B62 7E				     ld	     a,	(hl)			     ; @$2
 ROM:2B63 23				     inc     hl
-ROM:2B64 32 A7 E0			     ld	     (byte_E0A7), a
-ROM:2B67 32 A8 E0			     ld	     (byte_E0A8), a
+ROM:2B64 32 A7 E0			     ld	     (area_alien_bullet_tmr_init), a
+ROM:2B67 32 A8 E0			     ld	     (alien_bullet_tmr), a
 ROM:2B6A 7E				     ld	     a,	(hl)			     ; @$3
 ROM:2B6B 23				     inc     hl
 ROM:2B6C 32 B7 E0			     ld	     (byte_E0B7), a
@@ -6206,7 +6198,7 @@ ROM:2B70 23				     inc     hl
 ROM:2B71 32 B8 E0			     ld	     (missed_E_cnt), a
 ROM:2B74 7E				     ld	     a,	(hl)			     ; @$5
 ROM:2B75 23				     inc     hl
-ROM:2B76 32 B9 E0			     ld	     (byte_E0B9), a
+ROM:2B76 32 B9 E0			     ld	     (area_firing_alien_type), a
 ROM:2B79 7E				     ld	     a,	(hl)			     ; @$6
 ROM:2B7A 23				     inc     hl
 ROM:2B7B 32 BA E0			     ld	     (byte_E0BA), a
@@ -6214,8 +6206,8 @@ ROM:2B7E 3E 10				     ld	     a,	#0x10
 ROM:2B80 32 BB E0			     ld	     (byte_E0BB), a
 ROM:2B83 7E				     ld	     a,	(hl)			     ; @$7
 ROM:2B84 23				     inc     hl
-ROM:2B85 32 A5 E0			     ld	     (byte_E0A5), a
-ROM:2B88 32 A6 E0			     ld	     (byte_E0A6), a
+ROM:2B85 32 A5 E0			     ld	     (area_firing_alien_spawn_tmr_init), a
+ROM:2B88 32 A6 E0			     ld	     (firing_alien_spawn_tmr), a
 ROM:2B8B 7E				     ld	     a,	(hl)			     ; @$8
 ROM:2B8C 23				     inc     hl
 ROM:2B8D 32 BC E0			     ld	     (byte_E0BC), a
@@ -6230,28 +6222,28 @@ ROM:2B9D 7E				     ld	     a,	(hl)			     ; @$B
 ROM:2B9E 23				     inc     hl
 ROM:2B9F 47				     ld	     b,	a
 ROM:2BA0 E6 0F				     and     #0xF
-ROM:2BA2 32 C2 E0			     ld	     (byte_E0C2), a		     ; large alien type
+ROM:2BA2 32 C2 E0			     ld	     (area_large_alien_type), a
 ROM:2BA5 78				     ld	     a,	b
 ROM:2BA6 0F				     rrca
 ROM:2BA7 0F				     rrca
 ROM:2BA8 0F				     rrca
 ROM:2BA9 0F				     rrca
 ROM:2BAA E6 0F				     and     #0xF			     ; hi->lo nibble
-ROM:2BAC 32 C1 E0			     ld	     (byte_E0C1), a
+ROM:2BAC 32 C1 E0			     ld	     (area_large_alien_obj_cnt), a
 ROM:2BAF 7E				     ld	     a,	(hl)			     ; @$C
 ROM:2BB0 23				     inc     hl
 ROM:2BB1 32 C3 E0			     ld	     (byte_E0C3), a
 ROM:2BB4 7E				     ld	     a,	(hl)			     ; @$D
 ROM:2BB5 23				     inc     hl
-ROM:2BB6 32 C0 E0			     ld	     (byte_E0C0), a
-ROM:2BB9 32 C4 E0			     ld	     (byte_E0C4), a
+ROM:2BB6 32 C0 E0			     ld	     (area_large_alien_spawn_tmr_init),	a
+ROM:2BB9 32 C4 E0			     ld	     (large_alien_spawn_tmr), a
 ROM:2BBC AF				     xor     a
 ROM:2BBD 32 C6 E0			     ld	     (byte_E0C6), a
 ROM:2BC0 7E				     ld	     a,	(hl)			     ; @$E
 ROM:2BC1 23				     inc     hl
 ROM:2BC2 32 B5 E0			     ld	     (byte_E0B5), a
 ROM:2BC5 3D				     dec     a
-ROM:2BC6 32 C9 E0			     ld	     (byte_E0C9), a
+ROM:2BC6 32 C9 E0			     ld	     (area_non_firing_alien_type), a
 ROM:2BC9 7E				     ld	     a,	(hl)			     ; @$F
 ROM:2BCA 23				     inc     hl
 ROM:2BCB 32 CB E0			     ld	     (byte_E0CB), a
@@ -6273,29 +6265,29 @@ ROM:2BEB
 ROM:2BEB	     ; =============== S U B R O U T I N E =======================================
 ROM:2BEB
 ROM:2BEB
-ROM:2BEB	     sub_2BEB:							     ; CODE XREF: ROM:0B91p
+ROM:2BEB	     tick_timers:						     ; CODE XREF: ROM:0B91p
 ROM:2BEB									     ; ROM:11E0p
-ROM:2BEB 21 A8 E0			     ld	     hl, #byte_E0A8
+ROM:2BEB 21 A8 E0			     ld	     hl, #alien_bullet_tmr
 ROM:2BEE 7E				     ld	     a,	(hl)
-ROM:2BEF A7				     and     a
-ROM:2BF0 28 01				     jr	     Z,	loc_2BF3
-ROM:2BF2 35				     dec     (hl)
+ROM:2BEF A7				     and     a				     ; expired?
+ROM:2BF0 28 01				     jr	     Z,	loc_2BF3		     ; yes, skip
+ROM:2BF2 35				     dec     (hl)			     ; tick
 ROM:2BF3
-ROM:2BF3	     loc_2BF3:							     ; CODE XREF: sub_2BEB+5j
+ROM:2BF3	     loc_2BF3:							     ; CODE XREF: tick_timers+5j
 ROM:2BF3 21 CC E0			     ld	     hl, #byte_E0CC
 ROM:2BF6 7E				     ld	     a,	(hl)
 ROM:2BF7 A7				     and     a
 ROM:2BF8 28 01				     jr	     Z,	loc_2BFB
 ROM:2BFA 35				     dec     (hl)
 ROM:2BFB
-ROM:2BFB	     loc_2BFB:							     ; CODE XREF: sub_2BEB+Dj
-ROM:2BFB 21 A6 E0			     ld	     hl, #byte_E0A6
+ROM:2BFB	     loc_2BFB:							     ; CODE XREF: tick_timers+Dj
+ROM:2BFB 21 A6 E0			     ld	     hl, #firing_alien_spawn_tmr
 ROM:2BFE 7E				     ld	     a,	(hl)
-ROM:2BFF A7				     and     a
-ROM:2C00 28 01				     jr	     Z,	loc_2C03
-ROM:2C02 35				     dec     (hl)
+ROM:2BFF A7				     and     a				     ; expired?
+ROM:2C00 28 01				     jr	     Z,	loc_2C03		     ; yes, skip
+ROM:2C02 35				     dec     (hl)			     ; tick
 ROM:2C03
-ROM:2C03	     loc_2C03:							     ; CODE XREF: sub_2BEB+15j
+ROM:2C03	     loc_2C03:							     ; CODE XREF: tick_timers+15j
 ROM:2C03 21 BB E0			     ld	     hl, #byte_E0BB
 ROM:2C06 7E				     ld	     a,	(hl)
 ROM:2C07 A7				     and     a
@@ -6305,18 +6297,18 @@ ROM:2C0B 20 06				     jr	     NZ, loc_2C13
 ROM:2C0D 3A BC E0			     ld	     a,	(byte_E0BC)
 ROM:2C10 32 BD E0			     ld	     (byte_E0BD), a
 ROM:2C13
-ROM:2C13	     loc_2C13:							     ; CODE XREF: sub_2BEB+1Dj
-ROM:2C13									     ; sub_2BEB+20j
+ROM:2C13	     loc_2C13:							     ; CODE XREF: tick_timers+1Dj
+ROM:2C13									     ; tick_timers+20j
 ROM:2C13 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2C16 E6 01				     and     #1
 ROM:2C18 C0				     ret     NZ
-ROM:2C19 21 C4 E0			     ld	     hl, #byte_E0C4
+ROM:2C19 21 C4 E0			     ld	     hl, #large_alien_spawn_tmr
 ROM:2C1C 7E				     ld	     a,	(hl)
-ROM:2C1D A7				     and     a
-ROM:2C1E 28 01				     jr	     Z,	loc_2C21
-ROM:2C20 35				     dec     (hl)
+ROM:2C1D A7				     and     a				     ; expired?
+ROM:2C1E 28 01				     jr	     Z,	loc_2C21		     ; yes, skip
+ROM:2C20 35				     dec     (hl)			     ; tick
 ROM:2C21
-ROM:2C21	     loc_2C21:							     ; CODE XREF: sub_2BEB+33j
+ROM:2C21	     loc_2C21:							     ; CODE XREF: tick_timers+33j
 ROM:2C21 21 BF E0			     ld	     hl, #byte_E0BF
 ROM:2C24 7E				     ld	     a,	(hl)
 ROM:2C25 A7				     and     a
@@ -6326,15 +6318,15 @@ ROM:2C29 20 04				     jr	     NZ, loc_2C2F
 ROM:2C2B AF				     xor     a
 ROM:2C2C 32 B2 E0			     ld	     (byte_E0B2), a
 ROM:2C2F
-ROM:2C2F	     loc_2C2F:							     ; CODE XREF: sub_2BEB+3Bj
-ROM:2C2F									     ; sub_2BEB+3Ej
-ROM:2C2F 21 C5 E0			     ld	     hl, #byte_E0C5
-ROM:2C32 35				     dec     (hl)
-ROM:2C33 C0				     ret     NZ
+ROM:2C2F	     loc_2C2F:							     ; CODE XREF: tick_timers+3Bj
+ROM:2C2F									     ; tick_timers+3Ej
+ROM:2C2F 21 C5 E0			     ld	     hl, #area_tmr
+ROM:2C32 35				     dec     (hl)			     ; expired?
+ROM:2C33 C0				     ret     NZ				     ; no, exit
 ROM:2C34 21 03 E5			     ld	     hl, #map_area
-ROM:2C37 34				     inc     (hl)
+ROM:2C37 34				     inc     (hl)			     ; next area
 ROM:2C38 C3 46 2B			     jp	     init_planet_area_data
-ROM:2C38	     ; End of function sub_2BEB
+ROM:2C38	     ; End of function tick_timers
 ROM:2C38
 ROM:2C3B
 ROM:2C3B	     ; =============== S U B R O U T I N E =======================================
@@ -6352,9 +6344,9 @@ ROM:2C3F CA 81 2E			     jp	     Z,	loc_2E81
 ROM:2C42 3A BB E0			     ld	     a,	(byte_E0BB)
 ROM:2C45 A7				     and     a
 ROM:2C46 C0				     ret     NZ
-ROM:2C47 3A A6 E0			     ld	     a,	(byte_E0A6)
-ROM:2C4A A7				     and     a
-ROM:2C4B C0				     ret     NZ
+ROM:2C47 3A A6 E0			     ld	     a,	(firing_alien_spawn_tmr)
+ROM:2C4A A7				     and     a				     ; expired?
+ROM:2C4B C0				     ret     NZ				     ; no, exit
 ROM:2C4C 3A B8 E0			     ld	     a,	(missed_E_cnt)
 ROM:2C4F 47				     ld	     b,	a
 ROM:2C50 3A AB E0			     ld	     a,	(byte_E0AB)
@@ -6380,8 +6372,8 @@ ROM:2C6F CD AE 2C			     call    spawn_e200_object
 ROM:2C72 21 BD E0			     ld	     hl, #byte_E0BD
 ROM:2C75 35				     dec     (hl)
 ROM:2C76 28 07				     jr	     Z,	loc_2C7F
-ROM:2C78 3A A5 E0			     ld	     a,	(byte_E0A5)
-ROM:2C7B 32 A6 E0			     ld	     (byte_E0A6), a
+ROM:2C78 3A A5 E0			     ld	     a,	(area_firing_alien_spawn_tmr_init)
+ROM:2C7B 32 A6 E0			     ld	     (firing_alien_spawn_tmr), a
 ROM:2C7E C9				     ret
 ROM:2C7F	     ; ---------------------------------------------------------------------------
 ROM:2C7F
@@ -6405,7 +6397,7 @@ ROM:2C9E DD 36 01 E0			     ld	     1(ix), #0xE0 ; '‡'
 ROM:2CA2 DD 36 0A 02			     ld	     0xA(ix), #2		     ; dy_dx_lookup_index!!!
 ROM:2CA6 CD 98 28			     call    lookup_dy_dx_store
 ROM:2CA9 AF				     xor     a
-ROM:2CAA 32 9D E0			     ld	     (spawn_jap_symb_flag), a	     ; clear japanese symbol flag
+ROM:2CAA 32 9D E0			     ld	     (spawn_jap_symb_flag), a	     ; clear flag
 ROM:2CAD C9				     ret
 ROM:2CAD	     ; END OF FUNCTION CHUNK FOR spawn_e200_object
 ROM:2CAE
@@ -6419,9 +6411,9 @@ ROM:2CAE
 ROM:2CAE 3A 9D E0			     ld	     a,	(spawn_jap_symb_flag)
 ROM:2CB1 A7				     and     a				     ; spawn japanese symbol?
 ROM:2CB2 20 D2				     jr	     NZ, spawn_japanese_symbol	     ; yes, go
-ROM:2CB4 3A B9 E0			     ld	     a,	(byte_E0B9)
-ROM:2CB7 FE 0A				     cp	     #10			     ; type 10?
-ROM:2CB9 28 32				     jr	     Z,	spawn_obj_type_10	     ; yes, go
+ROM:2CB4 3A B9 E0			     ld	     a,	(area_firing_alien_type)
+ROM:2CB7 FE 0A				     cp	     #10			     ; type 10 (rock)?
+ROM:2CB9 28 32				     jr	     Z,	spawn_rock		     ; yes, go
 ROM:2CBB CD 91 2A			     call    rand
 ROM:2CBE E6 1F				     and     #31
 ROM:2CC0 47				     ld	     b,	a
@@ -6439,7 +6431,7 @@ ROM:2CD1 DD 77 01			     ld	     1(ix), a			     ; init counter?
 ROM:2CD4 DD 77 02			     ld	     2(ix), a			     ; init timer?
 ROM:2CD7 FD 36 00 FF			     ld	     0(iy), #0xFF		     ; init state=active
 ROM:2CDB FD 36 01 00			     ld	     1(iy), #0			     ; sprite colour
-ROM:2CDF 3A B9 E0			     ld	     a,	(byte_E0B9)
+ROM:2CDF 3A B9 E0			     ld	     a,	(area_firing_alien_type)
 ROM:2CE2 F7				     rst     jp_tbl_vector
 ROM:2CE2	     ; ---------------------------------------------------------------------------
 ROM:2CE3 3B 2D				     .dw spawn_tumble_ship
@@ -6449,13 +6441,14 @@ ROM:2CE9 C5 2D				     .dw spawn_butterfly
 ROM:2CEB F3 2D				     .dw spawn_moth
 ROM:2CED	     ; ---------------------------------------------------------------------------
 ROM:2CED
-ROM:2CED	     spawn_obj_type_10:						     ; CODE XREF: spawn_e200_object+Bj
+ROM:2CED	     spawn_rock:						     ; CODE XREF: spawn_e200_object+Bj
 ROM:2CED 3A 60 E1			     ld	     a,	(large_alien_obj_tbl)	     ; object 0
 ROM:2CF0 3C				     inc     a				     ; active?
 ROM:2CF1 C0				     ret     NZ				     ; no, exit
 ROM:2CF2 3A 65 E1			     ld	     a,	(large_alien_obj_tbl+5)	     ; obj type
 ROM:2CF5 FE 03				     cp	     #3				     ; 0-2?
 ROM:2CF7 D8				     ret     C				     ; yes, exit
+ROM:2CF8	     ; large alien is vulgus
 ROM:2CF8 DD 36 00 FF			     ld	     0(ix), #0xFF		     ; state=active
 ROM:2CFC DD 36 05 0A			     ld	     5(ix), #10			     ; init obj	type
 ROM:2D00 DD 36 0E 00			     ld	     0xE(ix), #0
@@ -6472,9 +6465,9 @@ ROM:2D17 E6 7F				     and     #0x7F ; ''
 ROM:2D19 87				     add     a,	a
 ROM:2D1A 80				     add     a,	b
 ROM:2D1B DD 77 01			     ld	     1(ix), a
-ROM:2D1E 3A CD E0			     ld	     a,	(byte_E0CD)
+ROM:2D1E 3A CD E0			     ld	     a,	(related_to_big_alien_y)
 ROM:2D21 FD 77 02			     ld	     2(iy), a			     ; sprite y
-ROM:2D24 3A CE E0			     ld	     a,	(byte_E0CE)
+ROM:2D24 3A CE E0			     ld	     a,	(related_to_big_alien_x)
 ROM:2D27 FD 77 03			     ld	     3(iy), a			     ; sprite x
 ROM:2D2A FD 36 00 FF			     ld	     0(iy), #0xFF		     ; sprite code=blank
 ROM:2D2E FD 36 01 00			     ld	     1(iy), #0			     ; sprite colour
@@ -6487,92 +6480,92 @@ ROM:2D3A
 ROM:2D3B	     ; ---------------------------------------------------------------------------
 ROM:2D3B
 ROM:2D3B	     spawn_tumble_ship:						     ; DATA XREF: spawn_e200_object+35o
-ROM:2D3B DD 35 00			     dec     0(ix)
-ROM:2D3E DD 36 05 00			     ld	     5(ix), #0
-ROM:2D42 DD 36 06 60			     ld	     6(ix), #0x60 ; '`'
-ROM:2D46 DD 36 08 20			     ld	     8(ix), #0x20 ; ' '
-ROM:2D4A DD 36 0A 0A			     ld	     0xA(ix), #0xA
+ROM:2D3B DD 35 00			     dec     0(ix)			     ; obj state=active
+ROM:2D3E DD 36 05 00			     ld	     5(ix), #0			     ; obj type
+ROM:2D42 DD 36 06 60			     ld	     6(ix), #96			     ; obj dy
+ROM:2D46 DD 36 08 20			     ld	     8(ix), #32			     ; obj dx
+ROM:2D4A DD 36 0A 0A			     ld	     0xA(ix), #0xA		     ; dy_dx_lookup table entry
 ROM:2D4E 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2D51 07				     rlca
 ROM:2D52 07				     rlca
 ROM:2D53 E6 07				     and     #7
-ROM:2D55 DD 77 0B			     ld	     0xB(ix), a
-ROM:2D58 DD 36 0C 00			     ld	     0xC(ix), #0
+ROM:2D55 DD 77 0B			     ld	     0xB(ix), a			     ; (related	to y)
+ROM:2D58 DD 36 0C 00			     ld	     0xC(ix), #0		     ; (related	to x)
 ROM:2D5C DD 36 0D 00			     ld	     0xD(ix), #0
 ROM:2D60 DD 36 0E 30			     ld	     0xE(ix), #0x30 ; '0'
-ROM:2D64 DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2D64 DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2D68 C9				     ret
 ROM:2D69	     ; ---------------------------------------------------------------------------
 ROM:2D69
 ROM:2D69	     spawn_plane:						     ; DATA XREF: spawn_e200_object+37o
-ROM:2D69 DD 35 00			     dec     0(ix)
-ROM:2D6C DD 36 05 01			     ld	     5(ix), #1
-ROM:2D70 DD 36 06 60			     ld	     6(ix), #0x60 ; '`'
-ROM:2D74 DD 36 08 28			     ld	     8(ix), #0x28 ; '('
-ROM:2D78 DD 36 0A 02			     ld	     0xA(ix), #2
+ROM:2D69 DD 35 00			     dec     0(ix)			     ; obj state=active
+ROM:2D6C DD 36 05 01			     ld	     5(ix), #1			     ; obj type
+ROM:2D70 DD 36 06 60			     ld	     6(ix), #96			     ; obj dy
+ROM:2D74 DD 36 08 28			     ld	     8(ix), #40			     ; obj dx
+ROM:2D78 DD 36 0A 02			     ld	     0xA(ix), #2		     ; dy_dx_lookup table entry
 ROM:2D7C 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2D7F 07				     rlca
 ROM:2D80 07				     rlca
 ROM:2D81 E6 07				     and     #7
-ROM:2D83 DD 77 0B			     ld	     0xB(ix), a
-ROM:2D86 DD 36 0C 00			     ld	     0xC(ix), #0
+ROM:2D83 DD 77 0B			     ld	     0xB(ix), a			     ; (related	to y)
+ROM:2D86 DD 36 0C 00			     ld	     0xC(ix), #0		     ; (related	to x)
 ROM:2D8A DD 36 0D 00			     ld	     0xD(ix), #0
 ROM:2D8E DD 36 0E 20			     ld	     0xE(ix), #0x20 ; ' '
-ROM:2D92 DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2D92 DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2D96 C9				     ret
 ROM:2D97	     ; ---------------------------------------------------------------------------
 ROM:2D97
 ROM:2D97	     spawn_ray:							     ; DATA XREF: spawn_e200_object+39o
-ROM:2D97 DD 35 00			     dec     0(ix)
-ROM:2D9A DD 36 05 02			     ld	     5(ix), #2
-ROM:2D9E DD 36 06 70			     ld	     6(ix), #0x70 ; 'p'
-ROM:2DA2 DD 36 08 24			     ld	     8(ix), #0x24 ; '$'
-ROM:2DA6 DD 36 0A 05			     ld	     0xA(ix), #5
+ROM:2D97 DD 35 00			     dec     0(ix)			     ; obj state=active
+ROM:2D9A DD 36 05 02			     ld	     5(ix), #2			     ; obj type
+ROM:2D9E DD 36 06 70			     ld	     6(ix), #112		     ; obj dy
+ROM:2DA2 DD 36 08 24			     ld	     8(ix), #36			     ; obj dx
+ROM:2DA6 DD 36 0A 05			     ld	     0xA(ix), #5		     ; dy_dx_lookup table entry
 ROM:2DAA 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2DAD 07				     rlca
 ROM:2DAE 07				     rlca
 ROM:2DAF E6 07				     and     #7
-ROM:2DB1 DD 77 0B			     ld	     0xB(ix), a
-ROM:2DB4 DD 36 0C 00			     ld	     0xC(ix), #0
+ROM:2DB1 DD 77 0B			     ld	     0xB(ix), a			     ; (related	to y)
+ROM:2DB4 DD 36 0C 00			     ld	     0xC(ix), #0		     ; (related	to x)
 ROM:2DB8 DD 36 0D 00			     ld	     0xD(ix), #0
 ROM:2DBC DD 36 0E 20			     ld	     0xE(ix), #0x20 ; ' '
-ROM:2DC0 DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2DC0 DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2DC4 C9				     ret
 ROM:2DC5	     ; ---------------------------------------------------------------------------
 ROM:2DC5
 ROM:2DC5	     spawn_butterfly:						     ; DATA XREF: spawn_e200_object+3Bo
-ROM:2DC5 DD 35 00			     dec     0(ix)
-ROM:2DC8 DD 36 05 03			     ld	     5(ix), #3
-ROM:2DCC DD 36 06 70			     ld	     6(ix), #0x70 ; 'p'
-ROM:2DD0 DD 36 08 18			     ld	     8(ix), #0x18
-ROM:2DD4 DD 36 0A 05			     ld	     0xA(ix), #5
+ROM:2DC5 DD 35 00			     dec     0(ix)			     ; obj state=active
+ROM:2DC8 DD 36 05 03			     ld	     5(ix), #3			     ; obj type
+ROM:2DCC DD 36 06 70			     ld	     6(ix), #112		     ; obj dy
+ROM:2DD0 DD 36 08 18			     ld	     8(ix), #24			     ; obj dx
+ROM:2DD4 DD 36 0A 05			     ld	     0xA(ix), #5		     ; dy_dx_lookup table entry
 ROM:2DD8 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2DDB 07				     rlca
 ROM:2DDC 07				     rlca
 ROM:2DDD E6 07				     and     #7
-ROM:2DDF DD 77 0B			     ld	     0xB(ix), a
-ROM:2DE2 DD 36 0C 00			     ld	     0xC(ix), #0
+ROM:2DDF DD 77 0B			     ld	     0xB(ix), a			     ; (related	to y)
+ROM:2DE2 DD 36 0C 00			     ld	     0xC(ix), #0		     ; (related	to x)
 ROM:2DE6 DD 36 0D 00			     ld	     0xD(ix), #0
 ROM:2DEA DD 36 0E 18			     ld	     0xE(ix), #0x18
-ROM:2DEE DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2DEE DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2DF2 C9				     ret
 ROM:2DF3	     ; ---------------------------------------------------------------------------
 ROM:2DF3
 ROM:2DF3	     spawn_moth:						     ; DATA XREF: spawn_e200_object+3Do
-ROM:2DF3 DD 35 00			     dec     0(ix)
-ROM:2DF6 DD 36 05 04			     ld	     5(ix), #4
-ROM:2DFA DD 36 06 90			     ld	     6(ix), #0x90 ; 'ê'
-ROM:2DFE DD 36 08 18			     ld	     8(ix), #0x18
-ROM:2E02 DD 36 0A 04			     ld	     0xA(ix), #4
+ROM:2DF3 DD 35 00			     dec     0(ix)			     ; obj state=active
+ROM:2DF6 DD 36 05 04			     ld	     5(ix), #4			     ; obj type
+ROM:2DFA DD 36 06 90			     ld	     6(ix), #144		     ; obj dy
+ROM:2DFE DD 36 08 18			     ld	     8(ix), #24			     ; obj dx
+ROM:2E02 DD 36 0A 04			     ld	     0xA(ix), #4		     ; dy_dx_lookup table entry
 ROM:2E06 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:2E09 07				     rlca
 ROM:2E0A 07				     rlca
 ROM:2E0B E6 07				     and     #7
-ROM:2E0D DD 77 0B			     ld	     0xB(ix), a
-ROM:2E10 DD 36 0D 00			     ld	     0xD(ix), #0
+ROM:2E0D DD 77 0B			     ld	     0xB(ix), a			     ; (related	to y)
+ROM:2E10 DD 36 0D 00			     ld	     0xD(ix), #0		     ; (related	to x)
 ROM:2E14 DD 36 0C 00			     ld	     0xC(ix), #0
 ROM:2E18 DD 36 0E 28			     ld	     0xE(ix), #0x28 ; '('
-ROM:2E1C DD 36 0F 00			     ld	     0xF(ix), #0
+ROM:2E1C DD 36 0F 00			     ld	     0xF(ix), #0		     ; aim directly at ship
 ROM:2E20 C9				     ret
 ROM:2E20	     ; ---------------------------------------------------------------------------
 ROM:2E21	     ; init values for e200 objects type 0-4
@@ -6629,7 +6622,7 @@ ROM:2E99 08				     ex	     af, af'
 ROM:2E9A 13				     inc     de
 ROM:2E9B EB				     ex	     de, hl
 ROM:2E9C AF				     xor     a
-ROM:2E9D 32 C7 E0			     ld	     (byte_E0C7), a
+ROM:2E9D 32 C7 E0			     ld	     (formation_cnt__maybe), a
 ROM:2EA0 DD 21 00 E2			     ld	     ix, #e200_obj_tbl
 ROM:2EA4 FD 21 20 EF			     ld	     iy, # spriteram_shadow+0x20     ; sprite 8
 ROM:2EA8 06 09				     ld	     b,	#9			     ; 9 objects
@@ -6669,30 +6662,30 @@ ROM:2ED0 DD 77 0B			     ld	     0xB(ix), a
 ROM:2ED3 3A CB E0			     ld	     a,	(byte_E0CB)
 ROM:2ED6 86				     add     a,	(hl)
 ROM:2ED7 23				     inc     hl
-ROM:2ED8 DD 77 05			     ld	     5(ix), a
+ROM:2ED8 DD 77 05			     ld	     5(ix), a			     ; obj type
 ROM:2EDB 7E				     ld	     a,	(hl)
 ROM:2EDC 23				     inc     hl
 ROM:2EDD DD 77 0D			     ld	     0xD(ix), a
 ROM:2EE0 7E				     ld	     a,	(hl)
 ROM:2EE1 23				     inc     hl
-ROM:2EE2 FD 77 02			     ld	     2(iy), a
+ROM:2EE2 FD 77 02			     ld	     2(iy), a			     ; sprite y
 ROM:2EE5 7E				     ld	     a,	(hl)
 ROM:2EE6 23				     inc     hl
-ROM:2EE7 FD 77 03			     ld	     3(iy), a
-ROM:2EEA FD 36 00 FF			     ld	     0(iy), #0xFF
-ROM:2EEE FD 36 01 00			     ld	     1(iy), #0
+ROM:2EE7 FD 77 03			     ld	     3(iy), a			     ; sprite x
+ROM:2EEA FD 36 00 FF			     ld	     0(iy), #0xFF		     ; sprite code
+ROM:2EEE FD 36 01 00			     ld	     1(iy), #0			     ; sprite colour
 ROM:2EF2 3E FE				     ld	     a,	#0xFE ;	'˛'
-ROM:2EF4 DD 77 00			     ld	     0(ix), a
+ROM:2EF4 DD 77 00			     ld	     0(ix), a			     ; obj state
 ROM:2EF7 AF				     xor     a
 ROM:2EF8 DD 77 0C			     ld	     0xC(ix), a
 ROM:2EFB DD 77 02			     ld	     2(ix), a
 ROM:2EFE DD 77 03			     ld	     3(ix), a
 ROM:2F01 DD 77 04			     ld	     4(ix), a
-ROM:2F04 DD 36 0F 08			     ld	     0xF(ix), #8
+ROM:2F04 DD 36 0F 08			     ld	     0xF(ix), #8		     ; obj aiming entry
 ROM:2F08 DD 36 0A 05			     ld	     0xA(ix), #5
-ROM:2F0C 3A C7 E0			     ld	     a,	(byte_E0C7)
+ROM:2F0C 3A C7 E0			     ld	     a,	(formation_cnt__maybe)
 ROM:2F0F 3C				     inc     a
-ROM:2F10 32 C7 E0			     ld	     (byte_E0C7), a
+ROM:2F10 32 C7 E0			     ld	     (formation_cnt__maybe), a
 ROM:2F13 C9				     ret
 ROM:2F13	     ; End of function sub_2ECB
 ROM:2F13
@@ -7194,32 +7187,32 @@ ROM:358A C9				     ret
 ROM:358A	     ; ---------------------------------------------------------------------------
 ROM:358B	     ; pointers	to tables of pickup types per map_planet
 ROM:358B	     ; - 0=POW,	1=E, 2=S, 3=D, 4=star
-ROM:358B 9D 35	     pickup_tbl:	     .dw byte_359D			     ; DATA XREF: update_pickup+43o
-ROM:358D AD 35				     .dw byte_35AD
-ROM:358F BD 35				     .dw byte_35BD
-ROM:3591 CD 35				     .dw byte_35CD
-ROM:3593 DD 35				     .dw byte_35DD
-ROM:3595 ED 35				     .dw byte_35ED
-ROM:3597 FD 35				     .dw byte_35FD
-ROM:3599 0D 36				     .dw byte_360D
-ROM:359B 1D 36				     .dw byte_361D
-ROM:359D 00 00 01 00+byte_359D:		     .db 0, 0, 1, 0, 0,	2, 0, 0, 3, 0, 0, 1, 0,	0, 4, 0
+ROM:358B 9D 35	     pickup_tbl:	     .dw planet_1_pickup_type_tbl	     ; DATA XREF: update_pickup+43o
+ROM:358D AD 35				     .dw planet_2_pickup_type_tbl
+ROM:358F BD 35				     .dw planet_3_pickup_type_tbl
+ROM:3591 CD 35				     .dw planet_4_pickup_type_tbl
+ROM:3593 DD 35				     .dw planet_5_pickup_type_tbl
+ROM:3595 ED 35				     .dw planet_6_pickup_type_tbl
+ROM:3597 FD 35				     .dw planet_7_pickup_type_tbl
+ROM:3599 0D 36				     .dw planet_8_pickup_type_tbl
+ROM:359B 1D 36				     .dw planet_9_pickup_type_tbl
+ROM:359D 00 00 01 00+planet_1_pickup_type_tbl:.db 0, 0,	1, 0, 0, 2, 0, 0, 3, 0,	0, 1, 0, 0, 4, 0
 ROM:359D 00 02 00 00+								     ; DATA XREF: ROM:pickup_tblo
-ROM:35AD 00 00 01 00+byte_35AD:		     .db 0, 0, 1, 0, 1,	2, 0, 0, 3, 0, 1, 1, 0,	0, 4, 0
+ROM:35AD 00 00 01 00+planet_2_pickup_type_tbl:.db 0, 0,	1, 0, 1, 2, 0, 0, 3, 0,	1, 1, 0, 0, 4, 0
 ROM:35AD 01 02 00 00+								     ; DATA XREF: ROM:358Do
-ROM:35BD 00 00 01 00+byte_35BD:		     .db 0, 0, 1, 0, 2,	2, 0, 0, 3, 0, 0, 1, 2,	0, 4, 0
+ROM:35BD 00 00 01 00+planet_3_pickup_type_tbl:.db 0, 0,	1, 0, 2, 2, 0, 0, 3, 0,	0, 1, 2, 0, 4, 0
 ROM:35BD 02 02 00 00+								     ; DATA XREF: ROM:358Fo
-ROM:35CD 00 00 01 00+byte_35CD:		     .db 0, 0, 1, 0, 0,	2, 0, 0, 3, 0, 0, 1, 1,	0, 4, 0
+ROM:35CD 00 00 01 00+planet_4_pickup_type_tbl:.db 0, 0,	1, 0, 0, 2, 0, 0, 3, 0,	0, 1, 1, 0, 4, 0
 ROM:35CD 00 02 00 00+								     ; DATA XREF: ROM:3591o
-ROM:35DD 00 00 01 00+byte_35DD:		     .db 0, 0, 1, 0, 2,	2, 0, 2, 3, 0, 3, 1, 0,	3, 4, 0
+ROM:35DD 00 00 01 00+planet_5_pickup_type_tbl:.db 0, 0,	1, 0, 2, 2, 0, 2, 3, 0,	3, 1, 0, 3, 4, 0
 ROM:35DD 02 02 00 02+								     ; DATA XREF: ROM:3593o
-ROM:35ED 00 00 01 00+byte_35ED:		     .db 0, 0, 1, 0, 3,	2, 0, 3, 3, 0, 2, 1, 0,	1, 4, 0
+ROM:35ED 00 00 01 00+planet_6_pickup_type_tbl:.db 0, 0,	1, 0, 3, 2, 0, 3, 3, 0,	2, 1, 0, 1, 4, 0
 ROM:35ED 03 02 00 03+								     ; DATA XREF: ROM:3595o
-ROM:35FD 00 00 01 00+byte_35FD:		     .db 0, 0, 1, 0, 2,	2, 0, 2, 3, 0, 3, 1, 0,	2, 4, 0
+ROM:35FD 00 00 01 00+planet_7_pickup_type_tbl:.db 0, 0,	1, 0, 2, 2, 0, 2, 3, 0,	3, 1, 0, 2, 4, 0
 ROM:35FD 02 02 00 02+								     ; DATA XREF: ROM:3597o
-ROM:360D 00 00 01 00+byte_360D:		     .db 0, 0, 1, 0, 1,	2, 0, 2, 3, 0, 3, 1, 0,	2, 4, 0
+ROM:360D 00 00 01 00+planet_8_pickup_type_tbl:.db 0, 0,	1, 0, 1, 2, 0, 2, 3, 0,	3, 1, 0, 2, 4, 0
 ROM:360D 01 02 00 02+								     ; DATA XREF: ROM:3599o
-ROM:361D 00 02 01 00+byte_361D:		     .db 0, 2, 1, 0, 1,	2, 0, 2, 3, 0, 2, 1, 0,	0, 4, 0
+ROM:361D 00 02 01 00+planet_9_pickup_type_tbl:.db 0, 2,	1, 0, 1, 2, 0, 2, 3, 0,	2, 1, 0, 0, 4, 0
 ROM:361D 01 02 00 02+								     ; DATA XREF: ROM:359Bo
 ROM:362D	     ; ---------------------------------------------------------------------------
 ROM:362D
@@ -7372,11 +7365,11 @@ ROM:3716 C9				     ret
 ROM:3717	     ; ---------------------------------------------------------------------------
 ROM:3717
 ROM:3717	     missed_D:							     ; DATA XREF: process_q+3442o
-ROM:3717 3A A4 E0			     ld	     a,	(max_alien_bullets)
+ROM:3717 3A A4 E0			     ld	     a,	(area_max_alien_bullets)
 ROM:371A FE 06				     cp	     #6				     ; max?
 ROM:371C D0				     ret     NC				     ; yes, exit
 ROM:371D 3C				     inc     a
-ROM:371E 32 A4 E0			     ld	     (max_alien_bullets), a
+ROM:371E 32 A4 E0			     ld	     (area_max_alien_bullets), a
 ROM:3721 C9				     ret
 ROM:3722
 ROM:3722	     ; =============== S U B R O U T I N E =======================================
@@ -7384,15 +7377,15 @@ ROM:3722
 ROM:3722
 ROM:3722	     spawn_large_alien:						     ; CODE XREF: ROM:0BA3p
 ROM:3722									     ; ROM:11F5p
-ROM:3722 3A C1 E0			     ld	     a,	(byte_E0C1)		     ; large alien obj # (1-based)
+ROM:3722 3A C1 E0			     ld	     a,	(area_large_alien_obj_cnt)
 ROM:3725 A7				     and     a				     ; none?
 ROM:3726 C8				     ret     Z				     ; yes, exit
-ROM:3727 3D				     dec     a				     ; convert to 0-based
+ROM:3727 3D				     dec     a				     ; convert to 0-based object number
 ROM:3728 6F				     ld	     l,	a			     ; save obj	#
 ROM:3729 5F				     ld	     e,	a			     ; save obj	#
-ROM:372A 3A C4 E0			     ld	     a,	(byte_E0C4)
-ROM:372D A7				     and     a
-ROM:372E C0				     ret     NZ
+ROM:372A 3A C4 E0			     ld	     a,	(large_alien_spawn_tmr)
+ROM:372D A7				     and     a				     ; expired?
+ROM:372E C0				     ret     NZ				     ; no, exit
 ROM:372F 3A 00 E1			     ld	     a,	(ship_obj)
 ROM:3732 3C				     inc     a				     ; active?
 ROM:3733 C0				     ret     NZ				     ; no, return
@@ -7431,16 +7424,16 @@ ROM:376B FD 77 02			     ld	     2(iy), a			     ; init sprite y
 ROM:376E 23				     inc     hl
 ROM:376F 7E				     ld	     a,	(hl)			     ; 2nd byte
 ROM:3770 FD 77 03			     ld	     3(iy), a			     ; init sprite x
-ROM:3773 3A C2 E0			     ld	     a,	(byte_E0C2)		     ; alien type from map data
+ROM:3773 3A C2 E0			     ld	     a,	(area_large_alien_type)	     ; alien type from map data
 ROM:3776 DD 77 05			     ld	     5(ix), a			     ; init type
 ROM:3779 DD 36 02 00			     ld	     2(ix), #0			     ; init hit	count
 ROM:377D DD 36 0A 05			     ld	     0xA(ix), #5		     ; dy_dx lookup entry index?
 ROM:3781 FD 36 01 40			     ld	     1(iy), #0x40 ; '@'              ; sn.colour
 ROM:3785 FD 36 05 40			     ld	     5(iy), #0x40 ; '@'              ; s(n+1).colour
-ROM:3789 3A C0 E0			     ld	     a,	(byte_E0C0)
-ROM:378C 32 C4 E0			     ld	     (byte_E0C4), a
-ROM:378F 21 C1 E0			     ld	     hl, #byte_E0C1
-ROM:3792 35				     dec     (hl)
+ROM:3789 3A C0 E0			     ld	     a,	(area_large_alien_spawn_tmr_init)
+ROM:378C 32 C4 E0			     ld	     (large_alien_spawn_tmr), a	     ; re-init spawn timer
+ROM:378F 21 C1 E0			     ld	     hl, #area_large_alien_obj_cnt
+ROM:3792 35				     dec     (hl)			     ; --
 ROM:3793 C9				     ret
 ROM:3793	     ; ---------------------------------------------------------------------------
 ROM:3794	     ; sprite y, x
@@ -7511,11 +7504,11 @@ ROM:37EB	     update_2nd_sprite:						     ; CODE XREF: init_big_alien+16p
 ROM:37EB									     ; update_large_aliens+3Dp
 ROM:37EB FD 7E 02			     ld	     a,	2(iy)			     ; sn.y
 ROM:37EE FD 77 06			     ld	     6(iy), a			     ; copy to s(n+1).y
-ROM:37F1 C6 08				     add     a,	#8
-ROM:37F3 32 CD E0			     ld	     (byte_E0CD), a
+ROM:37F1 C6 08				     add     a,	#8			     ; calc rock spawn y msb
+ROM:37F3 32 CD E0			     ld	     (related_to_big_alien_y), a     ; store
 ROM:37F6 FD 7E 03			     ld	     a,	3(iy)			     ; sn.x
-ROM:37F9 C6 F8				     add     a,	#-8
-ROM:37FB 32 CE E0			     ld	     (byte_E0CE), a
+ROM:37F9 C6 F8				     add     a,	#-8			     ; calc rock spawn x msb
+ROM:37FB 32 CE E0			     ld	     (related_to_big_alien_x), a     ; store
 ROM:37FE C6 18				     add     a,	#24			     ; +24(=sn.x+16)
 ROM:3800 FD 77 07			     ld	     7(iy), a			     ; s(n+1).x
 ROM:3803 C9				     ret
@@ -7542,7 +7535,7 @@ ROM:3814 DD 34 0C			     inc     0xC(ix)
 ROM:3817 CB 47				     bit     0,	a
 ROM:3819 20 55				     jr	     NZ, loc_3870
 ROM:381B E6 1E				     and     #0x1E
-ROM:381D 21 85 38			     ld	     hl, #unk_3885
+ROM:381D 21 85 38			     ld	     hl, #byte_3885
 ROM:3820 E7				     rst     content_hl_plus_a
 ROM:3821 FD 96 02			     sub     2(iy)			     ; sub sprite y
 ROM:3824 57				     ld	     d,	a
@@ -7593,44 +7586,10 @@ ROM:3880 DD 36 0D 3C			     ld	     0xD(ix), #0x3C ; '<'
 ROM:3884 C9				     ret
 ROM:3884	     ; END OF FUNCTION CHUNK FOR sub_38AB
 ROM:3884	     ; ---------------------------------------------------------------------------
-ROM:3885 70	     unk_3885:		     .db 0x70 ;	p			     ; DATA XREF: sub_38AB-8Eo
-ROM:3886 B0				     .db 0xB0 ;	∞
-ROM:3887 40				     .db 0x40 ;	@
-ROM:3888 C0				     .db 0xC0 ;	¿
-ROM:3889 A0				     .db 0xA0 ;	†
-ROM:388A 90				     .db 0x90 ;	ê
-ROM:388B 90				     .db 0x90 ;	ê
-ROM:388C C0				     .db 0xC0 ;	¿
-ROM:388D 70				     .db 0x70 ;	p
-ROM:388E 80				     .db 0x80 ;	Ä
-ROM:388F 40				     .db 0x40 ;	@
-ROM:3890 C0				     .db 0xC0 ;	¿
-ROM:3891 60				     .db 0x60 ;	`
-ROM:3892 60				     .db 0x60 ;	`
-ROM:3893 A0				     .db 0xA0 ;	†
-ROM:3894 80				     .db 0x80 ;	Ä
-ROM:3895 80				     .db 0x80 ;	Ä
-ROM:3896 A0				     .db 0xA0 ;	†
-ROM:3897 40				     .db 0x40 ;	@
-ROM:3898 60				     .db 0x60 ;	`
-ROM:3899 A0				     .db 0xA0 ;	†
-ROM:389A 50				     .db 0x50 ;	P
-ROM:389B 60				     .db 0x60 ;	`
-ROM:389C C0				     .db 0xC0 ;	¿
-ROM:389D 80				     .db 0x80 ;	Ä
-ROM:389E F0				     .db 0xF0 ;	
-ROM:389F 30				     .db 0x30 ;	0
-ROM:38A0 C0				     .db 0xC0 ;	¿
-ROM:38A1 A0				     .db 0xA0 ;	†
-ROM:38A2 F0				     .db 0xF0 ;	
-ROM:38A3 30				     .db 0x30 ;	0
-ROM:38A4 40				     .db 0x40 ;	@
-ROM:38A5 80				     .db 0x80 ;	Ä
-ROM:38A6 00				     .db    0
-ROM:38A7 80				     .db 0x80 ;	Ä
-ROM:38A8 F0				     .db 0xF0 ;	
-ROM:38A9 80				     .db 0x80 ;	Ä
-ROM:38AA 20				     .db 0x20
+ROM:3885 70 B0 40 C0+byte_3885:		     .db 0x70, 0xB0, 0x40, 0xC0, 0xA0, 0x90, 0x90, 0xC0, 0x70, 0x80, 0x40, 0xC0, 0x60, 0x60, 0xA0, 0x80
+ROM:3885 A0 90 90 C0+								     ; DATA XREF: sub_38AB-8Eo
+ROM:3885 70 80 40 C0+			     .db 0x80, 0xA0, 0x40, 0x60, 0xA0, 0x50, 0x60, 0xC0, 0x80, 0xF0, 0x30, 0xC0, 0xA0, 0xF0, 0x30, 0x40
+ROM:3885 60 60 A0 80+			     .db 0x80, 0, 0x80,	0xF0, 0x80, 0x20
 ROM:38AB
 ROM:38AB	     ; =============== S U B R O U T I N E =======================================
 ROM:38AB
@@ -7642,7 +7601,7 @@ ROM:38AB
 ROM:38AB DD 7E 05			     ld	     a,	5(ix)			     ; obj type
 ROM:38AE FE 03				     cp	     #3
 ROM:38B0 D2 11 38			     jp	     NC, loc_3811
-ROM:38B3 21 0A 39			     ld	     hl, #unk_390A
+ROM:38B3 21 0A 39			     ld	     hl, #off_390A
 ROM:38B6 DD 7E 0B			     ld	     a,	0xB(ix)
 ROM:38B9 FE FF				     cp	     #0xFF
 ROM:38BB C8				     ret     Z
@@ -7686,7 +7645,7 @@ ROM:38F8	     loc_38F8:							     ; CODE XREF: sub_38AB+21j
 ROM:38F8 23				     inc     hl
 ROM:38F9 7E				     ld	     a,	(hl)
 ROM:38FA EB				     ex	     de, hl
-ROM:38FB 21 07 39			     ld	     hl, #unk_3907
+ROM:38FB 21 07 39			     ld	     hl, #byte_3907
 ROM:38FE E7				     rst     content_hl_plus_a
 ROM:38FF DD 77 0A			     ld	     0xA(ix), a
 ROM:3902 DD 36 0D 01			     ld	     0xD(ix), #1
@@ -7694,237 +7653,39 @@ ROM:3906 C9				     ret
 ROM:3906	     ; End of function sub_38AB
 ROM:3906
 ROM:3906	     ; ---------------------------------------------------------------------------
-ROM:3907 00	     unk_3907:		     .db    0				     ; DATA XREF: sub_38AB+50o
-ROM:3908 05				     .db    5
-ROM:3909 0A				     .db  0xA
-ROM:390A 1A	     unk_390A:		     .db 0x1A				     ; DATA XREF: sub_38AB+8o
-ROM:390B 39				     .db 0x39 ;	9
-ROM:390C 32				     .db 0x32 ;	2
-ROM:390D 39				     .db 0x39 ;	9
-ROM:390E 50				     .db 0x50 ;	P
-ROM:390F 39				     .db 0x39 ;	9
-ROM:3910 6A				     .db 0x6A ;	j
-ROM:3911 39				     .db 0x39 ;	9
-ROM:3912 78				     .db 0x78 ;	x
-ROM:3913 39				     .db 0x39 ;	9
-ROM:3914 94				     .db 0x94 ;	î
-ROM:3915 39				     .db 0x39 ;	9
-ROM:3916 A8				     .db 0xA8 ;	®
-ROM:3917 39				     .db 0x39 ;	9
-ROM:3918 E0				     .db 0xE0 ;	‡
-ROM:3919 39				     .db 0x39 ;	9
-ROM:391A C0				     .db 0xC0 ;	¿
-ROM:391B 0B				     .db  0xB
-ROM:391C FE				     .db 0xFE ;	˛
-ROM:391D 02				     .db    2
-ROM:391E C0				     .db 0xC0 ;	¿
-ROM:391F 58				     .db 0x58 ;	X
-ROM:3920 FF				     .db 0xFF
-ROM:3921 60				     .db 0x60 ;	`
-ROM:3922 FE				     .db 0xFE ;	˛
-ROM:3923 01				     .db    1
-ROM:3924 20				     .db 0x20
-ROM:3925 8C				     .db 0x8C ;	å
-ROM:3926 40				     .db 0x40 ;	@
-ROM:3927 0E				     .db  0xE
-ROM:3928 60				     .db 0x60 ;	`
-ROM:3929 0E				     .db  0xE
-ROM:392A 80				     .db 0x80 ;	Ä
-ROM:392B 20				     .db 0x20
-ROM:392C 80				     .db 0x80 ;	Ä
-ROM:392D 14				     .db 0x14
-ROM:392E C0				     .db 0xC0 ;	¿
-ROM:392F 20				     .db 0x20
-ROM:3930 FF				     .db 0xFF
-ROM:3931 FF				     .db 0xFF
-ROM:3932 00				     .db    0
-ROM:3933 0B				     .db  0xB
-ROM:3934 FE				     .db 0xFE ;	˛
-ROM:3935 02				     .db    2
-ROM:3936 00				     .db    0
-ROM:3937 0E				     .db  0xE
-ROM:3938 FE				     .db 0xFE ;	˛
-ROM:3939 00				     .db    0
-ROM:393A C0				     .db 0xC0 ;	¿
-ROM:393B 30				     .db 0x30 ;	0
-ROM:393C FE				     .db 0xFE ;	˛
-ROM:393D 02				     .db    2
-ROM:393E 00				     .db    0
-ROM:393F 18				     .db 0x18
-ROM:3940 FE				     .db 0xFE ;	˛
-ROM:3941 00				     .db    0
-ROM:3942 C0				     .db 0xC0 ;	¿
-ROM:3943 30				     .db 0x30 ;	0
-ROM:3944 FE				     .db 0xFE ;	˛
-ROM:3945 01				     .db    1
-ROM:3946 00				     .db    0
-ROM:3947 30				     .db 0x30 ;	0
-ROM:3948 40				     .db 0x40 ;	@
-ROM:3949 20				     .db 0x20
-ROM:394A 80				     .db 0x80 ;	Ä
-ROM:394B 60				     .db 0x60 ;	`
-ROM:394C C0				     .db 0xC0 ;	¿
-ROM:394D 20				     .db 0x20
-ROM:394E FF				     .db 0xFF
-ROM:394F FF				     .db 0xFF
-ROM:3950 00				     .db    0
-ROM:3951 13				     .db 0x13
-ROM:3952 FE				     .db 0xFE ;	˛
-ROM:3953 00				     .db    0
-ROM:3954 40				     .db 0x40 ;	@
-ROM:3955 60				     .db 0x60 ;	`
-ROM:3956 FE				     .db 0xFE ;	˛
-ROM:3957 02				     .db    2
-ROM:3958 D8				     .db 0xD8 ;	ÿ
-ROM:3959 58				     .db 0x58 ;	X
-ROM:395A FE				     .db 0xFE ;	˛
-ROM:395B 01				     .db    1
-ROM:395C E0				     .db 0xE0 ;	‡
-ROM:395D 13				     .db 0x13
-ROM:395E 20				     .db 0x20
-ROM:395F 13				     .db 0x13
-ROM:3960 40				     .db 0x40 ;	@
-ROM:3961 35				     .db 0x35 ;	5
-ROM:3962 60				     .db 0x60 ;	`
-ROM:3963 30				     .db 0x30 ;	0
-ROM:3964 A0				     .db 0xA0 ;	†
-ROM:3965 36				     .db 0x36 ;	6
-ROM:3966 C0				     .db 0xC0 ;	¿
-ROM:3967 20				     .db 0x20
-ROM:3968 FF				     .db 0xFF
-ROM:3969 FF				     .db 0xFF
-ROM:396A C0				     .db 0xC0 ;	¿
-ROM:396B 20				     .db 0x20
-ROM:396C 80				     .db 0x80 ;	Ä
-ROM:396D 35				     .db 0x35 ;	5
-ROM:396E FE				     .db 0xFE ;	˛
-ROM:396F 02				     .db    2
-ROM:3970 C0				     .db 0xC0 ;	¿
-ROM:3971 38				     .db 0x38 ;	8
-ROM:3972 FE				     .db 0xFE ;	˛
-ROM:3973 00				     .db    0
-ROM:3974 00				     .db    0
-ROM:3975 D0				     .db 0xD0 ;	–
-ROM:3976 FF				     .db 0xFF
-ROM:3977 FF				     .db 0xFF
-ROM:3978 F0				     .db 0xF0 ;	
-ROM:3979 0B				     .db  0xB
-ROM:397A FE				     .db 0xFE ;	˛
-ROM:397B 02				     .db    2
-ROM:397C E0				     .db 0xE0 ;	‡
-ROM:397D 6C				     .db 0x6C ;	l
-ROM:397E FE				     .db 0xFE ;	˛
-ROM:397F 01				     .db    1
-ROM:3980 40				     .db 0x40 ;	@
-ROM:3981 55				     .db 0x55 ;	U
-ROM:3982 FF				     .db 0xFF
-ROM:3983 60				     .db 0x60 ;	`
-ROM:3984 80				     .db 0x80 ;	Ä
-ROM:3985 4B				     .db 0x4B ;	K
-ROM:3986 FE				     .db 0xFE ;	˛
-ROM:3987 02				     .db    2
-ROM:3988 A0				     .db 0xA0 ;	†
-ROM:3989 1C				     .db 0x1C
-ROM:398A C0				     .db 0xC0 ;	¿
-ROM:398B 38				     .db 0x38 ;	8
-ROM:398C FF				     .db 0xFF
-ROM:398D 60				     .db 0x60 ;	`
-ROM:398E FE				     .db 0xFE ;	˛
-ROM:398F 00				     .db    0
-ROM:3990 C0				     .db 0xC0 ;	¿
-ROM:3991 30				     .db 0x30 ;	0
-ROM:3992 FF				     .db 0xFF
-ROM:3993 FF				     .db 0xFF
-ROM:3994 F0				     .db 0xF0 ;	
-ROM:3995 13				     .db 0x13
-ROM:3996 FE				     .db 0xFE ;	˛
-ROM:3997 02				     .db    2
-ROM:3998 F0				     .db 0xF0 ;	
-ROM:3999 38				     .db 0x38 ;	8
-ROM:399A FF				     .db 0xFF
-ROM:399B 60				     .db 0x60 ;	`
-ROM:399C 90				     .db 0x90 ;	ê
-ROM:399D 58				     .db 0x58 ;	X
-ROM:399E FF				     .db 0xFF
-ROM:399F 60				     .db 0x60 ;	`
-ROM:39A0 F0				     .db 0xF0 ;	
-ROM:39A1 58				     .db 0x58 ;	X
-ROM:39A2 FF				     .db 0xFF
-ROM:39A3 60				     .db 0x60 ;	`
-ROM:39A4 90				     .db 0x90 ;	ê
-ROM:39A5 30				     .db 0x30 ;	0
-ROM:39A6 FF				     .db 0xFF
-ROM:39A7 FF				     .db 0xFF
-ROM:39A8 C0				     .db 0xC0 ;	¿
-ROM:39A9 13				     .db 0x13
-ROM:39AA FE				     .db 0xFE ;	˛
-ROM:39AB 00				     .db    0
-ROM:39AC C0				     .db 0xC0 ;	¿
-ROM:39AD 38				     .db 0x38 ;	8
-ROM:39AE FF				     .db 0xFF
-ROM:39AF 60				     .db 0x60 ;	`
-ROM:39B0 00				     .db    0
-ROM:39B1 18				     .db 0x18
-ROM:39B2 FF				     .db 0xFF
-ROM:39B3 30				     .db 0x30 ;	0
-ROM:39B4 80				     .db 0x80 ;	Ä
-ROM:39B5 18				     .db 0x18
-ROM:39B6 FF				     .db 0xFF
-ROM:39B7 10				     .db 0x10
-ROM:39B8 40				     .db 0x40 ;	@
-ROM:39B9 28				     .db 0x28 ;	(
-ROM:39BA FF				     .db 0xFF
-ROM:39BB 20				     .db 0x20
-ROM:39BC 00				     .db    0
-ROM:39BD 18				     .db 0x18
-ROM:39BE FF				     .db 0xFF
-ROM:39BF 30				     .db 0x30 ;	0
-ROM:39C0 80				     .db 0x80 ;	Ä
-ROM:39C1 18				     .db 0x18
-ROM:39C2 FF				     .db 0xFF
-ROM:39C3 10				     .db 0x10
-ROM:39C4 C0				     .db 0xC0 ;	¿
-ROM:39C5 18				     .db 0x18
-ROM:39C6 FF				     .db 0xFF
-ROM:39C7 20				     .db 0x20
-ROM:39C8 00				     .db    0
-ROM:39C9 18				     .db 0x18
-ROM:39CA FF				     .db 0xFF
-ROM:39CB 30				     .db 0x30 ;	0
-ROM:39CC 80				     .db 0x80 ;	Ä
-ROM:39CD 18				     .db 0x18
-ROM:39CE FF				     .db 0xFF
-ROM:39CF 10				     .db 0x10
-ROM:39D0 40				     .db 0x40 ;	@
-ROM:39D1 28				     .db 0x28 ;	(
-ROM:39D2 FF				     .db 0xFF
-ROM:39D3 20				     .db 0x20
-ROM:39D4 00				     .db    0
-ROM:39D5 18				     .db 0x18
-ROM:39D6 FF				     .db 0xFF
-ROM:39D7 30				     .db 0x30 ;	0
-ROM:39D8 80				     .db 0x80 ;	Ä
-ROM:39D9 18				     .db 0x18
-ROM:39DA FF				     .db 0xFF
-ROM:39DB 10				     .db 0x10
-ROM:39DC C0				     .db 0xC0 ;	¿
-ROM:39DD FF				     .db 0xFF
-ROM:39DE C0				     .db 0xC0 ;	¿
-ROM:39DF FF				     .db 0xFF
-ROM:39E0 C0				     .db 0xC0 ;	¿
-ROM:39E1 35				     .db 0x35 ;	5
-ROM:39E2 FE				     .db 0xFE ;	˛
-ROM:39E3 02				     .db    2
-ROM:39E4 20				     .db 0x20
-ROM:39E5 2D				     .db 0x2D ;	-
-ROM:39E6 FF				     .db 0xFF
-ROM:39E7 60				     .db 0x60 ;	`
-ROM:39E8 FE				     .db 0xFE ;	˛
-ROM:39E9 01				     .db    1
-ROM:39EA E0				     .db 0xE0 ;	‡
-ROM:39EB 30				     .db 0x30 ;	0
-ROM:39EC FF				     .db 0xFF
-ROM:39ED FF				     .db 0xFF
+ROM:3907 00 05 0A    byte_3907:		     .db 0, 5, 0xA			     ; DATA XREF: sub_38AB+50o
+ROM:390A 1A 39	     off_390A:		     .dw byte_391A			     ; DATA XREF: sub_38AB+8o
+ROM:390C 32 39				     .dw byte_3932
+ROM:390E 50 39				     .dw byte_3950
+ROM:3910 6A 39				     .dw byte_396A
+ROM:3912 78 39				     .dw byte_3978
+ROM:3914 94 39				     .dw byte_3994
+ROM:3916 A8 39				     .dw byte_39A8
+ROM:3918 E0 39				     .dw byte_39E0
+ROM:391A C0 0B FE 02+byte_391A:		     .db 0xC0, 0xB, 0xFE, 2, 0xC0, 0x58, 0xFF, 0x60, 0xFE, 1, 0x20, 0x8C, 0x40,	0xE, 0x60, 0xE
+ROM:391A C0 58 FF 60+								     ; DATA XREF: ROM:off_390Ao
+ROM:391A FE 01 20 8C+			     .db 0x80, 0x20, 0x80, 0x14, 0xC0, 0x20, 0xFF, 0xFF
+ROM:3932 00 0B FE 02+byte_3932:		     .db 0, 0xB, 0xFE, 2, 0, 0xE, 0xFE,	0, 0xC0, 0x30, 0xFE, 2,	0, 0x18, 0xFE, 0
+ROM:3932 00 0E FE 00+								     ; DATA XREF: ROM:390Co
+ROM:3932 C0 30 FE 02+			     .db 0xC0, 0x30, 0xFE, 1, 0, 0x30, 0x40, 0x20, 0x80, 0x60, 0xC0, 0x20, 0xFF, 0xFF
+ROM:3950 00 13 FE 00+byte_3950:		     .db 0, 0x13, 0xFE,	0, 0x40, 0x60, 0xFE, 2,	0xD8, 0x58, 0xFE, 1, 0xE0, 0x13, 0x20, 0x13
+ROM:3950 40 60 FE 02+								     ; DATA XREF: ROM:390Eo
+ROM:3950 D8 58 FE 01+			     .db 0x40, 0x35, 0x60, 0x30, 0xA0, 0x36, 0xC0, 0x20, 0xFF, 0xFF
+ROM:396A C0 20 80 35+byte_396A:		     .db 0xC0, 0x20, 0x80, 0x35, 0xFE, 2, 0xC0,	0x38, 0xFE, 0, 0, 0xD0,	0xFF, 0xFF
+ROM:396A FE 02 C0 38+								     ; DATA XREF: ROM:3910o
+ROM:3978 F0 0B FE 02+byte_3978:		     .db 0xF0, 0xB, 0xFE, 2, 0xE0, 0x6C, 0xFE, 1, 0x40,	0x55, 0xFF, 0x60, 0x80,	0x4B, 0xFE, 2
+ROM:3978 E0 6C FE 01+								     ; DATA XREF: ROM:3912o
+ROM:3978 40 55 FF 60+			     .db 0xA0, 0x1C, 0xC0, 0x38, 0xFF, 0x60, 0xFE, 0, 0xC0, 0x30, 0xFF,	0xFF
+ROM:3994 F0 13 FE 02+byte_3994:		     .db 0xF0, 0x13, 0xFE, 2, 0xF0, 0x38, 0xFF,	0x60, 0x90, 0x58, 0xFF,	0x60, 0xF0, 0x58, 0xFF,	0x60
+ROM:3994 F0 38 FF 60+								     ; DATA XREF: ROM:3914o
+ROM:3994 90 58 FF 60+			     .db 0x90, 0x30, 0xFF, 0xFF
+ROM:39A8 C0 13 FE 00+byte_39A8:		     .db 0xC0, 0x13, 0xFE, 0, 0xC0, 0x38, 0xFF,	0x60, 0, 0x18, 0xFF, 0x30, 0x80, 0x18, 0xFF, 0x10
+ROM:39A8 C0 38 FF 60+								     ; DATA XREF: ROM:3916o
+ROM:39A8 00 18 FF 30+			     .db 0x40, 0x28, 0xFF, 0x20, 0, 0x18, 0xFF,	0x30, 0x80, 0x18, 0xFF,	0x10, 0xC0, 0x18, 0xFF,	0x20
+ROM:39A8 80 18 FF 10+			     .db 0, 0x18, 0xFF,	0x30, 0x80, 0x18, 0xFF,	0x10, 0x40, 0x28, 0xFF,	0x20, 0, 0x18, 0xFF, 0x30
+ROM:39A8 40 28 FF 20+			     .db 0x80, 0x18, 0xFF, 0x10, 0xC0, 0xFF, 0xC0, 0xFF
+ROM:39E0 C0 35 FE 02+byte_39E0:		     .db 0xC0, 0x35, 0xFE, 2, 0x20, 0x2D, 0xFF,	0x60, 0xFE, 1, 0xE0, 0x30, 0xFF, 0xFF
+ROM:39E0 20 2D FF 60+								     ; DATA XREF: ROM:3918o
 ROM:39EE
 ROM:39EE	     ; =============== S U B R O U T I N E =======================================
 ROM:39EE
@@ -8241,7 +8002,7 @@ ROM:3BF9	     ; =============== S U B R O U T I N E ============================
 ROM:3BF9
 ROM:3BF9
 ROM:3BF9	     spawn_e300_object:						     ; CODE XREF: spawn_e300_objects:loc_3BEFp
-ROM:3BF9 3A C9 E0			     ld	     a,	(byte_E0C9)
+ROM:3BF9 3A C9 E0			     ld	     a,	(area_non_firing_alien_type)
 ROM:3BFC F7				     rst     jp_tbl_vector
 ROM:3BFC	     ; End of function spawn_e300_object
 ROM:3BFC
@@ -8334,9 +8095,9 @@ ROM:3C9A DD 77 01			     ld	     1(ix), a			     ; obj counter/flag
 ROM:3C9D DD 36 00 FF			     ld	     0(ix), #0xFF		     ; state=active
 ROM:3CA1 DD 36 05 03			     ld	     5(ix), #3			     ; init type=rock
 ROM:3CA5 DD 36 0C D0			     ld	     0xC(ix), #0xD0 ; '–'            ; init ddx msb
-ROM:3CA9 3A CD E0			     ld	     a,	(byte_E0CD)
+ROM:3CA9 3A CD E0			     ld	     a,	(related_to_big_alien_y)
 ROM:3CAC FD 77 02			     ld	     2(iy), a			     ; init sn.y
-ROM:3CAF 3A CE E0			     ld	     a,	(byte_E0CE)
+ROM:3CAF 3A CE E0			     ld	     a,	(related_to_big_alien_x)
 ROM:3CB2 FD 77 03			     ld	     3(iy), a			     ; init sn.x
 ROM:3CB5 FD 36 00 FF			     ld	     0(iy), #0xFF		     ; sn.code=blank
 ROM:3CB9 FD 36 01 00			     ld	     1(iy), #0			     ; sn.colour
@@ -8589,7 +8350,7 @@ ROM:3E93
 ROM:3E93	     loc_3E93:							     ; CODE XREF: ROM:3EADj
 ROM:3E93									     ; ROM:3EBEj
 ROM:3E93 DD 34 05			     inc     5(ix)			     ; obj type++
-ROM:3E96 CD 95 6A			     call    sub_6A95
+ROM:3E96 CD 95 6A			     call    aim_directly_at_ship
 ROM:3E99 DD 77 01			     ld	     1(ix), a			     ; obj counter/flag
 ROM:3E9C DD 36 0A 0D			     ld	     0xA(ix), #13		     ; dy_dx entry index
 ROM:3EA0 CD 98 28			     call    lookup_dy_dx_store
@@ -8607,9 +8368,9 @@ ROM:3EA9									     ; ROM:3E4Do
 ROM:3EA9 3A 60 E1			     ld	     a,	(large_alien_obj_tbl)	     ; obj status
 ROM:3EAC 3C				     inc     a				     ; active?
 ROM:3EAD 20 E4				     jr	     NZ, loc_3E93		     ; no, go
-ROM:3EAF 3A CD E0			     ld	     a,	(byte_E0CD)
+ROM:3EAF 3A CD E0			     ld	     a,	(related_to_big_alien_y)
 ROM:3EB2 DD 77 0B			     ld	     0xB(ix), a
-ROM:3EB5 3A CE E0			     ld	     a,	(byte_E0CE)
+ROM:3EB5 3A CE E0			     ld	     a,	(related_to_big_alien_x)
 ROM:3EB8 DD 77 0C			     ld	     0xC(ix), a
 ROM:3EBB DD 35 0D			     dec     0xD(ix)
 ROM:3EBE 28 D3				     jr	     Z,	loc_3E93
@@ -10607,7 +10368,7 @@ ROM:495D 20 1E				     jr	     NZ, loc_497D
 ROM:495F 21 01 E5			     ld	     hl, #byte_E501
 ROM:4962 34				     inc     (hl)
 ROM:4963 AF				     xor     a
-ROM:4964 32 03 E5			     ld	     (map_area), a
+ROM:4964 32 03 E5			     ld	     (map_area), a		     ; reset area
 ROM:4967 3D				     dec     a
 ROM:4968 32 1F E0			     ld	     (byte_E01F), a
 ROM:496B 3A 02 E5			     ld	     a,	(map_planet)
@@ -10618,7 +10379,7 @@ ROM:4973 AF				     xor     a				     ; reset
 ROM:4974
 ROM:4974	     loc_4974:							     ; CODE XREF: build_bg_prerender_buffer+C7j
 ROM:4974 32 02 E5			     ld	     (map_planet), a
-ROM:4977 CD 2C 2B			     call    init_some_stuff
+ROM:4977 CD 2C 2B			     call    reset_some_stuff
 ROM:497A CD 46 2B			     call    init_planet_area_data
 ROM:497D
 ROM:497D	     loc_497D:							     ; CODE XREF: build_bg_prerender_buffer+B3j
@@ -11352,8 +11113,13 @@ ROM:5DBC BE 68				     .dw planet_9_area_data_tbl
 ROM:5DBE	     ; Each planet has 22 blocks of 16-byte data
 ROM:5DBE	     ; - interesting because there are only 16 areas/planet?!?
 ROM:5DBE	     ; $0: max_alien_bullets
+ROM:5DBE	     ; $2: alien bullet	timer
 ROM:5DBE	     ; $4: (missed_e_cnt)
-ROM:5DBE	     ; $B: (large alien	type)
+ROM:5DBE	     ; $5: firing alien	type
+ROM:5DBE	     ; $7: firing alien	spawn timer
+ROM:5DBE	     ; $B: large alien spawn [7:4]=count,[3:0]=type
+ROM:5DBE	     ; $D: large alien spawn timer
+ROM:5DBE	     ; $E: non-firing alien type
 ROM:5DBE 03 0A 0A 0A+planet_1_area_data_tbl: .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5,	0xC, 0xC, 0x10,	0, 0xE,	0, 5
 ROM:5DBE 07 02 3C 12+								     ; DATA XREF: ROM:planet_area_data_tblo
 ROM:5DBE 05 0C 0C 10+			     .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5,	0xC, 0xC, 0x10,	3, 0xE,	0, 0
@@ -11561,35 +11327,37 @@ ROM:68BE 00 00 00 00+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC,
 ROM:68BE 06 0A 0A 0D+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
 ROM:68BE 09 02 3C 12+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
 ROM:68BE 09 0E 10 00+			     .db 6, 0xA, 0xA, 0xA, 8, 0xA, 0xFA, 2, 8, 0xC, 0xC, 0, 6, 0, 4, 0
+ROM:6A1E	     ; calculates a cluster of points around the ship
+ROM:6A1E	     ; to be used as targets for aliens	to aim at
 ROM:6A1E
 ROM:6A1E	     ; =============== S U B R O U T I N E =======================================
 ROM:6A1E
 ROM:6A1E
-ROM:6A1E	     sub_6A1E:							     ; CODE XREF: ROM:vbl_0_1_fn_5__attract_mode_gameplayp
+ROM:6A1E	     update_aiming_table:					     ; CODE XREF: ROM:vbl_0_1_fn_5__attract_mode_gameplayp
 ROM:6A1E									     ; ROM:vbl_0_3_fn_4__gameplayp
 ROM:6A1E 3A 00 E0			     ld	     a,	(vblank_tick)
 ROM:6A21 E6 0F				     and     #0xF
 ROM:6A23 C0				     ret     NZ
-ROM:6A24 DD 21 80 E3			     ld	     ix, #e380_xxx_tbl
+ROM:6A24 DD 21 80 E3			     ld	     ix, #alien_aiming_tbl
 ROM:6A28 3A 02 EF			     ld	     a,	(spriteram_shadow+2)	     ; s0.y
-ROM:6A2B DD 77 00			     ld	     0(ix), a			     ; state=?
+ROM:6A2B DD 77 00			     ld	     0(ix), a
 ROM:6A2E DD 77 0E			     ld	     0xE(ix), a
 ROM:6A31 DD 77 10			     ld	     0x10(ix), a
 ROM:6A34 DD 77 12			     ld	     0x12(ix), a
 ROM:6A37 DD 77 14			     ld	     0x14(ix), a
 ROM:6A3A DD 77 16			     ld	     0x16(ix), a
 ROM:6A3D DD 77 18			     ld	     0x18(ix), a
-ROM:6A40 C6 10				     add     a,	#0x10
+ROM:6A40 C6 10				     add     a,	#16
 ROM:6A42 DD 77 04			     ld	     4(ix), a
-ROM:6A45 C6 10				     add     a,	#0x10
+ROM:6A45 C6 10				     add     a,	#16
 ROM:6A47 DD 77 08			     ld	     8(ix), a
-ROM:6A4A C6 10				     add     a,	#0x10
+ROM:6A4A C6 10				     add     a,	#16
 ROM:6A4C DD 77 0C			     ld	     0xC(ix), a
-ROM:6A4F D6 40				     sub     #0x40 ; '@'
+ROM:6A4F D6 40				     sub     #64
 ROM:6A51 DD 77 02			     ld	     2(ix), a
-ROM:6A54 D6 10				     sub     #0x10
+ROM:6A54 D6 10				     sub     #16
 ROM:6A56 DD 77 06			     ld	     6(ix), a
-ROM:6A59 D6 10				     sub     #0x10
+ROM:6A59 D6 10				     sub     #16
 ROM:6A5B DD 77 0A			     ld	     0xA(ix), a
 ROM:6A5E 3A 03 EF			     ld	     a,	(spriteram_shadow+3)	     ; s0.x
 ROM:6A61 DD 77 01			     ld	     1(ix), a
@@ -11599,89 +11367,89 @@ ROM:6A6A DD 77 07			     ld	     7(ix), a
 ROM:6A6D DD 77 09			     ld	     9(ix), a
 ROM:6A70 DD 77 0B			     ld	     0xB(ix), a
 ROM:6A73 DD 77 0D			     ld	     0xD(ix), a
-ROM:6A76 C6 10				     add     a,	#0x10
+ROM:6A76 C6 10				     add     a,	#16
 ROM:6A78 DD 77 0F			     ld	     0xF(ix), a
-ROM:6A7B C6 10				     add     a,	#0x10
+ROM:6A7B C6 10				     add     a,	#16
 ROM:6A7D DD 77 21			     ld	     0x21(ix), a
-ROM:6A80 C6 10				     add     a,	#0x10
+ROM:6A80 C6 10				     add     a,	#16
 ROM:6A82 DD 77 13			     ld	     0x13(ix), a
-ROM:6A85 D6 40				     sub     #0x40 ; '@'
+ROM:6A85 D6 40				     sub     #64
 ROM:6A87 DD 77 15			     ld	     0x15(ix), a
-ROM:6A8A D6 10				     sub     #0x10
+ROM:6A8A D6 10				     sub     #16
 ROM:6A8C DD 77 17			     ld	     0x17(ix), a
-ROM:6A8F D6 10				     sub     #0x10
+ROM:6A8F D6 10				     sub     #16
 ROM:6A91 DD 77 19			     ld	     0x19(ix), a
 ROM:6A94 C9				     ret
-ROM:6A94	     ; End of function sub_6A1E
+ROM:6A94	     ; End of function update_aiming_table
 ROM:6A94
 ROM:6A95
 ROM:6A95	     ; =============== S U B R O U T I N E =======================================
 ROM:6A95
 ROM:6A95
-ROM:6A95	     sub_6A95:							     ; CODE XREF: handle_e200_firing+33p
+ROM:6A95	     aim_directly_at_ship:					     ; CODE XREF: handle_e200_firing+33p
 ROM:6A95									     ; handle_large_alien_bullets+58p ...
-ROM:6A95 21 80 E3			     ld	     hl, #e380_xxx_tbl
-ROM:6A98 7E				     ld	     a,	(hl)
+ROM:6A95 21 80 E3			     ld	     hl, #alien_aiming_tbl
+ROM:6A98 7E				     ld	     a,	(hl)			     ; s0.y
 ROM:6A99 C3 A4 6A			     jp	     loc_6AA4
 ROM:6A9C	     ; ---------------------------------------------------------------------------
 ROM:6A9C
-ROM:6A9C	     loc_6A9C:							     ; CODE XREF: ROM:loc_24FFp
+ROM:6A9C	     aim_near_ship:						     ; CODE XREF: ROM:loc_24FFp
 ROM:6A9C									     ; sub_253E+15p ...
-ROM:6A9C DD 7E 0F			     ld	     a,	0xF(ix)
-ROM:6A9F 21 80 E3			     ld	     hl, #e380_xxx_tbl
-ROM:6AA2 87				     add     a,	a
+ROM:6A9C DD 7E 0F			     ld	     a,	0xF(ix)			     ; obj aiming entry
+ROM:6A9F 21 80 E3			     ld	     hl, #alien_aiming_tbl
+ROM:6AA2 87				     add     a,	a			     ; calc offset
 ROM:6AA3 E7				     rst     content_hl_plus_a
 ROM:6AA4
-ROM:6AA4	     loc_6AA4:							     ; CODE XREF: sub_6A95+4j
+ROM:6AA4	     loc_6AA4:							     ; CODE XREF: aim_directly_at_ship+4j
 ROM:6AA4 0E 00				     ld	     c,	#0
-ROM:6AA6 23				     inc     hl
-ROM:6AA7 FD 46 02			     ld	     b,	2(iy)
-ROM:6AAA 90				     sub     b
-ROM:6AAB 28 74				     jr	     Z,	loc_6B21
+ROM:6AA6 23				     inc     hl				     ; ptr target x
+ROM:6AA7 FD 46 02			     ld	     b,	2(iy)			     ; sprite y
+ROM:6AAA 90				     sub     b				     ; target-sprite y
+ROM:6AAB 28 74				     jr	     Z,	loc_6B21		     ; same, go
 ROM:6AAD CB 19				     rr	     c
-ROM:6AAF CB 79				     bit     7,	c
-ROM:6AB1 28 02				     jr	     Z,	loc_6AB5
-ROM:6AB3 ED 44				     neg
+ROM:6AAF CB 79				     bit     7,	c			     ; -ve?
+ROM:6AB1 28 02				     jr	     Z,	loc_6AB5		     ; no, skip
+ROM:6AB3 ED 44				     neg				     ; abs
 ROM:6AB5
-ROM:6AB5	     loc_6AB5:							     ; CODE XREF: sub_6A95+1Cj
-ROM:6AB5 57				     ld	     d,	a
-ROM:6AB6 7E				     ld	     a,	(hl)
-ROM:6AB7 FD 46 03			     ld	     b,	3(iy)
-ROM:6ABA 90				     sub     b
-ROM:6ABB 28 6F				     jr	     Z,	loc_6B2C
+ROM:6AB5	     loc_6AB5:							     ; CODE XREF: aim_directly_at_ship+1Cj
+ROM:6AB5 57				     ld	     d,	a			     ; save abs(target-y)
+ROM:6AB6 7E				     ld	     a,	(hl)			     ; target x
+ROM:6AB7 FD 46 03			     ld	     b,	3(iy)			     ; sprite x
+ROM:6ABA 90				     sub     b				     ; target-sprite x
+ROM:6ABB 28 6F				     jr	     Z,	loc_6B2C		     ; same, go
 ROM:6ABD CB 19				     rr	     c
-ROM:6ABF CB 79				     bit     7,	c
-ROM:6AC1 28 02				     jr	     Z,	loc_6AC5
-ROM:6AC3 ED 44				     neg
+ROM:6ABF CB 79				     bit     7,	c			     ; -ve?
+ROM:6AC1 28 02				     jr	     Z,	loc_6AC5		     ; no, skip
+ROM:6AC3 ED 44				     neg				     ; abs
 ROM:6AC5
-ROM:6AC5	     loc_6AC5:							     ; CODE XREF: sub_6A95+2Cj
-ROM:6AC5 5F				     ld	     e,	a
-ROM:6AC6 92				     sub     d
-ROM:6AC7 28 65				     jr	     Z,	loc_6B2E
+ROM:6AC5	     loc_6AC5:							     ; CODE XREF: aim_directly_at_ship+2Cj
+ROM:6AC5 5F				     ld	     e,	a			     ; save abs(target-x)
+ROM:6AC6 92				     sub     d				     ; delta x - delta y
+ROM:6AC7 28 65				     jr	     Z,	loc_6B2E		     ; same, go
 ROM:6AC9 CB 19				     rr	     c
-ROM:6ACB CB 79				     bit     7,	c
-ROM:6ACD 28 08				     jr	     Z,	loc_6AD7
-ROM:6ACF 6A				     ld	     l,	d
-ROM:6AD0 53				     ld	     d,	e
+ROM:6ACB CB 79				     bit     7,	c			     ; -ve?
+ROM:6ACD 28 08				     jr	     Z,	loc_6AD7		     ; no, go
+ROM:6ACF 6A				     ld	     l,	d			     ; abs(delta y)
+ROM:6AD0 53				     ld	     d,	e			     ; abs(delta x)
 ROM:6AD1 1E 00				     ld	     e,	#0
 ROM:6AD3 26 00				     ld	     h,	#0
 ROM:6AD5 18 05				     jr	     loc_6ADC
 ROM:6AD7	     ; ---------------------------------------------------------------------------
 ROM:6AD7
-ROM:6AD7	     loc_6AD7:							     ; CODE XREF: sub_6A95+38j
-ROM:6AD7 6B				     ld	     l,	e
+ROM:6AD7	     loc_6AD7:							     ; CODE XREF: aim_directly_at_ship+38j
+ROM:6AD7 6B				     ld	     l,	e			     ; abs(delta x)
 ROM:6AD8 1E 00				     ld	     e,	#0
 ROM:6ADA 26 00				     ld	     h,	#0
 ROM:6ADC
-ROM:6ADC	     loc_6ADC:							     ; CODE XREF: sub_6A95+40j
+ROM:6ADC	     loc_6ADC:							     ; CODE XREF: aim_directly_at_ship+40j
 ROM:6ADC 79				     ld	     a,	c
 ROM:6ADD 08				     ex	     af, af'
-ROM:6ADE 3E 10				     ld	     a,	#0x10
+ROM:6ADE 3E 10				     ld	     a,	#16
 ROM:6AE0 44				     ld	     b,	h
 ROM:6AE1 4D				     ld	     c,	l
 ROM:6AE2 21 00 00			     ld	     hl, #0
 ROM:6AE5
-ROM:6AE5	     loc_6AE5:							     ; CODE XREF: sub_6A95+5Dj
+ROM:6AE5	     loc_6AE5:							     ; CODE XREF: aim_directly_at_ship+5Dj
 ROM:6AE5 EB				     ex	     de, hl
 ROM:6AE6 29				     add     hl, hl
 ROM:6AE7 EB				     ex	     de, hl
@@ -11692,7 +11460,7 @@ ROM:6AED 30 02				     jr	     NC, loc_6AF1
 ROM:6AEF 1D				     dec     e
 ROM:6AF0 09				     add     hl, bc
 ROM:6AF1
-ROM:6AF1	     loc_6AF1:							     ; CODE XREF: sub_6A95+58j
+ROM:6AF1	     loc_6AF1:							     ; CODE XREF: aim_directly_at_ship+58j
 ROM:6AF1 3D				     dec     a
 ROM:6AF2 20 F1				     jr	     NZ, loc_6AE5
 ROM:6AF4 7B				     ld	     a,	e
@@ -11717,17 +11485,17 @@ ROM:6B0D 80				     add     a,	b
 ROM:6B0E C9				     ret
 ROM:6B0F	     ; ---------------------------------------------------------------------------
 ROM:6B0F
-ROM:6B0F	     loc_6B0F:							     ; CODE XREF: sub_6A95+76j
+ROM:6B0F	     loc_6B0F:							     ; CODE XREF: aim_directly_at_ship+76j
 ROM:6B0F 90				     sub     b
 ROM:6B10 C9				     ret
 ROM:6B10	     ; ---------------------------------------------------------------------------
 ROM:6B11	     ; 1st 8 bytes: 0=add, 1=sub
 ROM:6B11	     ; 2nd 8 bytes: value to add/sub
-ROM:6B11 01 00 00 01+byte_6B11:		     .db 1, 0, 0, 1, 0,	1, 1, 0		     ; DATA XREF: sub_6A95+6Co
+ROM:6B11 01 00 00 01+byte_6B11:		     .db 1, 0, 0, 1, 0,	1, 1, 0		     ; DATA XREF: aim_directly_at_ship+6Co
 ROM:6B19 40 40 C0 C0+			     .db 0x40, 0x40, 0xC0, 0xC0, 0, 0x80, 0, 0x80
 ROM:6B21	     ; ---------------------------------------------------------------------------
 ROM:6B21
-ROM:6B21	     loc_6B21:							     ; CODE XREF: sub_6A95+16j
+ROM:6B21	     loc_6B21:							     ; CODE XREF: aim_directly_at_ship+16j
 ROM:6B21 3A 03 EF			     ld	     a,	(spriteram_shadow+3)	     ; s0.x
 ROM:6B24 46				     ld	     b,	(hl)
 ROM:6B25 90				     sub     b
@@ -11737,12 +11505,12 @@ ROM:6B2A 81				     add     a,	c
 ROM:6B2B C9				     ret
 ROM:6B2C	     ; ---------------------------------------------------------------------------
 ROM:6B2C
-ROM:6B2C	     loc_6B2C:							     ; CODE XREF: sub_6A95+26j
+ROM:6B2C	     loc_6B2C:							     ; CODE XREF: aim_directly_at_ship+26j
 ROM:6B2C 79				     ld	     a,	c
 ROM:6B2D C9				     ret
 ROM:6B2E	     ; ---------------------------------------------------------------------------
 ROM:6B2E
-ROM:6B2E	     loc_6B2E:							     ; CODE XREF: sub_6A95+32j
+ROM:6B2E	     loc_6B2E:							     ; CODE XREF: aim_directly_at_ship+32j
 ROM:6B2E 79				     ld	     a,	c
 ROM:6B2F 07				     rlca
 ROM:6B30 07				     rlca
@@ -11750,14 +11518,14 @@ ROM:6B31 E6 03				     and     #3
 ROM:6B33 21 38 6B			     ld	     hl, #byte_6B38
 ROM:6B36 E7				     rst     content_hl_plus_a
 ROM:6B37 C9				     ret
-ROM:6B37	     ; End of function sub_6A95
+ROM:6B37	     ; End of function aim_directly_at_ship
 ROM:6B37
 ROM:6B37	     ; ---------------------------------------------------------------------------
 ROM:6B38	     ; ***
 ROM:6B38	     ; *** END OF CODE ***
 ROM:6B38	     ; ***
 ROM:6B38
-ROM:6B38 20 60 E0 A0 byte_6B38:		     .db 0x20, 0x60, 0xE0, 0xA0		     ; DATA XREF: sub_6A95+9Eo
+ROM:6B38 20 60 E0 A0 byte_6B38:		     .db 0x20, 0x60, 0xE0, 0xA0		     ; DATA XREF: aim_directly_at_ship+9Eo
 ROM:6B3C FF FF FF FF+			     .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:6B3C FF FF FF FF+			     .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:6B3C FF FF FF FF+			     .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
@@ -13179,13 +12947,13 @@ RAM:E007									     ; vblank_sub+7r ...
 RAM:E008 ??	     curr_player_right:	     .ds 1				     ; DATA XREF: vblank_sub+3Fo
 RAM:E008									     ; handle_scroll_lr_test_display+3r ...
 RAM:E009 ??	     curr_player_left:	     .ds 1				     ; DATA XREF: handle_scroll_lr_test_display+9r
-RAM:E009									     ; handle_leftr ...
+RAM:E009									     ; check_hi_score_entry_leftr ...
 RAM:E00A ??	     curr_player_down:	     .ds 1				     ; DATA XREF: handle_scroll_ud_test_display+9r
 RAM:E00A									     ; handle_up_down+Co ...
 RAM:E00B ??	     curr_player_up:	     .ds 1				     ; DATA XREF: handle_scroll_ud_test_display+3r
-RAM:E00B									     ; handle_up_down+2o ...
+RAM:E00B									     ; ROM:13A9r ...
 RAM:E00C ??	     curr_player_b1:	     .ds 1				     ; DATA XREF: ROM:1314r
-RAM:E00C									     ; handle_firing_if_ship_active+Br	...
+RAM:E00C									     ; ROM:139Ar ...
 RAM:E00D ??	     curr_player_b2:	     .ds 1				     ; DATA XREF: handle_bombing+Ar
 RAM:E00E ??	     coin2_debounce_buf:     .ds 1				     ; DATA XREF: check_coin2o
 RAM:E00F ??	     coin1_debounce_buf:     .ds 1				     ; DATA XREF: check_coin1o
@@ -13193,11 +12961,11 @@ RAM:E010 ??	     freeplay:		     .ds 1				     ; DATA XREF: ROM:00ECw
 RAM:E010									     ; ROM:0106w ...
 RAM:E011 ??	     coinA_coins:	     .ds 1				     ; DATA XREF: ROM:loc_FAw
 RAM:E011									     ; check_coin1+88r
-RAM:E012 ??	     coinb_coins:	     .ds 1				     ; DATA XREF: ROM:00E0w
+RAM:E012 ??	     coinB_coins:	     .ds 1				     ; DATA XREF: ROM:00E0w
 RAM:E013 ??	     coinA_credits:	     .ds 1				     ; DATA XREF: ROM:00FFw
 RAM:E013									     ; check_coin1+95r
-RAM:E014 ??	     coinb_credits:	     .ds 1				     ; DATA XREF: ROM:00E5w
-RAM:E015 ??	     unk_E015:		     .ds 1				     ; DATA XREF: check_coin1+8Co
+RAM:E014 ??	     coinB_credits:	     .ds 1				     ; DATA XREF: ROM:00E5w
+RAM:E015 ??	     coinA_coins_inserted:   .ds 1				     ; DATA XREF: check_coin1+8Co
 RAM:E016 ??				     .ds 1
 RAM:E017 ??	     mystery_dsw_setting:    .ds 1				     ; DATA XREF: ROM:0114w
 RAM:E018 ??	     demo_music:	     .ds 1				     ; DATA XREF: ROM:011Bw
@@ -13215,7 +12983,7 @@ RAM:E01D									     ; ROM:116Dr
 RAM:E01E ??	     max_bullets_with_large_alien:.ds 1				     ; DATA XREF: handle_large_alien_bullets+11r
 RAM:E01E									     ; init_planet_area_data+97w
 RAM:E01F ??	     byte_E01F:		     .ds 1				     ; DATA XREF: ROM:11C1w
-RAM:E01F									     ; ROM:loc_121Br ...
+RAM:E01F									     ; sub_1212:loc_121Br ...
 RAM:E020 ??	     tmp_e020:		     .ds 1				     ; DATA XREF: sub_4110o
 RAM:E020									     ; sub_4110+Br ...
 RAM:E021 ??	     tmp_e021:		     .ds 1				     ; DATA XREF: show_char_test_screen:loc_40F5o
@@ -13240,7 +13008,7 @@ RAM:E02C ??	     digits_to_print:	     .ds 1				     ; DATA XREF: print_score_di
 RAM:E02C									     ; print_score_digits+24r ...
 RAM:E02D ??				     .ds 1
 RAM:E02E ??				     .ds 1
-RAM:E02F ??	     unk_E02F:		     .ds 1				     ; DATA XREF: sub_1549o
+RAM:E02F ??	     flipscreen_something__: .ds 1				     ; DATA XREF: sub_1549o
 RAM:E030 ??	     coin1_cnt:		     .ds 1				     ; DATA XREF: inc_coin1_cnto
 RAM:E031 ??				     .ds 1
 RAM:E032 ??	     curr_score_rank:	     .ds 1				     ; DATA XREF: ROM:12E8r
@@ -13249,26 +13017,28 @@ RAM:E033 ?? ??	     tmp_ptr_curr_score:     .ds 2				     ; DATA XREF: calc_scor
 RAM:E033									     ; calc_score_rank+36r ...
 RAM:E035 ?? ??	     tmp_ptr_hi_score:	     .ds 2				     ; DATA XREF: calc_score_rank:loc_149Dw
 RAM:E035									     ; calc_score_rank+33r
-RAM:E037 ??	     byte_E037:		     .ds 1				     ; DATA XREF: sub_1363+3r
-RAM:E037									     ; sub_1363+25w ...
-RAM:E038 ?? ??	     word_E038:		     .ds 2				     ; DATA XREF: sub_1363r
-RAM:E038									     ; sub_1363+20w ...
-RAM:E03A ??	     byte_E03A:		     .ds 1				     ; DATA XREF: sub_1363+2Dr
-RAM:E03A									     ; sub_1363+31w ...
-RAM:E03B ?? ??	     word_E03B:		     .ds 2				     ; DATA XREF: sub_1363+12r
-RAM:E03B									     ; sub_1363+19w ...
-RAM:E03D ??	     unk_E03D:		     .ds 1				     ; DATA XREF: handle_right+17o
-RAM:E03D									     ; handle_right:loc_1453o
-RAM:E03E ??	     unk_E03E:		     .ds 1				     ; DATA XREF: handle_left+17o
-RAM:E03E									     ; handle_left:loc_147Bo
-RAM:E03F ??	     unk_E03F:		     .ds 1				     ; DATA XREF: ROM:loc_1323o
-RAM:E03F									     ; sub_1363+28o
-RAM:E040 ??	     byte_E040:		     .ds 1				     ; DATA XREF: sub_133Ar
-RAM:E040									     ; sub_133A+7w ...
-RAM:E041 ??	     byte_E041:		     .ds 1				     ; DATA XREF: sub_133A+10o
+RAM:E037 ??	     curr_hi_score_entry_char:.ds 1				     ; DATA XREF: hi_score_entry_B1+3r
+RAM:E037									     ; hi_score_entry_B1+25w ...
+RAM:E038 ?? ??	     hi_score_entry_fgvideoram_addr:.ds	2			     ; DATA XREF: hi_score_entry_B1r
+RAM:E038									     ; hi_score_entry_B1+20w ...
+RAM:E03A ??	     num_hi_score_entry_chars:.ds 1				     ; DATA XREF: hi_score_entry_B1+2Dr
+RAM:E03A									     ; hi_score_entry_B1+31w ...
+RAM:E03B ?? ??	     ptr_hi_score_entry_name:.ds 2				     ; DATA XREF: hi_score_entry_B1+12r
+RAM:E03B									     ; hi_score_entry_B1+19w ...
+RAM:E03D ??	     hi_score_right_repeat_tmr:.ds 1				     ; DATA XREF: check_hi_score_entry_right+17o
+RAM:E03D									     ; check_hi_score_entry_right:loc_1453o
+RAM:E03E ??	     hi_score_left_repeat_tmr:.ds 1				     ; DATA XREF: check_hi_score_entry_left+17o
+RAM:E03E									     ; check_hi_score_entry_left:loc_147Bo
+RAM:E03F ??	     hi_score_B1_repeat_tmr: .ds 1				     ; DATA XREF: ROM:check_hi_score_entry_B1o
+RAM:E03F									     ; hi_score_entry_B1+28o
+RAM:E040 ??	     ranking_timer_tmr:	     .ds 1				     ; DATA XREF: update_ranking_timerr
+RAM:E040									     ; update_ranking_timer+7w	...
+RAM:E041 ??	     ranking_timer_value:    .ds 1				     ; DATA XREF: update_ranking_timer+10o
 RAM:E041									     ; init_hi_score_entry+1Dw
 RAM:E042 ??	     byte_E042:		     .ds 1				     ; DATA XREF: ROM:00C2w
+RAM:E042									     ; *** UNUSED???
 RAM:E043 ??	     byte_E043:		     .ds 1				     ; DATA XREF: ROM:00C5w
+RAM:E043									     ; *** UNUSED???
 RAM:E044 ?? ??	     scroll_shadow:	     .ds 2				     ; DATA XREF: vblank_sub+72r
 RAM:E044									     ; show_attract_mode_title_row+18w	...
 RAM:E046 ?? ??	     scroll_plus1_shadow:    .ds 2				     ; DATA XREF: vblank_sub+65r
@@ -13300,37 +13070,40 @@ RAM:E09A ??	     byte_E09A:		     .ds 1				     ; DATA XREF: init_player_sprite+
 RAM:E09B ??				     .ds 1
 RAM:E09C ??	     pow_instruct_aliens_destroyed:.ds 1			     ; DATA XREF: ROM:0C4Bw
 RAM:E09C									     ; ROM:loc_C96r ...
-RAM:E09D ??	     spawn_jap_symb_flag:    .ds 1				     ; DATA XREF: sub_720+2Fw
+RAM:E09D ??	     spawn_jap_symb_flag:    .ds 1				     ; DATA XREF: chk_jap_symbol_bonus+2Fw
 RAM:E09D									     ; ROM:11C4w ...
-RAM:E09E ??	     unk_E09E:		     .ds 1				     ; DATA XREF: sub_1543:loc_156Bo
+RAM:E09E ??	     flipscreen_something___0:.ds 1				     ; DATA XREF: sub_1543:loc_156Bo
 RAM:E09F ??	     coin2_cnt:		     .ds 1				     ; DATA XREF: inc_coin2_cnto
-RAM:E0A0 ??	     unk_E0A0:		     .ds 1				     ; DATA XREF: ROM:vbl_0_1_fn_2__init_attract_mode_objso
+RAM:E0A0
+RAM:E0A0	     ; *** the start of	per-game variables
+RAM:E0A0
+RAM:E0A0 ??	     unk_E0A0:		     .ds 1				     ; DATA XREF: ROM:vbl_0_1_fn_2__reset_attract_mode_gameplayo
 RAM:E0A1 ??	     unk_E0A1:		     .ds 1				     ; DATA XREF: ROM:0B16o
 RAM:E0A2 ??				     .ds 1
 RAM:E0A3 ??				     .ds 1
-RAM:E0A4 ??	     max_alien_bullets:	     .ds 1				     ; DATA XREF: ROM:0C4Ew
+RAM:E0A4 ??	     area_max_alien_bullets: .ds 1				     ; DATA XREF: ROM:0C4Ew
 RAM:E0A4									     ; handle_e200_firing+5r ...
-RAM:E0A5 ??	     byte_E0A5:		     .ds 1				     ; DATA XREF: init_planet_area_data+3Fw
+RAM:E0A5 ??	     area_firing_alien_spawn_tmr_init:.ds 1			     ; DATA XREF: init_planet_area_data+3Fw
 RAM:E0A5									     ; spawn_e200_objects+3Dr
-RAM:E0A6 ??	     byte_E0A6:		     .ds 1				     ; DATA XREF: init_planet_area_data+42w
-RAM:E0A6									     ; sub_2BEB:loc_2BFBo ...
-RAM:E0A7 ??	     byte_E0A7:		     .ds 1				     ; DATA XREF: handle_e200_firing+91r
+RAM:E0A6 ??	     firing_alien_spawn_tmr: .ds 1				     ; DATA XREF: init_planet_area_data+42w
+RAM:E0A6									     ; tick_timers:loc_2BFBo ...
+RAM:E0A7 ??	     area_alien_bullet_tmr_init:.ds 1				     ; DATA XREF: handle_e200_firing+91r
 RAM:E0A7									     ; init_planet_area_data+1Ew
-RAM:E0A8 ??	     byte_E0A8:		     .ds 1				     ; DATA XREF: handle_e200_firingr
+RAM:E0A8 ??	     alien_bullet_tmr:	     .ds 1				     ; DATA XREF: handle_e200_firingr
 RAM:E0A8									     ; handle_e200_firing+94w ...
 RAM:E0A9 ??				     .ds 1
-RAM:E0AA ??	     byte_E0AA:		     .ds 1				     ; DATA XREF: init_some_stuff+2w
+RAM:E0AA ??	     byte_E0AA:		     .ds 1				     ; DATA XREF: reset_some_stuff+2w
 RAM:E0AA									     ; init_planet_area_data+88w ...
 RAM:E0AB ??	     byte_E0AB:		     .ds 1				     ; DATA XREF: ROM:20C8o
-RAM:E0AB									     ; init_some_stuff+9w ...
+RAM:E0AB									     ; reset_some_stuff+9w ...
 RAM:E0AC ??				     .ds 1
 RAM:E0AD ??	     num_alien_bullets_active:.ds 1				     ; DATA XREF: update_alien_bullets+Bw
 RAM:E0AD									     ; update_alien_bullets+34o ...
 RAM:E0AE ??				     .ds 1
 RAM:E0AF ??				     .ds 1
 RAM:E0B0 ??				     .ds 1
-RAM:E0B1 ??	     byte_E0B1:		     .ds 1				     ; DATA XREF: init_some_stuff+Fw
-RAM:E0B2 ??	     byte_E0B2:		     .ds 1				     ; DATA XREF: init_some_stuff+5w
+RAM:E0B1 ??	     byte_E0B1:		     .ds 1				     ; DATA XREF: reset_some_stuff+Fw
+RAM:E0B2 ??	     byte_E0B2:		     .ds 1				     ; DATA XREF: reset_some_stuff+5w
 RAM:E0B2									     ; init_planet_area_data+8Dw ...
 RAM:E0B3 ??	     byte_E0B3:		     .ds 1				     ; DATA XREF: spawn_e300_objects+32r
 RAM:E0B4 ??	     byte_E0B4:		     .ds 1				     ; DATA XREF: spawn_e300_objects+5r
@@ -13343,48 +13116,48 @@ RAM:E0B7 ??	     byte_E0B7:		     .ds 1				     ; DATA XREF: handle_e200_firing+
 RAM:E0B7									     ; init_planet_area_data+26w
 RAM:E0B8 ??	     missed_E_cnt:	     .ds 1				     ; DATA XREF: init_planet_area_data+2Bw
 RAM:E0B8									     ; spawn_e200_objects+11r ...
-RAM:E0B9 ??	     byte_E0B9:		     .ds 1				     ; DATA XREF: init_planet_area_data+30w
+RAM:E0B9 ??	     area_firing_alien_type: .ds 1				     ; DATA XREF: init_planet_area_data+30w
 RAM:E0B9									     ; spawn_e200_object+6r ...
 RAM:E0BA ??	     byte_E0BA:		     .ds 1				     ; DATA XREF: init_planet_area_data+35w
 RAM:E0BA									     ; spawn_e200_objects:loc_2C7Fr
 RAM:E0BB ??	     byte_E0BB:		     .ds 1				     ; DATA XREF: init_planet_area_data+3Aw
-RAM:E0BB									     ; sub_2BEB:loc_2C03o ...
+RAM:E0BB									     ; tick_timers:loc_2C03o ...
 RAM:E0BC ??	     byte_E0BC:		     .ds 1				     ; DATA XREF: init_planet_area_data+47w
-RAM:E0BC									     ; sub_2BEB+22r
+RAM:E0BC									     ; tick_timers+22r
 RAM:E0BD ??	     byte_E0BD:		     .ds 1				     ; DATA XREF: init_planet_area_data+4Aw
-RAM:E0BD									     ; sub_2BEB+25w ...
+RAM:E0BD									     ; tick_timers+25w	...
 RAM:E0BE ??	     byte_E0BE:		     .ds 1				     ; DATA XREF: init_planet_area_data+4Fw
 RAM:E0BE									     ; spawn_e200_objects+253o
 RAM:E0BF ??	     byte_E0BF:		     .ds 1				     ; DATA XREF: init_planet_area_data+54w
-RAM:E0BF									     ; sub_2BEB:loc_2C21o
-RAM:E0C0 ??	     byte_E0C0:		     .ds 1				     ; DATA XREF: init_planet_area_data+70w
+RAM:E0BF									     ; tick_timers:loc_2C21o
+RAM:E0C0 ??	     area_large_alien_spawn_tmr_init:.ds 1			     ; DATA XREF: init_planet_area_data+70w
 RAM:E0C0									     ; ROM:3789r
-RAM:E0C1 ??	     byte_E0C1:		     .ds 1				     ; DATA XREF: init_planet_area_data+66w
+RAM:E0C1 ??	     area_large_alien_obj_cnt:.ds 1				     ; DATA XREF: init_planet_area_data+66w
 RAM:E0C1									     ; spawn_large_alienr ...
-RAM:E0C2 ??	     byte_E0C2:		     .ds 1				     ; DATA XREF: init_planet_area_data+5Cw
+RAM:E0C2 ??	     area_large_alien_type:  .ds 1				     ; DATA XREF: init_planet_area_data+5Cw
 RAM:E0C2									     ; ROM:3773r
 RAM:E0C3 ??	     byte_E0C3:		     .ds 1				     ; DATA XREF: init_planet_area_data+6Bw
 RAM:E0C3									     ; ROM:3752r
-RAM:E0C4 ??	     byte_E0C4:		     .ds 1				     ; DATA XREF: init_planet_area_data+73w
-RAM:E0C4									     ; sub_2BEB+2Eo ...
-RAM:E0C5 ??	     byte_E0C5:		     .ds 1				     ; DATA XREF: init_some_stuff+Cw
-RAM:E0C5									     ; sub_2BEB:loc_2C2Fo
+RAM:E0C4 ??	     large_alien_spawn_tmr:  .ds 1				     ; DATA XREF: init_planet_area_data+73w
+RAM:E0C4									     ; tick_timers+2Eo	...
+RAM:E0C5 ??	     area_tmr:		     .ds 1				     ; DATA XREF: reset_some_stuff+Cw
+RAM:E0C5									     ; tick_timers:loc_2C2Fo
 RAM:E0C6 ??	     byte_E0C6:		     .ds 1				     ; DATA XREF: init_planet_area_data+77w
-RAM:E0C7 ??	     byte_E0C7:		     .ds 1				     ; DATA XREF: init_objs_at_e200_from_tbl+12w
+RAM:E0C7 ??	     formation_cnt__maybe:   .ds 1				     ; DATA XREF: init_objs_at_e200_from_tbl+12w
 RAM:E0C7									     ; ROM:loc_2331r ...
 RAM:E0C8 ??	     formations_destroyed_cnt:.ds 1				     ; DATA XREF: ROM:0B5Cw
 RAM:E0C8									     ; ROM:11BEw ...
-RAM:E0C9 ??	     byte_E0C9:		     .ds 1				     ; DATA XREF: init_planet_area_data+80w
+RAM:E0C9 ??	     area_non_firing_alien_type:.ds 1				     ; DATA XREF: init_planet_area_data+80w
 RAM:E0C9									     ; spawn_e300_objectr
 RAM:E0CA ??	     missed_S_cnt:	     .ds 1				     ; DATA XREF: ROM:missed_Sr
 RAM:E0CA									     ; ROM:3713w
 RAM:E0CB ??	     byte_E0CB:		     .ds 1				     ; DATA XREF: init_planet_area_data+85w
 RAM:E0CB									     ; spawn_e200_objects:loc_2E81r ...
 RAM:E0CC ??	     byte_E0CC:		     .ds 1				     ; DATA XREF: ROM:loc_2207r
-RAM:E0CC									     ; sub_2BEB:loc_2BF3o ...
-RAM:E0CD ??	     byte_E0CD:		     .ds 1				     ; DATA XREF: ROM:2229r
+RAM:E0CC									     ; tick_timers:loc_2BF3o ...
+RAM:E0CD ??	     related_to_big_alien_y: .ds 1				     ; DATA XREF: ROM:2229r
 RAM:E0CD									     ; spawn_e200_object+70r ...
-RAM:E0CE ??	     byte_E0CE:		     .ds 1				     ; DATA XREF: ROM:222Fr
+RAM:E0CE ??	     related_to_big_alien_x: .ds 1				     ; DATA XREF: ROM:222Fr
 RAM:E0CE									     ; spawn_e200_object+76r ...
 RAM:E0CF ??				     .ds 1
 RAM:E0D0 ??				     .ds 1
@@ -13502,6 +13275,7 @@ RAM:E1A0	     ; $0C/0D -	ptr map	tile code data (base)
 RAM:E1A0	     ; $0E/0F -	ptr map	palette	data
 RAM:E1A0	     ; $10    -	colour adjustment
 RAM:E1A0	     ; $11/12 -	ptr map	meta-tile data
+RAM:E1A0	     ; $13    -	(planet	% 3) x2
 RAM:E1A0 ??	     curr_player_map_data:   .ds 1				     ; DATA XREF: clear_bg_via_renderero
 RAM:E1A0									     ; init_curr_player_map_datao ...
 RAM:E1A1 ??				     .ds 1
@@ -13612,7 +13386,11 @@ RAM:E200	     ;		      8=star, 9,15=spinning_disc, 10-13=rock)
 RAM:E200	     ; $06/07 -	dy
 RAM:E200	     ; $08/09 -	dx
 RAM:E200	     ; $0A    -	dy_dx lookup table index
-RAM:E200	     ; $0B    -
+RAM:E200	     ; $0B    -	(related to y)
+RAM:E200	     ; $0C    -	(related to x)
+RAM:E200	     ; $0D    -	?
+RAM:E200	     ; $0E    -	?
+RAM:E200	     ; $0F    -	?
 RAM:E200 ?? ?? ?? ??+e200_obj_tbl:	     .ds 0xA0				     ; DATA XREF: zero_object_datao
 RAM:E200 ?? ?? ?? ??+								     ; init_combo_bonus_sequence:vbl_0_1_fn_13__init_big_alienso ...
 RAM:E2A0
@@ -13636,8 +13414,26 @@ RAM:E300	     ; $0C/0D -	ddx
 RAM:E300	     ; $0E    -	??? (used for vulgus)
 RAM:E300 ?? ?? ?? ??+e300_obj_tbl:	     .ds 0x80				     ; DATA XREF: spawn_e300_objects+Eo
 RAM:E300 ?? ?? ?? ??+								     ; update_e300_objectso ...
-RAM:E380 ?? ?? ?? ??+e380_xxx_tbl:	     .ds 0x80				     ; DATA XREF: sub_6A1E+6o
-RAM:E380 ?? ?? ?? ??+								     ; sub_6A95o ...
+RAM:E380	     ; table of	(y,x) pairs surrounding	player ship
+RAM:E380	     ; - for for aliens	for aiming at ship
+RAM:E380	     ; - some use 0 and	fire directly
+RAM:E380	     ; - others	use $f(ix) and fire nearby
+RAM:E380	     ;	0: (s0.y,    s0.x)
+RAM:E380	     ;	1: (s0.y-16, s0.x)
+RAM:E380	     ;	2: (s0.y+16, s0.x)
+RAM:E380	     ;	3: (s0.y-32, s0.x)
+RAM:E380	     ;	4: (s0.y+32, s0.x)
+RAM:E380	     ;	5: (s0.y-48, s0.x)
+RAM:E380	     ;	6: (s0.y+48, s0.x)
+RAM:E380	     ;	7: (s0.y,    s0.x+16)
+RAM:E380	     ;	8: (s0.y,    s0.x+32)
+RAM:E380	     ;	9: (s0.y,    s0.x+48)
+RAM:E380	     ; 10: (s0.y,    s0.x-16)
+RAM:E380	     ; 11: (s0.y,    s0.x-32)
+RAM:E380	     ; 12: (s0.y,    s0.x-48)
+RAM:E380
+RAM:E380 ?? ?? ?? ??+alien_aiming_tbl:	     .ds 0x80				     ; DATA XREF: update_aiming_table+6o
+RAM:E380 ?? ?? ?? ??+								     ; aim_directly_at_shipo ...
 RAM:E400 ?? ??	     attract_mode_input_ptr: .ds 2				     ; DATA XREF: init_attract_mode_input+Fw
 RAM:E400									     ; init_attract_mode_input+1Bw ...
 RAM:E402 ??	     attract_mode_input_cnt: .ds 1				     ; DATA XREF: init_attract_mode_input+12w
@@ -13900,7 +13696,7 @@ RAM:E500	     ; $E500 - curr player status
 RAM:E500 ??	     curr_lives_left:	     .ds 1				     ; DATA XREF: ROM:0366r
 RAM:E500									     ; ROM:06D1o ...
 RAM:E501 ??	     byte_E501:		     .ds 1				     ; DATA XREF: ROM:0B48w
-RAM:E501									     ; ROM:1224o ...
+RAM:E501									     ; sub_1212+12o ...
 RAM:E502 ??	     map_planet:	     .ds 1				     ; DATA XREF: ROM:0B4Dw
 RAM:E502									     ; init_planet_area_data+3r ...
 RAM:E503 ??	     map_area:		     .ds 1				     ; DATA XREF: ROM:0B52w
@@ -13909,8 +13705,8 @@ RAM:E504 ??	     curr_bonus_life_1st:    .ds 1				     ; DATA XREF: ROM:06BEo
 RAM:E505 ??	     curr_bonus_life_2nd:    .ds 1
 RAM:E506 ??	     curr_num_bombs:	     .ds 1				     ; DATA XREF: ROM:0900r
 RAM:E506									     ; ROM:0B78w ...
-RAM:E507 ??	     byte_E507:		     .ds 1				     ; DATA XREF: sub_720+1Fr
-RAM:E507									     ; sub_720+2Cw
+RAM:E507 ??	     next_jap_symbol_bonus_score:.ds 1				     ; DATA XREF: chk_jap_symbol_bonus+1Fr
+RAM:E507									     ; chk_jap_symbol_bonus+2Cw
 RAM:E508 ??	     bomb_fired__maybe:	     .ds 1				     ; DATA XREF: start_bomb+7o
 RAM:E508									     ; check_large_alien_hit+61r ...
 RAM:E509 ??				     .ds 1
@@ -20472,7 +20268,7 @@ RAM:FF7C ??				     .ds 1
 RAM:FF7D ??				     .ds 1
 RAM:FF7E ??				     .ds 1
 RAM:FF7F ??				     .ds 1
-RAM:FF80 ??	     unk_FF80:		     .ds 1				     ; DATA XREF: sub_2947+3o
+RAM:FF80 ??				     .ds 1
 RAM:FF81 ??				     .ds 1
 RAM:FF82 ??				     .ds 1
 RAM:FF83 ??				     .ds 1
