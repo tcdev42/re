@@ -1,8 +1,13 @@
-ROM:0000             +---------------------------------+
-ROM:0000             | Vulgus Disassembly v0.01        |
-ROM:0000             | - by tcdev (msmcdoug@gmail.com) |
-ROM:0000             +---------------------------------+
-ROM:0000
+ROM:0000             ; +---------------------------------+
+ROM:0000             ; | Vulgus Disassembly v0.09        |
+ROM:0000             ; | - by tcdev (msmcdoug@gmail.com) |
+ROM:0000             ; +---------------------------------+
+ROM:0000             ;
+ROM:0000             ; This disassembly is about 95% complete
+ROM:0000             ; Areas not complete comprise:
+ROM:0000             ; - alien object data (mainly movement data)
+ROM:0000             ; - map generation (packed data structures)
+ROM:0000             ;
 ROM:0000
 ROM:0000             ; Processor       : z80 []
 ROM:0000             ; Target assembler: ASxxxx by Alan R. Baldwin v1.5
@@ -981,7 +986,7 @@ ROM:06C8 28 12                               jr      Z, loc_6DC                 
 ROM:06CA
 ROM:06CA             loc_6CA:                                                        ; ...
 ROM:06CA 90                                  sub     b                               ; reached it?
-ROM:06CB 28 02                               jr      Z, loc_6CF                      ; ues, go
+ROM:06CB 28 02                               jr      Z, loc_6CF                      ; yes, go
 ROM:06CD 30 0D                               jr      NC, loc_6DC                     ; no, skip
 ROM:06CF
 ROM:06CF             loc_6CF:                                                        ; ...
@@ -1066,7 +1071,7 @@ ROM:0745 5F                                  ld      e, a                       
 ROM:0746 7A                                  ld      a, d                            ; curr score 10,000's
 ROM:0747 BB                                  cp      e                               ; more than next bonus?
 ROM:0748 D8                                  ret     C                               ; no, exit
-ROM:0749 7B                                  ld      a, e                            ; get bobus score
+ROM:0749 7B                                  ld      a, e                            ; get bonus score
 ROM:074A C6 10                               add     a, #0x10                        ; add 100,000
 ROM:074C 32 07 E5                            ld      (next_jap_symbol_bonus_score), a ; update
 ROM:074F 32 9D E0                            ld      (spawn_jap_symb_flag), a        ; flag japanese symbol
@@ -2238,7 +2243,7 @@ ROM:0FE7 01 04 00                            ld      bc, #4                     
 ROM:0FEA D9                                  exx
 ROM:0FEB 7E                                  ld      a, (hl)                         ; 1st entry in table
 ROM:0FEC 47                                  ld      b, a                            ; # objects to init
-ROM:0FED 32 C7 E0                            ld      (formation_cnt__maybe), a       ; save
+ROM:0FED 32 C7 E0                            ld      (formation_cnt), a              ; save
 ROM:0FF0 23                                  inc     hl
 ROM:0FF1
 ROM:0FF1             loc_FF1:                                                        ; ...
@@ -2554,6 +2559,7 @@ ROM:1221 3C                                  inc     a
 ROM:1222 28 10                               jr      Z, loc_1234
 ROM:1224 21 01 E5                            ld      hl, #byte_E501
 ROM:1227 34                                  inc     (hl)
+ROM:1228             ; next planet
 ROM:1228 2C                                  inc     l                               ; ptr map_planet
 ROM:1229 34                                  inc     (hl)                            ; next planet
 ROM:122A 7E                                  ld      a, (hl)
@@ -2595,7 +2601,7 @@ ROM:1260 16 00                               ld      d, #0                      
 ROM:1262 FF                                  rst     add_fn_to_q
 ROM:1263 1E 1B                               ld      e, #0x1B                        ; print GAME OVER
 ROM:1265 FF                                  rst     add_fn_to_q
-ROM:1266 3E 78                               ld      a, #0x78 ; 'x'
+ROM:1266 3E 78                               ld      a, #120
 ROM:1268 32 25 E0                            ld      (timer), a
 ROM:126B CD 9D 47                            call    snd_cmd_08
 ROM:126E C3 D6 0F                            jp      next_vbl_lvl_1_fn
@@ -2747,7 +2753,7 @@ ROM:1344 C9                                  ret
 ROM:1345             ; ---------------------------------------------------------------------------
 ROM:1345
 ROM:1345             ranking_timer_tick:                                             ; ...
-ROM:1345 3E 3C                               ld      a, #0x3C ; '<'
+ROM:1345 3E 3C                               ld      a, #60
 ROM:1347 32 40 E0                            ld      (ranking_timer_tmr), a          ; re-init
 ROM:134A 21 41 E0                            ld      hl, #ranking_timer_value
 ROM:134D 7E                                  ld      a, (hl)
@@ -3661,20 +3667,20 @@ ROM:1B6F CB 50                               bit     2, b                       
 ROM:1B71 C8                                  ret     Z                               ; no, exit
 ROM:1B72
 ROM:1B72             ship_down:                                                      ; dx
-ROM:1B72 11 80 FE                            ld      de, #-0x180
+ROM:1B72 11 80 FE                            ld      de, #-384
 ROM:1B75 79                                  ld      a, c                            ; left/right only
 ROM:1B76 A7                                  and     a                               ; neither?
 ROM:1B77 28 0F                               jr      Z, update_ship_x                ; yes, go
-ROM:1B79 11 00 FF                            ld      de, #-0x100                     ; dx
+ROM:1B79 11 00 FF                            ld      de, #-256                       ; dx
 ROM:1B7C 18 0A                               jr      update_ship_x
 ROM:1B7E             ; ---------------------------------------------------------------------------
 ROM:1B7E
 ROM:1B7E             ship_up:                                                        ; ...
-ROM:1B7E 11 80 01                            ld      de, #0x180                      ; dx
+ROM:1B7E 11 80 01                            ld      de, #384                        ; dx
 ROM:1B81 79                                  ld      a, c                            ; left/right only
 ROM:1B82 A7                                  and     a                               ; neither?
 ROM:1B83 28 03                               jr      Z, update_ship_x                ; yes, go
-ROM:1B85 11 00 01                            ld      de, #0x100                      ; dx
+ROM:1B85 11 00 01                            ld      de, #256                        ; dx
 ROM:1B88
 ROM:1B88             update_ship_x:                                                  ; ...
 ROM:1B88 DD 6E 07                            ld      l, 7(ix)                        ; ship x lsb
@@ -3709,10 +3715,10 @@ ROM:1BB2
 ROM:1BB2             move_ship_left:                                                 ; ship y msb
 ROM:1BB2 57                                  ld      d, a
 ROM:1BB3 DD 5E 06                            ld      e, 6(ix)                        ; ship y lsb
-ROM:1BB6 21 C0 00                            ld      hl, #0xC0 ; 'À'                 ; background dy
-ROM:1BB9 22 09 E1                            ld      (background_dy), hl             ; update
-ROM:1BBC 21 10 FF                            ld      hl, #0xFF10
-ROM:1BBF 22 0B E1                            ld      (word_E10B), hl
+ROM:1BB6 21 C0 00                            ld      hl, #192                        ; airborne obj dy
+ROM:1BB9 22 09 E1                            ld      (airborne_dy), hl               ; update
+ROM:1BBC 21 10 FF                            ld      hl, #-240                       ; ground-based obj dy
+ROM:1BBF 22 0B E1                            ld      (ground_dy), hl                 ; update
 ROM:1BC2 21 00 FF                            ld      hl, #-256                       ; dy
 ROM:1BC5 19                                  add     hl, de                          ; calc new y
 ROM:1BC6 FD 74 02                            ld      2(iy), h                        ; update s0.y
@@ -3726,10 +3732,10 @@ ROM:1BD0 FE E0                               cp      #224                       
 ROM:1BD2 28 1B                               jr      Z, cant_move_left_right         ; yes, go
 ROM:1BD4 57                                  ld      d, a
 ROM:1BD5 DD 5E 06                            ld      e, 6(ix)                        ; ship y lsb
-ROM:1BD8 21 40 FF                            ld      hl, #-192                       ; background dy
-ROM:1BDB 22 09 E1                            ld      (background_dy), hl             ; update
-ROM:1BDE 21 F0 00                            ld      hl, #240
-ROM:1BE1 22 0B E1                            ld      (word_E10B), hl
+ROM:1BD8 21 40 FF                            ld      hl, #-192                       ; airborne obj dy
+ROM:1BDB 22 09 E1                            ld      (airborne_dy), hl               ; update
+ROM:1BDE 21 F0 00                            ld      hl, #240                        ; ground-based obj dy
+ROM:1BE1 22 0B E1                            ld      (ground_dy), hl                 ; update
 ROM:1BE4 21 00 01                            ld      hl, #256                        ; dy
 ROM:1BE7 19                                  add     hl, de                          ; calc new y
 ROM:1BE8 FD 74 02                            ld      2(iy), h                        ; update s0.y
@@ -3739,8 +3745,8 @@ ROM:1BEF             ; ---------------------------------------------------------
 ROM:1BEF
 ROM:1BEF             cant_move_left_right:                                           ; ...
 ROM:1BEF 21 00 00                            ld      hl, #0
-ROM:1BF2 22 09 E1                            ld      (background_dy), hl
-ROM:1BF5 22 0B E1                            ld      (word_E10B), hl
+ROM:1BF2 22 09 E1                            ld      (airborne_dy), hl               ; update
+ROM:1BF5 22 0B E1                            ld      (ground_dy), hl                 ; update
 ROM:1BF8 C9                                  ret
 ROM:1BF8             ; End of function move_ship_left_right
 ROM:1BF8
@@ -3924,8 +3930,8 @@ ROM:1CD1 57                                  ld      d, a
 ROM:1CD2 FE 06                               cp      #6                              ; off-screen?
 ROM:1CD4 DA 90 29                            jp      C, deactivate_obj               ; yes, go
 ROM:1CD7 DD 5E 02                            ld      e, 2(ix)                        ; obj y lsb
-ROM:1CDA 2A 09 E1                            ld      hl, (background_dy)             ; obj dy
-ROM:1CDD 19                                  add     hl, de                          ; calc obj y
+ROM:1CDA 2A 09 E1                            ld      hl, (airborne_dy)
+ROM:1CDD 19                                  add     hl, de                          ; move w/bg
 ROM:1CDE DD 74 01                            ld      1(ix), h                        ; update y msb
 ROM:1CE1 DD 75 02                            ld      2(ix), l                        ; update y lsb
 ROM:1CE4 7C                                  ld      a, h
@@ -4081,10 +4087,10 @@ ROM:1DBB DD 7E 05                            ld      a, 5(ix)
 ROM:1DBE DD 6E 06                            ld      l, 6(ix)                        ; next row address in fg_videoram
 ROM:1DC1 A7                                  and     a                               ; valid?
 ROM:1DC2 C4 91 1E                            call    NZ, wipe_player_bullet_on_fg    ; yes, go
-ROM:1DC5 2A 09 E1                            ld      hl, (background_dy)
+ROM:1DC5 2A 09 E1                            ld      hl, (airborne_dy)
 ROM:1DC8 DD 56 01                            ld      d, 1(ix)                        ; obj y msb
 ROM:1DCB DD 5E 02                            ld      e, 2(ix)                        ; obj y lsb
-ROM:1DCE 19                                  add     hl, de                          ; calc obj y
+ROM:1DCE 19                                  add     hl, de                          ; move w/bg
 ROM:1DCF 7C                                  ld      a, h
 ROM:1DD0 FE 06                               cp      #6                              ; off-screen?
 ROM:1DD2 38 28                               jr      C, wipe_and_deactivate_bullet   ; yes, go
@@ -4166,8 +4172,8 @@ ROM:1E58 3C                                  inc     a                          
 ROM:1E59 C2 8B 1E                            jp      NZ, deactivate_bomb             ; no, go
 ROM:1E5C FD 56 02                            ld      d, 2(iy)                        ; s1.y
 ROM:1E5F DD 5E 01                            ld      e, 1(ix)                        ; obj y lsb
-ROM:1E62 2A 09 E1                            ld      hl, (background_dy)
-ROM:1E65 19                                  add     hl, de                          ; adjust for background scroll
+ROM:1E62 2A 09 E1                            ld      hl, (airborne_dy)
+ROM:1E65 19                                  add     hl, de                          ; move w/bg
 ROM:1E66 7C                                  ld      a, h
 ROM:1E67 C6 10                               add     a, #16                          ; adjust
 ROM:1E69 FE 20                               cp      #32                             ; off-screen?
@@ -4400,8 +4406,8 @@ ROM:20BE             update_e200_objects:                                       
 ROM:20BE DD 21 00 E2                         ld      ix, #e200_obj_tbl
 ROM:20C2 FD 21 20 EF                         ld      iy, # spriteram_shadow+0x20     ; set s8.code as base
 ROM:20C6 06 09                               ld      b, #9                           ; 9 objects
-ROM:20C8 21 AB E0                            ld      hl, #byte_E0AB
-ROM:20CB 36 00                               ld      (hl), #0
+ROM:20C8 21 AB E0                            ld      hl, #spawn_flying_free_slot_threshold
+ROM:20CB 36 00                               ld      (hl), #0                        ; reset
 ROM:20CD
 ROM:20CD             loc_20CD:                                                       ; ...
 ROM:20CD E5                                  push    hl
@@ -4409,7 +4415,7 @@ ROM:20CE C5                                  push    bc
 ROM:20CF DD 7E 00                            ld      a, 0(ix)                        ; object state
 ROM:20D2 A7                                  and     a                               ; inactive?
 ROM:20D3 28 0F                               jr      Z, loc_20E4                     ; yes, skip
-ROM:20D5 34                                  inc     (hl)
+ROM:20D5 34                                  inc     (hl)                            ; inc formation free slot threshold
 ROM:20D6 21 E4 20                            ld      hl, #loc_20E4                   ; save return address
 ROM:20D9 E5                                  push    hl
 ROM:20DA 3C                                  inc     a                               ; active?
@@ -4465,6 +4471,7 @@ ROM:212D FD 36 01 06                         ld      1(iy), #6                  
 ROM:2131 C9                                  ret
 ROM:2132             ; ---------------------------------------------------------------------------
 ROM:2132             ; set japanese symbol sprite code... *** NOT USED *** ???
+ROM:2132             ; - because it is displayed as a spinning_disc
 ROM:2132 3A 00 E0                            ld      a, (vblank_tick)
 ROM:2135 47                                  ld      b, a
 ROM:2136 0F                                  rrca
@@ -4503,7 +4510,7 @@ ROM:2164 C6 40                               add     a, #64
 ROM:2166 DD 77 01                            ld      1(ix), a                        ; update obj counter
 ROM:2169 DD 77 02                            ld      2(ix), a                        ; init obj timer
 ROM:216C DD 34 05                            inc     5(ix)                           ; obj type++
-ROM:216F DD 36 0A 00                         ld      0xA(ix), #0                     ; dy_dx_lookyo table entry
+ROM:216F DD 36 0A 00                         ld      0xA(ix), #0                     ; dy_dx_lookup table entry
 ROM:2173 DD 36 06 80                         ld      6(ix), #128                     ; obj dy msb
 ROM:2177 DD 36 08 20                         ld      8(ix), #32                      ; obj dx msb
 ROM:217B CD 91 2A                            call    rand
@@ -4658,7 +4665,7 @@ ROM:229A FE 3C                               cp      #0x3C ; '<'
 ROM:229C 28 0A                               jr      Z, loc_22A8
 ROM:229E DD 35 02                            dec     2(ix)
 ROM:22A1 CA 90 29                            jp      Z, deactivate_obj
-ROM:22A4 CD 6F 29                            call    scroll_with_background
+ROM:22A4 CD 6F 29                            call    scroll_airborne_object_with_gnd
 ROM:22A7 C9                                  ret
 ROM:22A8             ; ---------------------------------------------------------------------------
 ROM:22A8
@@ -4702,10 +4709,10 @@ ROM:22DA 20 03                               jr      NZ, loc_22DF
 ROM:22DC FD 34 00                            inc     0(iy)                           ; sprite code++
 ROM:22DF
 ROM:22DF             loc_22DF:                                                       ; ...
-ROM:22DF C3 6F 29                            jp      scroll_with_background
+ROM:22DF C3 6F 29                            jp      scroll_airborne_object_with_gnd
 ROM:22E2             ; ---------------------------------------------------------------------------
 ROM:22E2
-ROM:22E2             loc_22E2:                                                       ; ...
+ROM:22E2             award_extra_life_for_spinning_disc:                             ; ...
 ROM:22E2 DD 36 01 0F                         ld      1(ix), #0xF                     ; init obj counter
 ROM:22E6 DD 36 02 3C                         ld      2(ix), #0x3C ; '<'              ; init obj timer
 ROM:22EA DD 36 00 01                         ld      0(ix), #1                       ; obj state=1
@@ -4720,9 +4727,9 @@ ROM:22FE             ; ---------------------------------------------------------
 ROM:22FE
 ROM:22FE             loc_22FE:                                                       ; ...
 ROM:22FE DD 7E 05                            ld      a, 5(ix)                        ; obj type
-ROM:2301 E6 0F                               and     #0xF
-ROM:2303 FE 0F                               cp      #0xF
-ROM:2305 28 DB                               jr      Z, loc_22E2
+ROM:2301 E6 0F                               and     #0xF                            ; spinning_disc?
+ROM:2303 FE 0F                               cp      #0xF                            ; yes, go
+ROM:2305 28 DB                               jr      Z, award_extra_life_for_spinning_disc
 ROM:2307 FE 0A                               cp      #0xA                            ; rock?
 ROM:2309 D2 C1 23                            jp      NC, loc_23C1                    ; no, go
 ROM:230C 3E 24                               ld      a, #0x24 ; '$'
@@ -4744,15 +4751,15 @@ ROM:232E C3 38 00                            jp      add_fn_to_q
 ROM:2331             ; ---------------------------------------------------------------------------
 ROM:2331
 ROM:2331             check_formation_destroyed_1:                                    ; ...
-ROM:2331 3A C7 E0                            ld      a, (formation_cnt__maybe)
+ROM:2331 3A C7 E0                            ld      a, (formation_cnt)
 ROM:2334 3D                                  dec     a
-ROM:2335 32 C7 E0                            ld      (formation_cnt__maybe), a
+ROM:2335 32 C7 E0                            ld      (formation_cnt), a
 ROM:2338 FD 36 01 05                         ld      1(iy), #5                       ; sprite colour
 ROM:233C 20 ED                               jr      NZ, loc_232B
 ROM:233E DD 7E 05                            ld      a, 5(ix)                        ; obj type
 ROM:2341 E6 0F                               and     #0xF
 ROM:2343 FE 09                               cp      #9                              ; spinning_disc?
-ROM:2345 28 6A                               jr      Z, loc_23B1                     ; yes, go
+ROM:2345 28 6A                               jr      Z, award_extra_life_for_formation ; yes, go
 ROM:2347 DD 36 02 3C                         ld      2(ix), #0x3C ; '<'              ; obj timer
 ROM:234B DD 36 0A FF                         ld      0xA(ix), #0xFF                  ; obj dy_dx_lookup table entry = invalid?
 ROM:234F 21 C8 E0                            ld      hl, #formations_destroyed_cnt
@@ -4794,15 +4801,15 @@ ROM:2387             ; =============== S U B R O U T I N E =====================
 ROM:2387
 ROM:2387
 ROM:2387             check_formation_destroyed_2:                                    ; ...
-ROM:2387 3A C7 E0                            ld      a, (formation_cnt__maybe)
+ROM:2387 3A C7 E0                            ld      a, (formation_cnt)
 ROM:238A 3D                                  dec     a
-ROM:238B 32 C7 E0                            ld      (formation_cnt__maybe), a
+ROM:238B 32 C7 E0                            ld      (formation_cnt), a
 ROM:238E FD 36 01 05                         ld      1(iy), #5                       ; sprite colour
 ROM:2392 C0                                  ret     NZ
 ROM:2393 DD 7E 05                            ld      a, 5(ix)                        ; obj type
 ROM:2396 E6 0F                               and     #0xF
 ROM:2398 FE 09                               cp      #9                              ; spinning_disc?
-ROM:239A 28 15                               jr      Z, loc_23B1                     ; yes, go
+ROM:239A 28 15                               jr      Z, award_extra_life_for_formation ; yes, go
 ROM:239C 21 C8 E0                            ld      hl, #formations_destroyed_cnt
 ROM:239F 7E                                  ld      a, (hl)                         ; formation count
 ROM:23A0             ; technically, this could wrap, but would require you
@@ -4821,9 +4828,9 @@ ROM:23AD 16 08                               ld      d, #8                      
 ROM:23AF FF                                  rst     add_fn_to_q
 ROM:23B0 C9                                  ret
 ROM:23B1             ; ---------------------------------------------------------------------------
-ROM:23B1             ; spinning disc here???
+ROM:23B1             ; destroying a formation of spinning_discs!
 ROM:23B1
-ROM:23B1             loc_23B1:                                                       ; ...
+ROM:23B1             award_extra_life_for_formation:                                 ; ...
 ROM:23B1 DD 36 0A 00                         ld      0xA(ix), #0
 ROM:23B5 21 00 E5                            ld      hl, #curr_lives_left
 ROM:23B8 34                                  inc     (hl)                            ; extra life
@@ -4922,7 +4929,7 @@ ROM:2441 FD 66 02                            ld      h, 2(iy)                   
 ROM:2444 DD 6E 03                            ld      l, 3(ix)                        ; obj y lsb
 ROM:2447 19                                  add     hl, de                          ; calc y+dy
 ROM:2448 EB                                  ex      de, hl
-ROM:2449 2A 09 E1                            ld      hl, (background_dy)
+ROM:2449 2A 09 E1                            ld      hl, (airborne_dy)
 ROM:244C 19                                  add     hl, de                          ; move w/bg
 ROM:244D FD 74 02                            ld      2(iy), h                        ; update sn.y
 ROM:2450 DD 75 03                            ld      3(ix), l                        ; update obj y lsb
@@ -5157,7 +5164,7 @@ ROM:25B0 3A 00 E0                            ld      a, (vblank_tick)
 ROM:25B3 E6 07                               and     #7                              ; time to ???
 ROM:25B5 CC C4 25                            call    Z, sub_25C4
 ROM:25B8 CD 67 24                            call    sub_2467
-ROM:25BB C3 6F 29                            jp      scroll_with_background
+ROM:25BB C3 6F 29                            jp      scroll_airborne_object_with_gnd
 ROM:25BE             ; ---------------------------------------------------------------------------
 ROM:25BE
 ROM:25BE             loc_25BE:                                                       ; ...
@@ -5611,7 +5618,7 @@ ROM:28A8 CD CB 28                            call    lookup_dy_dx               
 ROM:28AB FD 66 02                            ld      h, 2(iy)                        ; sprite y
 ROM:28AE DD 6E 03                            ld      l, 3(ix)                        ; obj y lsb
 ROM:28B1 19                                  add     hl, de                          ; calc y+dy
-ROM:28B2 ED 5B 09 E1                         ld      de, (background_dy)
+ROM:28B2 ED 5B 09 E1                         ld      de, (airborne_dy)
 ROM:28B6 19                                  add     hl, de                          ; move w/bg
 ROM:28B7 FD 74 02                            ld      2(iy), h                        ; update sprite y
 ROM:28BA DD 75 03                            ld      3(ix), l                        ; update obj y lsb
@@ -5734,45 +5741,45 @@ ROM:2947
 ROM:2947             ; =============== S U B R O U T I N E =======================================
 ROM:2947
 ROM:2947
-ROM:2947             sub_2947:                                                       ; ...
+ROM:2947             scroll_ground_object_with_gnd:                                  ; ...
 ROM:2947 FD 56 03                            ld      d, 3(iy)                        ; sprite x
 ROM:294A 21 80 FF                            ld      hl, #-128
-ROM:294D DD 5E 04                            ld      e, 4(ix)                        ; object x LSB
+ROM:294D DD 5E 04                            ld      e, 4(ix)                        ; obj x LSB
 ROM:2950 19                                  add     hl, de
 ROM:2951 FD 74 03                            ld      3(iy), h                        ; update sprite x
 ROM:2954 DD 75 04                            ld      4(ix), l                        ; update object x LSB
-ROM:2957 2A 0B E1                            ld      hl, (word_E10B)
+ROM:2957 2A 0B E1                            ld      hl, (ground_dy)
 ROM:295A 11 00 00                            ld      de, #0
 ROM:295D EB                                  ex      de, hl
 ROM:295E A7                                  and     a
 ROM:295F ED 52                               sbc     hl, de                          ; negate
 ROM:2961 FD 56 02                            ld      d, 2(iy)                        ; sprite y
-ROM:2964 DD 5E 03                            ld      e, 3(ix)
-ROM:2967 19                                  add     hl, de
+ROM:2964 DD 5E 03                            ld      e, 3(ix)                        ; obj y lsb
+ROM:2967 19                                  add     hl, de                          ; move w/bg
 ROM:2968 FD 74 02                            ld      2(iy), h                        ; update sprite y
-ROM:296B DD 75 03                            ld      3(ix), l
+ROM:296B DD 75 03                            ld      3(ix), l                        ; update obj y lsb
 ROM:296E C9                                  ret
-ROM:296E             ; End of function sub_2947
+ROM:296E             ; End of function scroll_ground_object_with_gnd
 ROM:296E
 ROM:296F
 ROM:296F             ; =============== S U B R O U T I N E =======================================
 ROM:296F
 ROM:296F
-ROM:296F             scroll_with_background:                                         ; ...
+ROM:296F             scroll_airborne_object_with_gnd:                                ; ...
 ROM:296F FD 56 03                            ld      d, 3(iy)                        ; sprite x
 ROM:2972 21 80 FF                            ld      hl, #-128
 ROM:2975 DD 5E 04                            ld      e, 4(ix)                        ; obj x lsb
 ROM:2978 19                                  add     hl, de                          ; calc x-128
 ROM:2979 FD 74 03                            ld      3(iy), h                        ; update sprite x
 ROM:297C DD 75 04                            ld      4(ix), l                        ; update obj x lsb
-ROM:297F 2A 09 E1                            ld      hl, (background_dy)
+ROM:297F 2A 09 E1                            ld      hl, (airborne_dy)
 ROM:2982 FD 56 02                            ld      d, 2(iy)                        ; sprite y
 ROM:2985 DD 5E 03                            ld      e, 3(ix)                        ; obj y lsb
 ROM:2988 19                                  add     hl, de                          ; move w/bg
 ROM:2989 FD 74 02                            ld      2(iy), h                        ; update sprite y
 ROM:298C DD 75 03                            ld      3(ix), l                        ; update obj y lsb
 ROM:298F C9                                  ret
-ROM:298F             ; End of function scroll_with_background
+ROM:298F             ; End of function scroll_airborne_object_with_gnd
 ROM:298F
 ROM:2990             ; ---------------------------------------------------------------------------
 ROM:2990             ; START OF FUNCTION CHUNK FOR update_sprite_bullets
@@ -5791,7 +5798,7 @@ ROM:2999 DD 21 A0 E2                         ld      ix, #alien_bullet_obj_tbl
 ROM:299D FD 21 44 EF                         ld      iy, # spriteram_shadow+0x44     ; set s17.code as base
 ROM:29A1 06 06                               ld      b, #6                           ; 6 alien bullets
 ROM:29A3 AF                                  xor     a
-ROM:29A4 32 AD E0                            ld      (num_alien_bullets_active), a   ; zero cnt
+ROM:29A4 32 AD E0                            ld      (num_active_alien_bullets), a   ; zero cnt
 ROM:29A7
 ROM:29A7             loc_29A7:                                                       ; ...
 ROM:29A7 C5                                  push    bc
@@ -5818,7 +5825,7 @@ ROM:29C7
 ROM:29C7             update_alien_bullet:                                            ; ...
 ROM:29C7 CD 2B 24                            call    check_sprite_off_screen         ; off-screen?
 ROM:29CA DA 90 29                            jp      C, deactivate_obj               ; yes, go
-ROM:29CD 21 AD E0                            ld      hl, #num_alien_bullets_active
+ROM:29CD 21 AD E0                            ld      hl, #num_active_alien_bullets
 ROM:29D0 34                                  inc     (hl)                            ; cnt++
 ROM:29D1 CD 3B 24                            call    move_object_self
 ROM:29D4 3A 00 E0                            ld      a, (vblank_tick)
@@ -5840,31 +5847,35 @@ ROM:29E4 3A A4 E0                            ld      a, (area_max_alien_bullets)
 ROM:29E7 A7                                  and     a                               ; zero?
 ROM:29E8 C8                                  ret     Z                               ; yes, exit
 ROM:29E9 47                                  ld      b, a                            ; save
-ROM:29EA 3A AD E0                            ld      a, (num_alien_bullets_active)
+ROM:29EA 3A AD E0                            ld      a, (num_active_alien_bullets)
 ROM:29ED B8                                  cp      b                               ; less than max?
 ROM:29EE D0                                  ret     NC                              ; no, exit
 ROM:29EF 3A 00 E1                            ld      a, (ship_obj)
 ROM:29F2 3C                                  inc     a                               ; active?
 ROM:29F3 C0                                  ret     NZ                              ; no, exit
 ROM:29F4 DD E5                               push    ix
-ROM:29F6 E1                                  pop     hl
+ROM:29F6 E1                                  pop     hl                              ; (firing) obj ptr
 ROM:29F7 3A 00 E0                            ld      a, (vblank_tick)
 ROM:29FA E6 1F                               and     #0x1F
-ROM:29FC 47                                  ld      b, a
-ROM:29FD 7D                                  ld      a, l
+ROM:29FC 47                                  ld      b, a                            ; save
+ROM:29FD 7D                                  ld      a, l                            ; (firing) obj ptr lsb
 ROM:29FE E6 1F                               and     #0x1F
-ROM:2A00 B8                                  cp      b
-ROM:2A01 C0                                  ret     NZ
-ROM:2A02 3A B6 E0                            ld      a, (byte_E0B6)
-ROM:2A05 47                                  ld      b, a
-ROM:2A06 87                                  add     a, a
-ROM:2A07 3C                                  inc     a
-ROM:2A08 4F                                  ld      c, a
+ROM:2A00 B8                                  cp      b                               ; bottom 5 bits same as blank_tick?
+ROM:2A01 C0                                  ret     NZ                              ; no, exit
+ROM:2A02             ; determine whether aliens are too close to fire
+ROM:2A02             ; - some weird maths right here...
+ROM:2A02             ; - how does this work when (s0.y-obj y) is -ve?
+ROM:2A02             ; - and weirder because every entry in the table is 0xA
+ROM:2A02 3A B6 E0                            ld      a, (area_alien_fire_proximity_limit)
+ROM:2A05 47                                  ld      b, a                            ; save
+ROM:2A06 87                                  add     a, a                            ; x2
+ROM:2A07 3C                                  inc     a                               ; x2+1
+ROM:2A08 4F                                  ld      c, a                            ; save
 ROM:2A09 3A 02 EF                            ld      a, (spriteram_shadow+2)         ; s0.y
-ROM:2A0C FD 96 02                            sub     2(iy)
-ROM:2A0F 80                                  add     a, b
-ROM:2A10 B9                                  cp      c
-ROM:2A11 D8                                  ret     C
+ROM:2A0C FD 96 02                            sub     2(iy)                           ; s0.y - (firing) obj sprite y
+ROM:2A0F 80                                  add     a, b                            ; s0.y - obj y + limit
+ROM:2A10 B9                                  cp      c                               ; (s0.y - obj y + limit) < (limit x2)+1)?
+ROM:2A11 D8                                  ret     C                               ; yes, return
 ROM:2A12 CD 95 6A                            call    aim_directly_at_ship
 ROM:2A15 4F                                  ld      c, a
 ROM:2A16 DD 96 01                            sub     1(ix)
@@ -5903,11 +5914,11 @@ ROM:2A4E             spawn_alien_bullet:                                        
 ROM:2A4E FD 74 02                            ld      2(iy), h                        ; init sprite y
 ROM:2A51 FD 75 03                            ld      3(iy), l                        ; init sprite x
 ROM:2A54 FD 36 00 5F                         ld      0(iy), #0x5F ; '_'              ; sprite code (alien bullet)
-ROM:2A58 DD 36 00 FF                         ld      0(ix), #0xFF                    ; state active
-ROM:2A5C DD 71 01                            ld      1(ix), c
-ROM:2A5F DD 36 05 00                         ld      5(ix), #0
-ROM:2A63 3A B7 E0                            ld      a, (byte_E0B7)
-ROM:2A66 DD 77 0A                            ld      0xA(ix), a
+ROM:2A58 DD 36 00 FF                         ld      0(ix), #0xFF                    ; obj state=active
+ROM:2A5C DD 71 01                            ld      1(ix), c                        ; obj counter (returned from aim routine)
+ROM:2A5F DD 36 05 00                         ld      5(ix), #0                       ; obj type
+ROM:2A63 3A B7 E0                            ld      a, (area_dy_dx_lookup_tbl_entry)
+ROM:2A66 DD 77 0A                            ld      0xA(ix), a                      ; dy_dx_lookup table entry
 ROM:2A69 DD 36 0F 00                         ld      0xF(ix), #0                     ; aim directly at ship
 ROM:2A6D CD 98 28                            call    lookup_dy_dx_store
 ROM:2A70 3A A7 E0                            ld      a, (area_alien_bullet_tmr_init)
@@ -6030,10 +6041,10 @@ ROM:2B2C
 ROM:2B2C
 ROM:2B2C             reset_some_stuff:                                               ; ...
 ROM:2B2C 3E 01                               ld      a, #1
-ROM:2B2E 32 AA E0                            ld      (byte_E0AA), a
-ROM:2B31 32 B2 E0                            ld      (byte_E0B2), a
+ROM:2B2E 32 AA E0                            ld      (wait_formation_free_slots), a
+ROM:2B31 32 B2 E0                            ld      (wait_formation_spawn_tmr), a   ; flag no spawn
 ROM:2B34 AF                                  xor     a
-ROM:2B35 32 AB E0                            ld      (byte_E0AB), a
+ROM:2B35 32 AB E0                            ld      (spawn_flying_free_slot_threshold), a
 ROM:2B38 32 C5 E0                            ld      (area_tmr), a
 ROM:2B3B 32 B1 E0                            ld      (byte_E0B1), a
 ROM:2B3E 32 99 E1                            ld      (pickup_obj+9), a
@@ -6063,23 +6074,23 @@ ROM:2B59 23                                  inc     hl
 ROM:2B5A 32 A4 E0                            ld      (area_max_alien_bullets), a
 ROM:2B5D 7E                                  ld      a, (hl)                         ; @$1
 ROM:2B5E 23                                  inc     hl
-ROM:2B5F 32 B6 E0                            ld      (byte_E0B6), a
+ROM:2B5F 32 B6 E0                            ld      (area_alien_fire_proximity_limit), a
 ROM:2B62 7E                                  ld      a, (hl)                         ; @$2
 ROM:2B63 23                                  inc     hl
 ROM:2B64 32 A7 E0                            ld      (area_alien_bullet_tmr_init), a
 ROM:2B67 32 A8 E0                            ld      (alien_bullet_tmr), a
 ROM:2B6A 7E                                  ld      a, (hl)                         ; @$3
 ROM:2B6B 23                                  inc     hl
-ROM:2B6C 32 B7 E0                            ld      (byte_E0B7), a
+ROM:2B6C 32 B7 E0                            ld      (area_dy_dx_lookup_tbl_entry), a
 ROM:2B6F 7E                                  ld      a, (hl)                         ; @$4
 ROM:2B70 23                                  inc     hl
-ROM:2B71 32 B8 E0                            ld      (missed_E_cnt), a
+ROM:2B71 32 B8 E0                            ld      (area_spawn_flying_threshold_adjust), a
 ROM:2B74 7E                                  ld      a, (hl)                         ; @$5
 ROM:2B75 23                                  inc     hl
 ROM:2B76 32 B9 E0                            ld      (area_firing_alien_type), a
 ROM:2B79 7E                                  ld      a, (hl)                         ; @$6
 ROM:2B7A 23                                  inc     hl
-ROM:2B7B 32 BA E0                            ld      (byte_E0BA), a
+ROM:2B7B 32 BA E0                            ld      (tmr_E0BB_init), a
 ROM:2B7E 3E 10                               ld      a, #0x10
 ROM:2B80 32 BB E0                            ld      (byte_E0BB), a
 ROM:2B83 7E                                  ld      a, (hl)                         ; @$7
@@ -6092,10 +6103,10 @@ ROM:2B8D 32 BC E0                            ld      (byte_E0BC), a
 ROM:2B90 32 BD E0                            ld      (byte_E0BD), a
 ROM:2B93 7E                                  ld      a, (hl)                         ; @$9
 ROM:2B94 23                                  inc     hl
-ROM:2B95 32 BE E0                            ld      (byte_E0BE), a
+ROM:2B95 32 BE E0                            ld      (area_formation_type), a
 ROM:2B98 7E                                  ld      a, (hl)                         ; @$A
 ROM:2B99 23                                  inc     hl
-ROM:2B9A 32 BF E0                            ld      (byte_E0BF), a
+ROM:2B9A 32 BF E0                            ld      (area_formation_spawn_tmr), a
 ROM:2B9D 7E                                  ld      a, (hl)                         ; @$B
 ROM:2B9E 23                                  inc     hl
 ROM:2B9F 47                                  ld      b, a
@@ -6119,15 +6130,15 @@ ROM:2BBC AF                                  xor     a
 ROM:2BBD 32 C6 E0                            ld      (byte_E0C6), a
 ROM:2BC0 7E                                  ld      a, (hl)                         ; @$E
 ROM:2BC1 23                                  inc     hl
-ROM:2BC2 32 B5 E0                            ld      (byte_E0B5), a
+ROM:2BC2 32 B5 E0                            ld      (area_non_firing_alien_type_1_based), a
 ROM:2BC5 3D                                  dec     a
-ROM:2BC6 32 C9 E0                            ld      (area_non_firing_alien_type), a
+ROM:2BC6 32 C9 E0                            ld      (area_non_firing_alien_type_0_based), a
 ROM:2BC9 7E                                  ld      a, (hl)                         ; @$F
 ROM:2BCA 23                                  inc     hl
-ROM:2BCB 32 CB E0                            ld      (byte_E0CB), a
-ROM:2BCE 32 AA E0                            ld      (byte_E0AA), a
+ROM:2BCB 32 CB E0                            ld      (area_formation_alien_type), a
+ROM:2BCE 32 AA E0                            ld      (wait_formation_free_slots), a  ; any non-zero value
 ROM:2BD1 3E 01                               ld      a, #1
-ROM:2BD3 32 B2 E0                            ld      (byte_E0B2), a
+ROM:2BD3 32 B2 E0                            ld      (wait_formation_spawn_tmr), a   ; flag no spawn
 ROM:2BD6 21 E1 2B                            ld      hl, #max_large_alien_bullet_tbl
 ROM:2BD9 3A 02 E5                            ld      a, (map_planet)                 ; calc offset
 ROM:2BDC E7                                  rst     content_hl_plus_a
@@ -6185,14 +6196,14 @@ ROM:2C1E 28 01                               jr      Z, loc_2C21                
 ROM:2C20 35                                  dec     (hl)                            ; tick
 ROM:2C21
 ROM:2C21             loc_2C21:                                                       ; ...
-ROM:2C21 21 BF E0                            ld      hl, #byte_E0BF
+ROM:2C21 21 BF E0                            ld      hl, #area_formation_spawn_tmr
 ROM:2C24 7E                                  ld      a, (hl)
-ROM:2C25 A7                                  and     a
-ROM:2C26 28 07                               jr      Z, loc_2C2F
-ROM:2C28 35                                  dec     (hl)
-ROM:2C29 20 04                               jr      NZ, loc_2C2F
-ROM:2C2B AF                                  xor     a
-ROM:2C2C 32 B2 E0                            ld      (byte_E0B2), a
+ROM:2C25 A7                                  and     a                               ; expired?
+ROM:2C26 28 07                               jr      Z, loc_2C2F                     ; no, skip
+ROM:2C28 35                                  dec     (hl)                            ; tick
+ROM:2C29 20 04                               jr      NZ, loc_2C2F                    ; not expired, skip
+ROM:2C2B AF                                  xor     a                               ; flag formation spawn
+ROM:2C2C 32 B2 E0                            ld      (wait_formation_spawn_tmr), a
 ROM:2C2F
 ROM:2C2F             loc_2C2F:                                                       ; ...
 ROM:2C2F 21 C5 E0                            ld      hl, #area_tmr
@@ -6212,20 +6223,23 @@ ROM:2C3B
 ROM:2C3B             ; FUNCTION CHUNK AT ROM:2E81 SIZE 0000004A BYTES
 ROM:2C3B             ; FUNCTION CHUNK AT ROM:2F14 SIZE 0000001A BYTES
 ROM:2C3B
-ROM:2C3B 3A B2 E0                            ld      a, (byte_E0B2)
-ROM:2C3E A7                                  and     a
-ROM:2C3F CA 81 2E                            jp      Z, loc_2E81
+ROM:2C3B 3A B2 E0                            ld      a, (wait_formation_spawn_tmr)
+ROM:2C3E A7                                  and     a                               ; time to spawn a formation?
+ROM:2C3F CA 81 2E                            jp      Z, check_spawn_formation        ; yes, go
 ROM:2C42 3A BB E0                            ld      a, (byte_E0BB)
 ROM:2C45 A7                                  and     a
 ROM:2C46 C0                                  ret     NZ
 ROM:2C47 3A A6 E0                            ld      a, (firing_alien_spawn_tmr)
 ROM:2C4A A7                                  and     a                               ; expired?
 ROM:2C4B C0                                  ret     NZ                              ; no, exit
-ROM:2C4C 3A B8 E0                            ld      a, (missed_E_cnt)
-ROM:2C4F 47                                  ld      b, a
-ROM:2C50 3A AB E0                            ld      a, (byte_E0AB)
-ROM:2C53 B8                                  cp      b
-ROM:2C54 D0                                  ret     NC
+ROM:2C4C 3A B8 E0                            ld      a, (area_spawn_flying_threshold_adjust)
+ROM:2C4F 47                                  ld      b, a                            ; save
+ROM:2C50             ; easiest to think of the threshold as the number of flying aliens active (initially)
+ROM:2C50             ; - then decremented with a timer to allow formations to form
+ROM:2C50             ; - so missing E increases alien spawn frequency
+ROM:2C50 3A AB E0                            ld      a, (spawn_flying_free_slot_threshold)
+ROM:2C53 B8                                  cp      b                               ; less than missed E?
+ROM:2C54 D0                                  ret     NC                              ; no, exit
 ROM:2C55 DD 21 00 E2                         ld      ix, #e200_obj_tbl
 ROM:2C59 FD 21 20 EF                         ld      iy, # spriteram_shadow+0x20     ; set s8.code as base
 ROM:2C5D 11 10 00                            ld      de, #0x10                       ; bytes per obj
@@ -6252,12 +6266,14 @@ ROM:2C7E C9                                  ret
 ROM:2C7F             ; ---------------------------------------------------------------------------
 ROM:2C7F
 ROM:2C7F             loc_2C7F:                                                       ; ...
-ROM:2C7F 3A BA E0                            ld      a, (byte_E0BA)
+ROM:2C7F 3A BA E0                            ld      a, (tmr_E0BB_init)
 ROM:2C82 32 BB E0                            ld      (byte_E0BB), a
 ROM:2C85 C9                                  ret
 ROM:2C85             ; End of function spawn_e200_objects
 ROM:2C85
 ROM:2C86             ; ---------------------------------------------------------------------------
+ROM:2C86             ; the sprite gets changed to a spinning_disc
+ROM:2C86             ; before it is ever displayed
 ROM:2C86             ; START OF FUNCTION CHUNK FOR spawn_e200_object
 ROM:2C86
 ROM:2C86             spawn_japanese_symbol:                                          ; ...
@@ -6265,10 +6281,10 @@ ROM:2C86 DD 36 00 FF                         ld      0(ix), #0xFF               
 ROM:2C8A DD 36 05 0F                         ld      5(ix), #0xF                     ; init type=15
 ROM:2C8E FD 36 03 E0                         ld      3(iy), #224                     ; init sprite x
 ROM:2C92 FD 36 02 10                         ld      2(iy), #16                      ; init sprite y
-ROM:2C96 FD 36 00 C4                         ld      0(iy), #0xC4 ; 'Ä'              ; sprite code=japanese???
+ROM:2C96 FD 36 00 C4                         ld      0(iy), #0xC4 ; 'Ä'              ; sprite code=japanese symbol
 ROM:2C9A FD 36 01 00                         ld      1(iy), #0                       ; sprite colour
-ROM:2C9E DD 36 01 E0                         ld      1(ix), #0xE0 ; 'à'
-ROM:2CA2 DD 36 0A 02                         ld      0xA(ix), #2                     ; dy_dx_lookup_index!!!
+ROM:2C9E DD 36 01 E0                         ld      1(ix), #0xE0 ; 'à'              ; obj counter
+ROM:2CA2 DD 36 0A 02                         ld      0xA(ix), #2                     ; dy_dx_lookup table index
 ROM:2CA6 CD 98 28                            call    lookup_dy_dx_store
 ROM:2CA9 AF                                  xor     a
 ROM:2CAA 32 9D E0                            ld      (spawn_jap_symb_flag), a        ; clear flag
@@ -6345,7 +6361,7 @@ ROM:2D24 3A CE E0                            ld      a, (related_to_big_alien_x)
 ROM:2D27 FD 77 03                            ld      3(iy), a                        ; sprite x
 ROM:2D2A FD 36 00 FF                         ld      0(iy), #0xFF                    ; sprite code=blank
 ROM:2D2E FD 36 01 00                         ld      1(iy), #0                       ; sprite colour
-ROM:2D32 3E B4                               ld      a, #0xB4 ; '´'
+ROM:2D32 3E B4                               ld      a, #180
 ROM:2D34 32 CC E0                            ld      (byte_E0CC), a
 ROM:2D37 CD 98 28                            call    lookup_dy_dx_store
 ROM:2D3A C9                                  ret
@@ -6479,24 +6495,26 @@ ROM:2E21                                     .db 0xE8, 0xE8, 0xC0
 ROM:2E81             ; ---------------------------------------------------------------------------
 ROM:2E81             ; START OF FUNCTION CHUNK FOR spawn_e200_objects
 ROM:2E81
-ROM:2E81             loc_2E81:                                                       ; ...
-ROM:2E81 3A CB E0                            ld      a, (byte_E0CB)
-ROM:2E84 A7                                  and     a
-ROM:2E85 28 3B                               jr      Z, loc_2EC2
-ROM:2E87 3A AA E0                            ld      a, (byte_E0AA)
-ROM:2E8A A7                                  and     a
-ROM:2E8B C2 14 2F                            jp      NZ, loc_2F14
-ROM:2E8E 21 BE E0                            ld      hl, #byte_E0BE
-ROM:2E91 7E                                  ld      a, (hl)
-ROM:2E92 E6 0F                               and     #0xF
-ROM:2E94 21 2E 2F                            ld      hl, #off_2F2E
-ROM:2E97 EF                                  rst     de_eq_contents_hl_plus_2a
+ROM:2E81             check_spawn_formation:                                          ; ...
+ROM:2E81 3A CB E0                            ld      a, (area_formation_alien_type)
+ROM:2E84 A7                                  and     a                               ; valid?
+ROM:2E85 28 3B                               jr      Z, done_spawning_formation      ; no, go
+ROM:2E87 3A AA E0                            ld      a, (wait_formation_free_slots)
+ROM:2E8A A7                                  and     a                               ; wait?
+ROM:2E8B C2 14 2F                            jp      NZ, update_threshold_check_formation_free_slots ; yes, go
+ROM:2E8E 21 BE E0                            ld      hl, #area_formation_type
+ROM:2E91 7E                                  ld      a, (hl)                         ; get entry
+ROM:2E92 E6 0F                               and     #0xF                            ; paranoid
+ROM:2E94 21 2E 2F                            ld      hl, #formation_data_tbl
+ROM:2E97 EF                                  rst     de_eq_contents_hl_plus_2a       ; get table
 ROM:2E98 1A                                  ld      a, (de)                         ; # objects to initialise
-ROM:2E99 08                                  ex      af, af'
+ROM:2E99 08                                  ex      af, af'                         ; save
 ROM:2E9A 13                                  inc     de
-ROM:2E9B EB                                  ex      de, hl
+ROM:2E9B EB                                  ex      de, hl                          ; HL=ptr byte $01
+ROM:2E9C             ; this is where we spawn a formation
+ROM:2E9C             ; note can only spawn as many as free slots
 ROM:2E9C AF                                  xor     a
-ROM:2E9D 32 C7 E0                            ld      (formation_cnt__maybe), a
+ROM:2E9D 32 C7 E0                            ld      (formation_cnt), a
 ROM:2EA0 DD 21 00 E2                         ld      ix, #e200_obj_tbl
 ROM:2EA4 FD 21 20 EF                         ld      iy, # spriteram_shadow+0x20     ; sprite 8
 ROM:2EA8 06 09                               ld      b, #9                           ; 9 objects
@@ -6504,10 +6522,10 @@ ROM:2EAA
 ROM:2EAA             loc_2EAA:                                                       ; ...
 ROM:2EAA DD 7E 00                            ld      a, 0(ix)                        ; state
 ROM:2EAD A7                                  and     a                               ; inactive?
-ROM:2EAE CC CB 2E                            call    Z, sub_2ECB                     ; yes, go
+ROM:2EAE CC CB 2E                            call    Z, spawn_formation_alien        ; yes, go
 ROM:2EB1 08                                  ex      af, af'
-ROM:2EB2 A7                                  and     a
-ROM:2EB3 28 0D                               jr      Z, loc_2EC2
+ROM:2EB2 A7                                  and     a                               ; done all objects?
+ROM:2EB3 28 0D                               jr      Z, done_spawning_formation      ; yes, go
 ROM:2EB5 08                                  ex      af, af'
 ROM:2EB6 11 10 00                            ld      de, #0x10
 ROM:2EB9 DD 19                               add     ix, de                          ; next object
@@ -6515,34 +6533,34 @@ ROM:2EBB 11 04 00                            ld      de, #4
 ROM:2EBE FD 19                               add     iy, de                          ; next sprite
 ROM:2EC0 10 E8                               djnz    loc_2EAA                        ; loop
 ROM:2EC2
-ROM:2EC2             loc_2EC2:                                                       ; ...
+ROM:2EC2             done_spawning_formation:                                        ; ...
 ROM:2EC2 3E 01                               ld      a, #1
-ROM:2EC4 32 AA E0                            ld      (byte_E0AA), a
-ROM:2EC7 32 B2 E0                            ld      (byte_E0B2), a
+ROM:2EC4 32 AA E0                            ld      (wait_formation_free_slots), a
+ROM:2EC7 32 B2 E0                            ld      (wait_formation_spawn_tmr), a   ; flag no spawn
 ROM:2ECA C9                                  ret
 ROM:2ECA             ; END OF FUNCTION CHUNK FOR spawn_e200_objects
 ROM:2ECB
 ROM:2ECB             ; =============== S U B R O U T I N E =======================================
 ROM:2ECB
 ROM:2ECB
-ROM:2ECB             sub_2ECB:                                                       ; ...
+ROM:2ECB             spawn_formation_alien:                                          ; ...
 ROM:2ECB 08                                  ex      af, af'
-ROM:2ECC 3D                                  dec     a
+ROM:2ECC 3D                                  dec     a                               ; # objects to initialise
 ROM:2ECD 08                                  ex      af, af'
-ROM:2ECE 7E                                  ld      a, (hl)
+ROM:2ECE 7E                                  ld      a, (hl)                         ; byte $00
 ROM:2ECF 23                                  inc     hl
-ROM:2ED0 DD 77 0B                            ld      0xB(ix), a
-ROM:2ED3 3A CB E0                            ld      a, (byte_E0CB)
-ROM:2ED6 86                                  add     a, (hl)
+ROM:2ED0 DD 77 0B                            ld      0xB(ix), a                      ; (related to y)
+ROM:2ED3 3A CB E0                            ld      a, (area_formation_alien_type)
+ROM:2ED6 86                                  add     a, (hl)                         ; + byte $01
 ROM:2ED7 23                                  inc     hl
 ROM:2ED8 DD 77 05                            ld      5(ix), a                        ; obj type
-ROM:2EDB 7E                                  ld      a, (hl)
+ROM:2EDB 7E                                  ld      a, (hl)                         ; byte $02
 ROM:2EDC 23                                  inc     hl
 ROM:2EDD DD 77 0D                            ld      0xD(ix), a
-ROM:2EE0 7E                                  ld      a, (hl)
+ROM:2EE0 7E                                  ld      a, (hl)                         ; byte $03
 ROM:2EE1 23                                  inc     hl
 ROM:2EE2 FD 77 02                            ld      2(iy), a                        ; sprite y
-ROM:2EE5 7E                                  ld      a, (hl)
+ROM:2EE5 7E                                  ld      a, (hl)                         ; byte $04
 ROM:2EE6 23                                  inc     hl
 ROM:2EE7 FD 77 03                            ld      3(iy), a                        ; sprite x
 ROM:2EEA FD 36 00 FF                         ld      0(iy), #0xFF                    ; sprite code
@@ -6556,35 +6574,36 @@ ROM:2EFE DD 77 03                            ld      3(ix), a
 ROM:2F01 DD 77 04                            ld      4(ix), a
 ROM:2F04 DD 36 0F 08                         ld      0xF(ix), #8                     ; obj aiming entry
 ROM:2F08 DD 36 0A 05                         ld      0xA(ix), #5
-ROM:2F0C 3A C7 E0                            ld      a, (formation_cnt__maybe)
+ROM:2F0C 3A C7 E0                            ld      a, (formation_cnt)
 ROM:2F0F 3C                                  inc     a
-ROM:2F10 32 C7 E0                            ld      (formation_cnt__maybe), a
+ROM:2F10 32 C7 E0                            ld      (formation_cnt), a
 ROM:2F13 C9                                  ret
-ROM:2F13             ; End of function sub_2ECB
+ROM:2F13             ; End of function spawn_formation_alien
 ROM:2F13
 ROM:2F14             ; ---------------------------------------------------------------------------
 ROM:2F14             ; START OF FUNCTION CHUNK FOR spawn_e200_objects
 ROM:2F14
-ROM:2F14             loc_2F14:                                                       ; ...
-ROM:2F14 3A AB E0                            ld      a, (byte_E0AB)
-ROM:2F17 FE 05                               cp      #5
-ROM:2F19 30 05                               jr      NC, loc_2F20
-ROM:2F1B AF                                  xor     a
-ROM:2F1C 32 AA E0                            ld      (byte_E0AA), a
+ROM:2F14             update_threshold_check_formation_free_slots:                    ; ...
+ROM:2F14 3A AB E0                            ld      a, (spawn_flying_free_slot_threshold)
+ROM:2F17 FE 05                               cp      #5                              ; >=5?
+ROM:2F19 30 05                               jr      NC, lower_flying_spawn_threshold ; yes, go
+ROM:2F1B             ; we have 5/6 slots free, enough for a formation
+ROM:2F1B AF                                  xor     a                               ; reached threshold for formation
+ROM:2F1C 32 AA E0                            ld      (wait_formation_free_slots), a  ; flag threshold reached
 ROM:2F1F C9                                  ret
 ROM:2F20             ; ---------------------------------------------------------------------------
 ROM:2F20
-ROM:2F20             loc_2F20:                                                       ; ...
+ROM:2F20             lower_flying_spawn_threshold:                                   ; ...
 ROM:2F20 3A 00 E0                            ld      a, (vblank_tick)
 ROM:2F23 E6 01                               and     #1
 ROM:2F25 C0                                  ret     NZ
-ROM:2F26 21 AB E0                            ld      hl, #byte_E0AB
-ROM:2F29 35                                  dec     (hl)
+ROM:2F26 21 AB E0                            ld      hl, #spawn_flying_free_slot_threshold
+ROM:2F29 35                                  dec     (hl)                            ; lower threshold
 ROM:2F2A C0                                  ret     NZ
-ROM:2F2B C3 C2 2E                            jp      loc_2EC2
+ROM:2F2B C3 C2 2E                            jp      done_spawning_formation
 ROM:2F2B             ; END OF FUNCTION CHUNK FOR spawn_e200_objects
 ROM:2F2B             ; ---------------------------------------------------------------------------
-ROM:2F2E 4E 2F       off_2F2E:               .dw unk_2F4E                            ; ...
+ROM:2F2E 4E 2F       formation_data_tbl:     .dw unk_2F4E                            ; ...
 ROM:2F30 6D 2F                               .dw unk_2F6D
 ROM:2F32 8C 2F                               .dw pow_instruct_formation_1_tbl
 ROM:2F34 AB 2F                               .dw unk_2FAB
@@ -6601,11 +6620,12 @@ ROM:2F48 B8 30                               .dw unk_30B8
 ROM:2F4A EC 30                               .dw unk_30EC
 ROM:2F4C 0B 31                               .dw unk_310B
 ROM:2F4E
-ROM:2F4E             ; object initialisation tables
+ROM:2F4E             ; formation object initialisation tables
 ROM:2F4E             ; 1st byte = #objects in table
 ROM:2F4E             ; for each object:
+ROM:2F4E             ; *** WRONG!!!!
 ROM:2F4E             ; $00 - ->$0B ?
-ROM:2F4E             ; $01 - 5+($01)->$05 type?
+ROM:2F4E             ; $01 - added to area_formation_alien_type
 ROM:2F4E             ; $02 - -> $0D ?
 ROM:2F4E             ; $03 - sprite y
 ROM:2F4E             ; $04 - sprite x
@@ -6884,7 +6904,7 @@ ROM:349C DD 7E 00                            ld      a, 0(ix)
 ROM:349F A7                                  and     a                               ; inactive?
 ROM:34A0 28 22                               jr      Z, spawn_pickup                 ; yes, go
 ROM:34A2 3C                                  inc     a                               ; active?
-ROM:34A3 CA 2D 36                            jp      Z, loc_362D                     ; yes, go
+ROM:34A3 CA 2D 36                            jp      Z, update_active_pickup         ; yes, go
 ROM:34A6 DD 35 00                            dec     0(ix)                           ; state=1?
 ROM:34A9 28 0C                               jr      Z, deactivate_pickup            ; yes, go
 ROM:34AB 3A 00 E0                            ld      a, (vblank_tick)
@@ -7025,8 +7045,8 @@ ROM:360D 00 00 01 00+planet_8_pickup_type_tbl:.db 0, 0, 1, 0, 1, 2, 0, 2, 3, 0, 
 ROM:361D 00 02 01 00+planet_9_pickup_type_tbl:.db 0, 2, 1, 0, 1, 2, 0, 2, 3, 0, 2, 1, 0, 0, 4, 0 ; ...
 ROM:362D             ; ---------------------------------------------------------------------------
 ROM:362D
-ROM:362D             loc_362D:                                                       ; ...
-ROM:362D CD 47 29                            call    sub_2947
+ROM:362D             update_active_pickup:                                           ; ...
+ROM:362D CD 47 29                            call    scroll_ground_object_with_gnd
 ROM:3630
 ROM:3630             ; =============== S U B R O U T I N E =======================================
 ROM:3630
@@ -7149,16 +7169,20 @@ ROM:36FB 01 37                               .dw missed_E                       
 ROM:36FD 0C 37                               .dw missed_S                            ; 'S'
 ROM:36FF 17 37                               .dw missed_D                            ; 'D'
 ROM:3701             ; ---------------------------------------------------------------------------
+ROM:3701             ; increases the frequency of spawning flying aliens
+ROM:3701             ; - if you miss one!
 ROM:3701
 ROM:3701             missed_E:                                                       ; ...
-ROM:3701 3A B8 E0                            ld      a, (missed_E_cnt)
+ROM:3701 3A B8 E0                            ld      a, (area_spawn_flying_threshold_adjust)
 ROM:3704 FE 09                               cp      #9                              ; max?
 ROM:3706 D0                                  ret     NC                              ; yes, exit
 ROM:3707 3C                                  inc     a
-ROM:3708 32 B8 E0                            ld      (missed_E_cnt), a
+ROM:3708 32 B8 E0                            ld      (area_spawn_flying_threshold_adjust), a
 ROM:370B C9                                  ret
 ROM:370B             ; END OF FUNCTION CHUNK FOR process_q
 ROM:370C             ; ---------------------------------------------------------------------------
+ROM:370C             ; despite claims in the vulgus manual on Capcom Arcade Stadium on the Nintendo Switch
+ROM:370C             ; this appears to be completely benign (in mame set 'vulgusa')
 ROM:370C
 ROM:370C             missed_S:                                                       ; ...
 ROM:370C 3A CA E0                            ld      a, (missed_S_cnt)
@@ -7168,6 +7192,7 @@ ROM:3712 3C                                  inc     a
 ROM:3713 32 CA E0                            ld      (missed_S_cnt), a
 ROM:3716 C9                                  ret
 ROM:3717             ; ---------------------------------------------------------------------------
+ROM:3717             ; increases the maximum number of alien bullets on the screen
 ROM:3717
 ROM:3717             missed_D:                                                       ; ...
 ROM:3717 3A A4 E0                            ld      a, (area_max_alien_bullets)
@@ -7724,8 +7749,8 @@ ROM:3B96
 ROM:3B96             update_large_alien_for_bg_movement:                             ; ...
 ROM:3B96 FD 56 02                            ld      d, 2(iy)                        ; sn.y
 ROM:3B99 DD 5E 03                            ld      e, 3(ix)                        ; obj y lsb
-ROM:3B9C 2A 09 E1                            ld      hl, (background_dy)
-ROM:3B9F 19                                  add     hl, de                          ; adjust for bg movement
+ROM:3B9C 2A 09 E1                            ld      hl, (airborne_dy)
+ROM:3B9F 19                                  add     hl, de                          ; move w/bg
 ROM:3BA0 FD 74 02                            ld      2(iy), h                        ; update sn.y
 ROM:3BA3 FD 74 06                            ld      6(iy), h                        ; update s(n+1).y
 ROM:3BA6 DD 75 03                            ld      3(ix), l                        ; update obj y lsb
@@ -7747,12 +7772,12 @@ ROM:3BC0             ; =============== S U B R O U T I N E =====================
 ROM:3BC0
 ROM:3BC0
 ROM:3BC0             spawn_e300_objects:                                             ; ...
-ROM:3BC0 3A B5 E0                            ld      a, (byte_E0B5)
-ROM:3BC3 A7                                  and     a
-ROM:3BC4 C8                                  ret     Z
-ROM:3BC5 3A B4 E0                            ld      a, (byte_E0B4)
-ROM:3BC8 A7                                  and     a
-ROM:3BC9 C0                                  ret     NZ
+ROM:3BC0 3A B5 E0                            ld      a, (area_non_firing_alien_type_1_based)
+ROM:3BC3 A7                                  and     a                               ; valid?
+ROM:3BC4 C8                                  ret     Z                               ; no, exit
+ROM:3BC5 3A B4 E0                            ld      a, (spawn_non_firing_tmr)       ; *** ALWAYS 0
+ROM:3BC8 A7                                  and     a                               ; expired?
+ROM:3BC9 C0                                  ret     NZ                              ; no, exit
 ROM:3BCA FD 21 10 EF                         ld      iy, # spriteram_shadow+0x10     ; set s4.code as base
 ROM:3BCE DD 21 00 E3                         ld      ix, #e300_obj_tbl
 ROM:3BD2 26 04                               ld      h, #4                           ; # objs to check
@@ -7768,7 +7793,7 @@ ROM:3BE1
 ROM:3BE1             loc_3BE1:                                                       ; ...
 ROM:3BE1 DD 7E 00                            ld      a, 0(ix)                        ; obj state
 ROM:3BE4 A7                                  and     a                               ; inactive?
-ROM:3BE5 28 08                               jr      Z, loc_3BEF                     ; yes, go
+ROM:3BE5 28 08                               jr      Z, spawn_non_firing_and_init_tmr ; yes, go
 ROM:3BE7 DD 19                               add     ix, de                          ; next obj
 ROM:3BE9 FD 09                               add     iy, bc                          ; next sprite
 ROM:3BEB 25                                  dec     h
@@ -7776,10 +7801,12 @@ ROM:3BEC 20 F3                               jr      NZ, loc_3BE1               
 ROM:3BEE C9                                  ret
 ROM:3BEF             ; ---------------------------------------------------------------------------
 ROM:3BEF
-ROM:3BEF             loc_3BEF:                                                       ; ...
+ROM:3BEF             spawn_non_firing_and_init_tmr:                                  ; ...
 ROM:3BEF CD F9 3B                            call    spawn_e300_object
-ROM:3BF2 3A B3 E0                            ld      a, (byte_E0B3)
-ROM:3BF5 32 B4 E0                            ld      (byte_E0B4), a
+ROM:3BF2             ; *** THIS IS NEVER EXPLICITLY INITIALISED!!!
+ROM:3BF2             ; - cleared to 0 at program init, so TMR is always 0!!
+ROM:3BF2 3A B3 E0                            ld      a, (init_spawn_non_firing_tmr_init)
+ROM:3BF5 32 B4 E0                            ld      (spawn_non_firing_tmr), a
 ROM:3BF8 C9                                  ret
 ROM:3BF8             ; End of function spawn_e300_objects
 ROM:3BF8
@@ -7788,7 +7815,7 @@ ROM:3BF9             ; =============== S U B R O U T I N E =====================
 ROM:3BF9
 ROM:3BF9
 ROM:3BF9             spawn_e300_object:                                              ; ...
-ROM:3BF9 3A C9 E0                            ld      a, (area_non_firing_alien_type)
+ROM:3BF9 3A C9 E0                            ld      a, (area_non_firing_alien_type_0_based)
 ROM:3BFC F7                                  rst     jp_tbl_vector
 ROM:3BFC             ; End of function spawn_e300_object
 ROM:3BFC
@@ -8320,8 +8347,8 @@ ROM:3FE5 FD 56 02                            ld      d, 2(iy)                   
 ROM:3FE8 DD 5E 03                            ld      e, 3(ix)                        ; sprite y lsb
 ROM:3FEB 19                                  add     hl, de
 ROM:3FEC EB                                  ex      de, hl
-ROM:3FED 2A 09 E1                            ld      hl, (background_dy)
-ROM:3FF0 19                                  add     hl, de                          ; adjust for bg movement
+ROM:3FED 2A 09 E1                            ld      hl, (airborne_dy)
+ROM:3FF0 19                                  add     hl, de                          ; move w/bg
 ROM:3FF1 FD 74 02                            ld      2(iy), h                        ; update sprite y
 ROM:3FF4 DD 75 03                            ld      3(ix), l                        ; update obj y lsb
 ROM:3FF7 DD 66 08                            ld      h, 8(ix)
@@ -8394,7 +8421,7 @@ ROM:406E             loc_406E:                                                  
 ROM:406E DD 34 01                            inc     1(ix)
 ROM:4071 DD 36 06 00                         ld      6(ix), #0
 ROM:4075 DD 36 07 00                         ld      7(ix), #0                       ; zero obj dy
-ROM:4079 21 48 FF                            ld      hl, #0xFF48
+ROM:4079 21 48 FF                            ld      hl, #-184
 ROM:407C DD 74 08                            ld      8(ix), h
 ROM:407F DD 75 09                            ld      9(ix), l                        ; update obj dx
 ROM:4082 C9                                  ret
@@ -9887,7 +9914,7 @@ ROM:47EA DD 77 03                            ld      3(ix), a
 ROM:47ED DD 77 04                            ld      4(ix), a
 ROM:47F0 DD 77 05                            ld      5(ix), a
 ROM:47F3 DD 36 06 11                         ld      6(ix), #17
-ROM:47F7 21 60 48                            ld      hl, #meta_data_offset_tbl
+ROM:47F7 21 60 48                            ld      hl, #area_meta_data_offset_tbl
 ROM:47FA 3A 03 E5                            ld      a, (map_area)
 ROM:47FD EF                                  rst     de_eq_contents_hl_plus_2a
 ROM:47FE DD 72 07                            ld      7(ix), d
@@ -9905,7 +9932,7 @@ ROM:4817             loc_4817:                                                  
 ROM:4817 87                                  add     a, a                            ; x2
 ROM:4818 DD 77 13                            ld      0x13(ix), a                     ; $E1B3 (map_planet_space)
 ROM:481B 87                                  add     a, a                            ; x4
-ROM:481C 21 80 48                            ld      hl, #map_tbl
+ROM:481C 21 80 48                            ld      hl, #map_meta_data_tbl
 ROM:481F EF                                  rst     de_eq_contents_hl_plus_2a       ; += x8 get entry for this map
 ROM:4820 DD 72 11                            ld      0x11(ix), d
 ROM:4823 DD 73 12                            ld      0x12(ix), e                     ; ptr map meta-tile data
@@ -9938,7 +9965,8 @@ ROM:485F C9                                  ret
 ROM:485F             ; End of function init_curr_player_map_data
 ROM:485F
 ROM:485F             ; ---------------------------------------------------------------------------
-ROM:4860 F8 01       meta_data_offset_tbl:   .dw 0x1F8                               ; ...
+ROM:4860             ; the offset is stored in 7,8(IX) of player map data
+ROM:4860 F8 01       area_meta_data_offset_tbl:.dw 0x1F8                             ; ...
 ROM:4862 D8 01                               .dw 0x1D8
 ROM:4864 B8 01                               .dw 0x1B8
 ROM:4866 98 01                               .dw 0x198
@@ -9958,7 +9986,7 @@ ROM:4880
 ROM:4880             ; *** planet map data
 ROM:4880
 ROM:4880             ; rocky planet
-ROM:4880 00 80       map_tbl:                .dw planet_1_meta_data                  ; ...
+ROM:4880 00 80       map_meta_data_tbl:      .dw planet_1_meta_data                  ; ...
 ROM:4882 00 82                               .dw planet_1_code_data
 ROM:4884 90 87                               .dw planet_1_colour_data
 ROM:4886 00                                  .db 0                                   ; palette bank
@@ -10024,7 +10052,7 @@ ROM:48DE             ; ---------------------------------------------------------
 ROM:48DE
 ROM:48DE             loc_48DE:                                                       ; ...
 ROM:48DE DD 36 10 20                         ld      0x10(ix), #0x20 ; ' '           ; colour adjustment=32
-ROM:48E2 5F                                  ld      e, a
+ROM:48E2 5F                                  ld      e, a                            ; 9(IX)
 ROM:48E3 3E 0C                               ld      a, #12
 ROM:48E5 93                                  sub     e                               ; 12-a
 ROM:48E6
@@ -10216,7 +10244,7 @@ ROM:4A22 6C                                  ld      l, h
 ROM:4A23 E6 01                               and     #1
 ROM:4A25 67                                  ld      h, a
 ROM:4A26 22 46 E0                            ld      (scroll_plus1_shadow), hl
-ROM:4A29 2A 0B E1                            ld      hl, (word_E10B)
+ROM:4A29 2A 0B E1                            ld      hl, (ground_dy)
 ROM:4A2C AF                                  xor     a
 ROM:4A2D CB 7C                               bit     7, h
 ROM:4A2F 28 01                               jr      Z, loc_4A32
@@ -10226,7 +10254,7 @@ ROM:4A32             loc_4A32:                                                  
 ROM:4A32 DD 46 00                            ld      b, 0(ix)
 ROM:4A35 DD 56 01                            ld      d, 1(ix)
 ROM:4A38 DD 5E 02                            ld      e, 2(ix)
-ROM:4A3B 19                                  add     hl, de
+ROM:4A3B 19                                  add     hl, de                          ; move w/bg
 ROM:4A3C 88                                  adc     a, b
 ROM:4A3D DD 77 00                            ld      0(ix), a
 ROM:4A40 DD 74 01                            ld      1(ix), h
@@ -10830,13 +10858,18 @@ ROM:5DBC BE 68                               .dw planet_9_area_data_tbl
 ROM:5DBE             ; Each planet has 22 blocks of 16-byte data
 ROM:5DBE             ; - interesting because there are only 16 areas/planet?!?
 ROM:5DBE             ; $0: max_alien_bullets
+ROM:5DBE             ; $1: alien_fire_proximity_limit (every entry 0xA)
 ROM:5DBE             ; $2: alien bullet timer
-ROM:5DBE             ; $4: (missed_e_cnt)
+ROM:5DBE             ; $4: adjustment to flying alien spawn threshold
 ROM:5DBE             ; $5: firing alien type
+ROM:5DBE             ; $6: E0BB timer init
 ROM:5DBE             ; $7: firing alien spawn timer
+ROM:5DBE             ; $9: formation type (table entry index)
+ROM:5DBE             ; $A: formation spawn timer
 ROM:5DBE             ; $B: large alien spawn [7:4]=count,[3:0]=type
 ROM:5DBE             ; $D: large alien spawn timer
 ROM:5DBE             ; $E: non-firing alien type
+ROM:5DBE             ; $F: formation alien type
 ROM:5DBE 03 0A 0A 0A+planet_1_area_data_tbl: .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5, 0xC, 0xC, 0x10, 0, 0xE, 0, 5 ; ...
 ROM:5DBE 07 02 3C 12+                        .db 3, 0xA, 0xA, 0xA, 7, 2, 0x3C, 0x12, 5, 0xC, 0xC, 0x10, 3, 0xE, 0, 0
 ROM:5DBE 05 0C 0C 10+                        .db 2, 0xA, 0xA, 0xA, 4, 2, 0x3C, 0x12, 3, 0xC, 0xC, 0x10, 0, 0xE, 2, 5
@@ -11140,6 +11173,7 @@ ROM:6AD1 1E 00                               ld      e, #0
 ROM:6AD3 26 00                               ld      h, #0
 ROM:6AD5 18 05                               jr      loc_6ADC
 ROM:6AD7             ; ---------------------------------------------------------------------------
+ROM:6AD7             ; this makes my brain hurt!
 ROM:6AD7
 ROM:6AD7             loc_6AD7:                                                       ; ...
 ROM:6AD7 6B                                  ld      l, e                            ; abs(delta x)
@@ -11181,17 +11215,17 @@ ROM:6AFE 07                                  rlca
 ROM:6AFF E6 07                               and     #7
 ROM:6B01 21 11 6B                            ld      hl, #byte_6B11
 ROM:6B04 E7                                  rst     content_hl_plus_a
-ROM:6B05 4F                                  ld      c, a
-ROM:6B06 3E 08                               ld      a, #8
-ROM:6B08 E7                                  rst     content_hl_plus_a
-ROM:6B09 CB 41                               bit     0, c
-ROM:6B0B 20 02                               jr      NZ, loc_6B0F
-ROM:6B0D 80                                  add     a, b
+ROM:6B05 4F                                  ld      c, a                            ; save 1st byte
+ROM:6B06 3E 08                               ld      a, #8                           ; offset 2 2nd byte
+ROM:6B08 E7                                  rst     content_hl_plus_a               ; get 2nd byte
+ROM:6B09 CB 41                               bit     0, c                            ; add?
+ROM:6B0B 20 02                               jr      NZ, loc_6B0F                    ; no, go
+ROM:6B0D 80                                  add     a, b                            ; (tbl entry) + b
 ROM:6B0E C9                                  ret
 ROM:6B0F             ; ---------------------------------------------------------------------------
 ROM:6B0F
 ROM:6B0F             loc_6B0F:                                                       ; ...
-ROM:6B0F 90                                  sub     b
+ROM:6B0F 90                                  sub     b                               ; (tbl entry) - b
 ROM:6B10 C9                                  ret
 ROM:6B10             ; ---------------------------------------------------------------------------
 ROM:6B11             ; 1st 8 bytes: 0=add, 1=sub
@@ -11231,6 +11265,7 @@ ROM:6B38             ; *** END OF CODE ***
 ROM:6B38             ; ***
 ROM:6B38
 ROM:6B38 20 60 E0 A0 byte_6B38:              .db 0x20, 0x60, 0xE0, 0xA0              ; ...
+ROM:6B3C             ; ---
 ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
@@ -11822,6 +11857,7 @@ ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0
 ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:6B3C FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
+ROM:8000             ; *** START OF MAP DATA
 ROM:8000 36 37 43 41+planet_1_meta_data:     .db 0x36, 0x37, 0x43, 0x41, 0x43, 0x3E, 0x43, 0x42, 0x42 ; ...
 ROM:8000 43 3E 43 42+                        .db 0x43, 0x40, 0x3F, 0x43, 0x42, 0x43, 0x41, 0x41, 0x3C
 ROM:8000 42 43 40 3F+                        .db 0x3B, 0x43, 0x41, 0x43, 0x36, 0x37, 0x43, 0x41, 0x42
@@ -11865,7 +11901,6 @@ ROM:8000 03 08 15 01+                        .db 0x4D, 0xD, 0xE, 3, 0x15, 3, 0, 
 ROM:8000 01 08 15 03+                        .db 0xE, 1, 8, 0xCB, 3, 7, 2, 0x38, 3, 2, 3, 0x2C, 0x57
 ROM:8000 01 91 03 06+                        .db 0x15, 0x58, 0x3E, 0x39, 0x3A, 0x56, 0x43, 0x43, 0x39
 ROM:8000 03 03 0D 0E+                        .db 0x3B, 0x43, 0x3C, 0x3B, 0x43, 0x36, 0x3D, 0x37, 0x43
-ROM:8200             ; I think this is the start of map data!?!
 ROM:8200 23 24 25 3A+planet_1_code_data:     .db 0x23, 0x24, 0x25, 0x3A, 0x2B, 0x2C, 0x2D, 0x3A, 0x33 ; ...
 ROM:8200 2B 2C 2D 3A+                        .db 0x34, 0x35, 0x3A, 0x3A, 0x3A, 0x3A, 0x2A, 0x20, 0x3A
 ROM:8200 33 34 35 3A+                        .db 0x3B, 0x3A, 0x30, 0x21, 0x38, 0x32, 0x31, 0x3A, 0x3A
@@ -12691,7 +12726,9 @@ RAM:E096 ??                                  .ds 1
 RAM:E097 ??                                  .ds 1
 RAM:E098 ??                                  .ds 1
 RAM:E099 ??          byte_E099:              .ds 1                                   ; ...
+RAM:E099                                                                             ; *** UNUSED???
 RAM:E09A ??          byte_E09A:              .ds 1                                   ; ...
+RAM:E09A                                                                             ; *** UNUSED???
 RAM:E09B ??                                  .ds 1
 RAM:E09C ??          pow_instruct_aliens_destroyed:.ds 1                             ; ...
 RAM:E09D ??          spawn_jap_symb_flag:    .ds 1                                   ; ...
@@ -12701,7 +12738,9 @@ RAM:E0A0
 RAM:E0A0             ; *** the start of per-game variables
 RAM:E0A0
 RAM:E0A0 ??          unk_E0A0:               .ds 1                                   ; ...
+RAM:E0A0                                                                             ; *** UNUSED???
 RAM:E0A1 ??          unk_E0A1:               .ds 1                                   ; ...
+RAM:E0A1                                                                             ; *** UNUSED???
 RAM:E0A2 ??                                  .ds 1
 RAM:E0A3 ??                                  .ds 1
 RAM:E0A4 ??          area_max_alien_bullets: .ds 1                                   ; ...
@@ -12710,28 +12749,35 @@ RAM:E0A6 ??          firing_alien_spawn_tmr: .ds 1                              
 RAM:E0A7 ??          area_alien_bullet_tmr_init:.ds 1                                ; ...
 RAM:E0A8 ??          alien_bullet_tmr:       .ds 1                                   ; ...
 RAM:E0A9 ??                                  .ds 1
-RAM:E0AA ??          byte_E0AA:              .ds 1                                   ; ...
-RAM:E0AB ??          byte_E0AB:              .ds 1                                   ; ...
+RAM:E0AA ??          wait_formation_free_slots:.ds 1                                 ; ...
+RAM:E0AB             ; each time flying objects are updated
+RAM:E0AB             ; this value is initialised to the count of active flying aliens
+RAM:E0AB             ; every 2nd timer tick, if >= 5, then decremented
+RAM:E0AB             ; - (used to allow formations of 5/6 to be spawned)
+RAM:E0AB ??          spawn_flying_free_slot_threshold:.ds 1                          ; ...
 RAM:E0AC ??                                  .ds 1
-RAM:E0AD ??          num_alien_bullets_active:.ds 1                                  ; ...
+RAM:E0AD ??          num_active_alien_bullets:.ds 1                                  ; ...
 RAM:E0AE ??                                  .ds 1
 RAM:E0AF ??                                  .ds 1
 RAM:E0B0 ??                                  .ds 1
 RAM:E0B1 ??          byte_E0B1:              .ds 1                                   ; ...
-RAM:E0B2 ??          byte_E0B2:              .ds 1                                   ; ...
-RAM:E0B3 ??          byte_E0B3:              .ds 1                                   ; ...
-RAM:E0B4 ??          byte_E0B4:              .ds 1                                   ; ...
-RAM:E0B5 ??          byte_E0B5:              .ds 1                                   ; ...
-RAM:E0B6 ??          byte_E0B6:              .ds 1                                   ; ...
-RAM:E0B7 ??          byte_E0B7:              .ds 1                                   ; ...
-RAM:E0B8 ??          missed_E_cnt:           .ds 1                                   ; ...
+RAM:E0B1                                                                             ; *** UNUSED?
+RAM:E0B2 ??          wait_formation_spawn_tmr:.ds 1                                  ; ...
+RAM:E0B3 ??          init_spawn_non_firing_tmr_init:.ds 1                            ; ...
+RAM:E0B3                                                                             ; *** NEVER EXPLICITLY INITIALISED - ALWAYS 0
+RAM:E0B4 ??          spawn_non_firing_tmr:   .ds 1                                   ; ...
+RAM:E0B4                                                                             ; as a result, this is always 0 too!
+RAM:E0B5 ??          area_non_firing_alien_type_1_based:.ds 1                        ; ...
+RAM:E0B6 ??          area_alien_fire_proximity_limit:.ds 1                           ; ...
+RAM:E0B7 ??          area_dy_dx_lookup_tbl_entry:.ds 1                               ; ...
+RAM:E0B8 ??          area_spawn_flying_threshold_adjust:.ds 1                        ; ...
 RAM:E0B9 ??          area_firing_alien_type: .ds 1                                   ; ...
-RAM:E0BA ??          byte_E0BA:              .ds 1                                   ; ...
+RAM:E0BA ??          tmr_E0BB_init:          .ds 1                                   ; ...
 RAM:E0BB ??          byte_E0BB:              .ds 1                                   ; ...
 RAM:E0BC ??          byte_E0BC:              .ds 1                                   ; ...
 RAM:E0BD ??          byte_E0BD:              .ds 1                                   ; ...
-RAM:E0BE ??          byte_E0BE:              .ds 1                                   ; ...
-RAM:E0BF ??          byte_E0BF:              .ds 1                                   ; ...
+RAM:E0BE ??          area_formation_type:    .ds 1                                   ; ...
+RAM:E0BF ??          area_formation_spawn_tmr:.ds 1                                  ; ...
 RAM:E0C0 ??          area_large_alien_spawn_tmr_init:.ds 1                           ; ...
 RAM:E0C1 ??          area_large_alien_obj_cnt:.ds 1                                  ; ...
 RAM:E0C2 ??          area_large_alien_type:  .ds 1                                   ; ...
@@ -12739,11 +12785,13 @@ RAM:E0C3 ??          byte_E0C3:              .ds 1                              
 RAM:E0C4 ??          large_alien_spawn_tmr:  .ds 1                                   ; ...
 RAM:E0C5 ??          area_tmr:               .ds 1                                   ; ...
 RAM:E0C6 ??          byte_E0C6:              .ds 1                                   ; ...
-RAM:E0C7 ??          formation_cnt__maybe:   .ds 1                                   ; ...
+RAM:E0C6                                                                             ; *** UNUSED???
+RAM:E0C7 ??          formation_cnt:          .ds 1                                   ; ...
 RAM:E0C8 ??          formations_destroyed_cnt:.ds 1                                  ; ...
-RAM:E0C9 ??          area_non_firing_alien_type:.ds 1                                ; ...
+RAM:E0C9 ??          area_non_firing_alien_type_0_based:.ds 1                        ; ...
 RAM:E0CA ??          missed_S_cnt:           .ds 1                                   ; ...
-RAM:E0CB ??          byte_E0CB:              .ds 1                                   ; ...
+RAM:E0CA                                                                             ; completely benign?
+RAM:E0CB ??          area_formation_alien_type:.ds 1                                 ; ...
 RAM:E0CC ??          byte_E0CC:              .ds 1                                   ; ...
 RAM:E0CD ??          related_to_big_alien_y: .ds 1                                   ; ...
 RAM:E0CE ??          related_to_big_alien_x: .ds 1                                   ; ...
@@ -12811,8 +12859,8 @@ RAM:E105 ??                                  .ds 1
 RAM:E106 ??                                  .ds 1
 RAM:E107 ??                                  .ds 1
 RAM:E108 ??                                  .ds 1
-RAM:E109 ?? ??       background_dy:          .ds 2                                   ; ...
-RAM:E10B ?? ??       word_E10B:              .ds 2                                   ; ...
+RAM:E109 ?? ??       airborne_dy:            .ds 2                                   ; ...
+RAM:E10B ?? ??       ground_dy:              .ds 2                                   ; ...
 RAM:E10D ??                                  .ds 1
 RAM:E10E ??                                  .ds 1
 RAM:E10F ??                                  .ds 1
@@ -12838,14 +12886,18 @@ RAM:E150             ; $04 - hit count
 RAM:E150 ?? ?? ?? ??+bomb_obj:               .ds 0x10                                ; ...
 RAM:E160
 RAM:E160             ; large alien object table (3 entries)
-RAM:E160             ; $00 - state ($00=inactive, $6f=hit, $ff=active)
-RAM:E160             ; $01 - ???
-RAM:E160             ; $02 - hit count
-RAM:E160             ; $03 - y lsb
-RAM:E160             ; $04 - x lsb
-RAM:E160             ; $05 - type (0=viking, 1=fly, 2=bat, 3=vulgus, 4=vulgus_hit)
+RAM:E160             ; $00    - state ($00=inactive, $6f=hit, $ff=active)
+RAM:E160             ; $01    - ???
+RAM:E160             ; $02    - hit count
+RAM:E160             ; $03    - y lsb
+RAM:E160             ; $04    - x lsb
+RAM:E160             ; $05    - type (0=viking, 1=fly, 2=bat, 3=vulgus, 4=vulgus_hit)
 RAM:E160             ; $06/07 - dy
 RAM:E160             ; $08/09 - dx
+RAM:E160             ; $0A    -
+RAM:E160             ; $0B    -
+RAM:E160             ; $0C    -
+RAM:E160             ; $0D    -
 RAM:E160 ?? ?? ?? ??+large_alien_obj_tbl:    .ds 0x30                                ; ...
 RAM:E190
 RAM:E190             ; pickup object table (1 entry)
@@ -12855,10 +12907,10 @@ RAM:E190             ; $08 -
 RAM:E190             ; $09 - ???
 RAM:E190 ?? ?? ?? ??+pickup_obj:             .ds 0x10                                ; ...
 RAM:E1A0
-RAM:E1A0             ; $07/08 - offset into meta data
+RAM:E1A0             ; $07/08 - offset into area meta data
 RAM:E1A0             ; $0A/0B - ptr background RAM for next render line
-RAM:E1A0             ; $0C/0D - ptr map tile code data (base)
-RAM:E1A0             ; $0E/0F - ptr map palette data
+RAM:E1A0             ; $0C/0D - ptr tile code data (base)
+RAM:E1A0             ; $0E/0F - ptr planet map palette data
 RAM:E1A0             ; $10    - colour adjustment
 RAM:E1A0             ; $11/12 - ptr map meta-tile data
 RAM:E1A0             ; $13    - (planet % 3) x2
@@ -12968,7 +13020,8 @@ RAM:E200             ; $03    - y lsb
 RAM:E200             ; $04    - x lsb
 RAM:E200             ; $05    - type (0=tumble_ship, 1=plane, 2=ray, 3=butterfly,
 RAM:E200             ;                4=moth, 5=bug, 6=turtle, 7=pincer_bug,
-RAM:E200             ;                8=star, 9,15=spinning_disc, 10-13=rock)
+RAM:E200             ;                8=star, 9=spinning_disc, 10-13=rock,
+RAM:E200                              15=jap_symbol->spinning_disc)
 RAM:E200             ; $06/07 - dy
 RAM:E200             ; $08/09 - dx
 RAM:E200             ; $0A    - dy_dx lookup table index
