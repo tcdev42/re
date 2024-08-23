@@ -1,9 +1,9 @@
 ROM:0000             ;
 ROM:0000             ; +--------------------------------------------------+
-ROM:0000             ; | Laser 2001 Expansion Module Disassembly v0.99    |
+ROM:0000             ; | Laser 2001 Expansion Module Disassembly v1.00rc1 |
 ROM:0000             ; |    - by tcdev (msmcdoug@gmail.com)               |
 ROM:0000             ; +--------------------------------------------------+
-ROM:0000             ;
+ROM:0000
 ROM:0000             ; Processor       : z80 []
 ROM:0000             ; Target assembler: ASxxxx by Alan R. Baldwin v1.5
 ROM:0000                    .area   idaseg (ABS)
@@ -111,10 +111,10 @@ ROM:00B2 3E 31                               ld      a, #0x31 ; '1'
 ROM:00B4 32 0A 74                            ld      (msg_buf+0xA), a                ; patch 2nd number
 ROM:00B7 21 E5 19                            ld      hl, #0x19E5                     ; VDP RAM offset
 ROM:00BA 11 00 74                            ld      de, #msg_buf                    ; message
-ROM:00BD             IX = message
-ROM:00BD             DE = message
-ROM:00BD             IY = length
-ROM:00BD             HL = VDP RAM offset
+ROM:00BD             ; IX = message
+ROM:00BD             ; DE = message
+ROM:00BD             ; IY = length
+ROM:00BD             ; HL = VDP RAM offset
 ROM:00BD
 ROM:00BD             ; =============== S U B R O U T I N E =======================================
 ROM:00BD
@@ -1000,7 +1000,7 @@ ROM:0509 23                                  inc     hl
 ROM:050A 18 21                               jr      RETURN_HERE
 ROM:050C             ; ---------------------------------------------------------------------------
 ROM:050C
-ROM:050C             RFLCT_VERT_:                                                    ; DATA XREF: ROM:RFLCT_VERo
+ROM:050C             RFLCT_VERT_:                                                    ; DATA XREF: ROM:RFLCT_VERTo
 ROM:050C 2A 06 80                            ld      hl, (WORK_BUFFER)
 ROM:050F 01 08 00                            ld      bc, #8
 ROM:0512 E5                                  push    hl
@@ -1064,7 +1064,7 @@ ROM:0557 DD 21 DE 04                         ld      ix, #RFLCT_HOR_
 ROM:055B 18 DE                               jr      CONTINUE_GRAPHICS
 ROM:055D             ; ---------------------------------------------------------------------------
 ROM:055D
-ROM:055D             RFLCT_VER:                                                      ; DATA XREF: ROM:REFLECT_VERTICALo
+ROM:055D             RFLCT_VERT:                                                     ; DATA XREF: ROM:REFLECT_VERTICALo
 ROM:055D DD 21 0C 05                         ld      ix, #RFLCT_VERT_
 ROM:0561 18 D8                               jr      CONTINUE_GRAPHICS
 ROM:0563             ; ---------------------------------------------------------------------------
@@ -1445,7 +1445,7 @@ ROM:0705 35                                  dec     (hl)
 ROM:0706 18 F1                               jr      UPDATE_SPINX
 ROM:0708             ; ---------------------------------------------------------------------------
 ROM:0708
-ROM:0708             UPATE_SPINNER_:                                                 ; DATA XREF: ROM:UPDATE_SPINNERo
+ROM:0708             UPDATE_SPINNER_:                                                ; DATA XREF: ROM:UPDATE_SPINNERo
 ROM:0708 DB FC                               in      a, (0xFC)                       ; CTRL_0_PORT
 ROM:070A 21 EB 73                            ld      hl, #SPIN_SW0_CT
 ROM:070D CB 67                               bit     4, a
@@ -5160,7 +5160,7 @@ ROM:1D8E D6 01       INIT_SPR_ORDERP:        .dw INIT_SPR_ORDERQ
 ROM:1D90 07 02       PUT_VRAMP:              .dw PUT_VRAMQ
 ROM:1D92 99 02       GET_VRAMP:              .dw GET_VRAMQ
 ROM:1D94 EF 02       INIT_TABLEP:            .dw INIT_TABLEQ
-ROM:1D96 08 07       UPDATE_SPINNER:         .dw UPATE_SPINNER_
+ROM:1D96 08 07       UPDATE_SPINNER:         .dw UPDATE_SPINNER_
 ROM:1D98 FD 00       MODE_1:                 .dw MODE_1_
 ROM:1D9A 2E 01       FILL_VRAM:              .dw FILL_VRAM_
 ROM:1D9C 41 1B       LOAD_ASCII:             .dw LOAD_ASCII_
@@ -5170,7 +5170,7 @@ ROM:1DA2 18 07       CONTROLLER_SCAN:        .dw CONT_SCAN
 ROM:1DA4 37 05       ENLARGE:                .dw ENLRG
 ROM:1DA6 63 05       ROTATE_90:              .dw ROT_90
 ROM:1DA8 57 05       REFLECT_HORIZONTAL:     .dw RFLCT_HOR
-ROM:1DAA 5D 05       REFLECT_VERTICAL:       .dw RFLCT_VER
+ROM:1DAA 5D 05       REFLECT_VERTICAL:       .dw RFLCT_VERT
 ROM:1DAC 2F 15       PUTOBJP:                .dw PUTOBJQ
 ROM:1DAE 37 17       ACTIVATEP:              .dw ACTIVATEQ
 ROM:1DB0 B2 18       PLAYSONGS:              .dw PLAY_SONGS_
@@ -5217,24 +5217,65 @@ ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0
 ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
 ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF
-ROM:1DB2 FF FF FF FF+; end of 'ROM'
-ROM:1DB2 FF FF FF FF+
+ROM:1DB2 FF FF FF FF+                        .db 0xFF
+ROM:1F61             ;
+ROM:1F61             ; this is where the jump table in the orignal BIOS is based
+ROM:1F61             ;
+ROM:1F61 FF FF FF FF+JUMP_TABLE:             .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF FF+                        .db 0xFF, 0xFF, 0xFF
+ROM:1F61 FF FF FF                            .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61                                     .db 0xFF, 0xFF, 0xFF
+ROM:1F61             ; end of 'ROM'
+ROM:1F61
 RAM:7000             ; ===========================================================================
 RAM:7000
 RAM:7000             ; Segment type: Regular
