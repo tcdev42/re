@@ -27,6 +27,9 @@ Currently, the repository comprises:
 ### Apple II
 - Lode Runner
 
+### Laser 2001
+- Expansion Module BIOS
+
 ### MSX
 - Lode Runner (WIP)
 
