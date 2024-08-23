@@ -28,7 +28,7 @@ Currently, the repository comprises:
 - Lode Runner
 
 ### Laser 2001
-- Expansion Module BIOS
+- Expansion Module BIOS (w/enhanced ASM)
 
 ### MSX
 - Lode Runner (WIP)
