@@ -13,6 +13,7 @@ Currently, the repository comprises:
 
 - Asteroids
 - Donkey Kong (WIP)
+- Frogger (WIP)
 - Space Invaders (aka. invaders)
 - Tutankham (WIP)
 - Vulgus (WIP)
